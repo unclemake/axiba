@@ -1,0 +1,20 @@
+[
+  {
+    "name": "state",
+    "val": 0,
+    "___id": "T000002R000002",
+    "___s": true
+  },
+  {
+    "name": "startPointId",
+    "val": "17c565518e397c2e4712ac747f2004eda850c891",
+    "___id": "T000002R000003",
+    "___s": true
+  },
+  {
+    "name": "commitMsg",
+    "val": "我是注释",
+    "___id": "T000002R000004",
+    "___s": true
+  }
+]
