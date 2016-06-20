@@ -1,4 +1,4 @@
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../typings/tsd.d.ts" />
 
 "use strict"
 import * as gulp from 'gulp';
@@ -137,7 +137,7 @@ gulp.on('task_start', function (e) {
     util.log('开始:' + chalk.green(e.task));
 });
 
-gulp.on('task_stop', function (e) {
+gulp.on('task_stop', function (e: any) {
     var time = prettyTime(e.hrDuration);
 
     util.log('结束:' + chalk.green(e.task) + ' ' + time);

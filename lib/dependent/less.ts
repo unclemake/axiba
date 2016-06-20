@@ -12,7 +12,7 @@ import * as path  from 'path';
 
 class LessDependent {
 
-    reg = /(@import.*\(['"])([^'"]+)(['"]\))/g
+    reg = /(@import[^'"]*['"])([^"']*)(['"])/g;
 
     /**
     * 依赖获取

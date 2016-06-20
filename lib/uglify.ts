@@ -69,8 +69,7 @@ class Uglify {
 
             let beDep = dependent.getBeDep(event.path);
             beDep.push(event.path);
-            dependent.run(event.path);
-
+            //dependent.run(event.path).then(() => {
             return gulp.src(beDep, { base: './' })
                 .pipe((() => {
                     return through.obj(function (file, enc, cb) {
@@ -86,7 +85,7 @@ class Uglify {
                 .pipe(t.ignore())
                 .pipe(gulpLess())
                 .pipe(gulp.dest('./'));
-
+            //});
         });
     };
 
@@ -154,7 +153,7 @@ class Uglify {
                 var content: string = file.contents.toString();
 
                 //如果是nodejs模块
-                if (file.path.indexOf('node_modules') != -1) {
+                if (file.path.indexOf('node_modules') != -1 && file.path.indexOf('seajs') == -1) {
                     content = 'define(function(require, exports, module) {\n' + content + '\n})';
                 }
 
@@ -230,7 +229,7 @@ class Uglify {
             //其他文件
             await finish(all.pipe(t.changeFileName())
                 .pipe(gulp.dest(config.distGlob)));
-            
+
             return;
 
         }

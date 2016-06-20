@@ -1,3 +1,5 @@
+/// <reference path="../typings/tsd.d.ts" />
+
 "use strict"
 /**
 *基础方法
