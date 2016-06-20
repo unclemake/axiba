@@ -6,19 +6,25 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "gulp/gulp.d.ts": {
-      "commit": "e0abafb1a6ff652f7ff967120e312d5c1916eaef"
+      "commit": "e325b363f5ee9c72ebde49f1e783ae725f64b7e2"
     },
     "orchestrator/orchestrator.d.ts": {
-      "commit": "e0abafb1a6ff652f7ff967120e312d5c1916eaef"
+      "commit": "e325b363f5ee9c72ebde49f1e783ae725f64b7e2"
     },
     "node/node.d.ts": {
-      "commit": "edb64e4a35896510ce02b93c0bca5ec3878db738"
+      "commit": "e325b363f5ee9c72ebde49f1e783ae725f64b7e2"
     },
     "q/Q.d.ts": {
-      "commit": "e0abafb1a6ff652f7ff967120e312d5c1916eaef"
+      "commit": "e325b363f5ee9c72ebde49f1e783ae725f64b7e2"
     },
     "npm/npm.d.ts": {
       "commit": "edb64e4a35896510ce02b93c0bca5ec3878db738"
+    },
+    "vinyl/vinyl.d.ts": {
+      "commit": "e325b363f5ee9c72ebde49f1e783ae725f64b7e2"
+    },
+    "through2/through2.d.ts": {
+      "commit": "e325b363f5ee9c72ebde49f1e783ae725f64b7e2"
     }
   }
 }

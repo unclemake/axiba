@@ -61,12 +61,7 @@ class CssDependent {
             let thisMap = dependent.getMap(vinyl.path);
 
             contents = contents.replace(this.reg, (word, $1, $2, $3, $4, $5) => {
-
-
                 let map = dependent.getMap(thisMap.depObj[$4]);
-                console.log(dependent.getMd5Path($4, map.md5));
-
-
                 return $1 + dependent.getMd5Path($4, map.md5) + $5;
             });
 

@@ -1,5 +1,4 @@
-/// <reference path="../../../typings/tsd.d.ts" />
-/// <type="system" />
+/// <reference path="../typings/tsd.d.ts" />
 "use strict"
 
 
@@ -30,7 +29,7 @@ var minifyCss = require('gulp-minify-css');
 /**
  * 图片压缩
  */
-var imagemin = require('../gulp/imagemin');
+var imagemin = require('gulp-imagemin');
 /**
  * 合并
  */
@@ -176,7 +175,7 @@ class Uglify {
     /**
     * 扫描文件构建文件  （缺陷一次性读取全部文件 需要改进）
     */
-    async  uglify(glob: string | string[] = config.baseGlob + '/**/*.?(js|css)'): Promise<any> {
+    async  uglify(glob: string | string[] = config.baseGlob + '/**/*.*'): Promise<any> {
         var t = this;
         try {
             await dependent.run(glob);
@@ -186,7 +185,7 @@ class Uglify {
 
             //每次过滤文件
             let ignoreArr = [];
-            let finish = umGulp.onFinish.call(umGulp);
+            let finish = umGulp.onFinish.bind(umGulp);
 
             //js处理函数
             await finish(all.pipe(t.ignoreFile(/js/i, ignoreArr))
@@ -196,7 +195,10 @@ class Uglify {
                 //.pipe(gulpUglify())
                 .pipe(gulp.dest(config.distGlob)));
 
+
             //css 处理函数
+            all = umGulp.getStream(ignoreArr);
+            ignoreArr = [];
             await finish(all.pipe(t.ignoreFile(/css/i, ignoreArr))
                 .pipe(t.gulpUtf8())
                 .pipe(t.changeName())
@@ -205,6 +207,8 @@ class Uglify {
                 .pipe(gulp.dest(config.distGlob)));
 
             //html 处理函数
+            all = umGulp.getStream(ignoreArr);
+            ignoreArr = [];
             await finish(all.pipe(t.ignoreFile(/html/i, ignoreArr))
                 .pipe(t.gulpUtf8())
                 .pipe(t.changeName())
@@ -212,6 +216,8 @@ class Uglify {
                 .pipe(gulp.dest(config.distGlob)));
 
             //图片 处理函数
+            all = umGulp.getStream(ignoreArr);
+            ignoreArr = [];
             await finish(all.pipe(t.ignoreFile(/(jpg|png|gif|jpeg)/i, ignoreArr))
                 .pipe(imagemin({
                     callback: function (length, minsize) {
@@ -220,11 +226,11 @@ class Uglify {
                 }))
                 .pipe(gulp.dest(config.distGlob)));
 
+            all = umGulp.getStream(ignoreArr);
             //其他文件
-            await finish(all.pipe(t.ignoreFile(/.*/i, ignoreArr))
-                .pipe(t.changeFileName())
+            await finish(all.pipe(t.changeFileName())
                 .pipe(gulp.dest(config.distGlob)));
-
+            
             return;
 
         }
@@ -306,7 +312,7 @@ class Uglify {
      * @param name 后缀
      * @param ignoreArr 过滤掉的文件
      */
-    ignoreFile(name: RegExp, ignoreArr: Vinyl[] = []): NodeJS.ReadWriteStream {
+    ignoreFile(name: RegExp, ignoreArr: Vinyl[]): NodeJS.ReadWriteStream {
         return through.obj(function (file, enc, cb) {
             var extname = path.extname(file.path).replace('.', '').toLowerCase();
             extname = config.mapType[extname] || extname;
