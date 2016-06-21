@@ -12,7 +12,7 @@
       "commit": "e325b363f5ee9c72ebde49f1e783ae725f64b7e2"
     },
     "node/node.d.ts": {
-      "commit": "e325b363f5ee9c72ebde49f1e783ae725f64b7e2"
+      "commit": "830e4aaac859e4f648efaa16712f1d6e378e6902"
     },
     "q/Q.d.ts": {
       "commit": "e325b363f5ee9c72ebde49f1e783ae725f64b7e2"
@@ -46,6 +46,15 @@
     },
     "md5/md5.d.ts": {
       "commit": "e325b363f5ee9c72ebde49f1e783ae725f64b7e2"
+    },
+    "minimatch/minimatch.d.ts": {
+      "commit": "830e4aaac859e4f648efaa16712f1d6e378e6902"
+    },
+    "glob/glob.d.ts": {
+      "commit": "830e4aaac859e4f648efaa16712f1d6e378e6902"
+    },
+    "del/del.d.ts": {
+      "commit": "830e4aaac859e4f648efaa16712f1d6e378e6902"
     }
   }
 }

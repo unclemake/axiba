@@ -13,6 +13,7 @@ import * as gulp from 'gulp';
 import * as path from 'path';
 import {Vinyl}  from 'vinyl';
 import * as through from'through2';
+import * as del from'del';
 
 /**
  * 修改文件名hash
@@ -53,7 +54,6 @@ class Uglify {
          * 监视  监视less 生成 concat 合并
          */
     watch(): NodeJS.EventEmitter {
-        var t = this;
 
         config.concat.forEach((value, i) => {
             gulp.watch(value.list, (event) => {
@@ -61,33 +61,48 @@ class Uglify {
             });
         });
 
-        gulp.watch(config.baseGlob + '/' + config.glob.ts, function (event) {
-            t.ts(event.path);
+        gulp.watch(config.baseGlob + '/' + config.glob.ts, (event) => {
+            this.ts(event.path);
         });
 
-        return gulp.watch(config.baseGlob + '/' + config.glob.less, function (event) {
-
-            let beDep = dependent.getBeDep(event.path);
-            beDep.push(event.path);
-            //dependent.run(event.path).then(() => {
-            return gulp.src(beDep, { base: './' })
-                .pipe((() => {
-                    return through.obj(function (file, enc, cb) {
-                        var extname = path.extname(file.path).toLocaleLowerCase();
-
-                        if (extname == '.less') {
-                            cb(null, file);
-                        } else {
-                            cb();
-                        }
-                    });
-                })())
-                .pipe(t.ignore())
-                .pipe(gulpLess())
-                .pipe(gulp.dest('./'));
-            //});
-        });
+        return this.watchLess();
     };
+
+
+    /**
+     * 监视less
+     */
+    watchLess() {
+        return gulp.watch(config.baseGlob + '/' + config.glob.less, async (event) => {
+            let beDep = dependent.getBeDep(event.path) || [];
+            let {type, path, old} = event;
+            switch (event.type) {
+                case 'renamed':
+                    dependent.delMap(old);
+                    beDep.push(event.path);
+                    break;
+                case 'changed':
+                    beDep.push(event.path);
+                    break;
+                case 'deleted':
+                    dependent.delMap(path);
+                    break;
+                case 'added':
+                    beDep.push(event.path);
+                    break;
+            }
+
+            dependent.run(event.path).then(() => {
+                console.log(beDep);
+                return gulp.src(beDep, { base: './' })
+                    .pipe(this.ignore())
+                    .pipe(gulpLess())
+                    .pipe(gulp.dest('./'));
+            });
+
+        });
+    }
+
 
 
 
@@ -184,54 +199,59 @@ class Uglify {
 
             //每次过滤文件
             let ignoreArr = [];
-            let finish = umGulp.onFinish.bind(umGulp);
-
             //js处理函数
-            await finish(all.pipe(t.ignoreFile(/js/i, ignoreArr))
+            let task = all.pipe(t.ignoreFile(/js/i, ignoreArr))
                 .pipe(t.gulpUtf8())
-                .pipe(t.changeName())
-                .pipe(t.changeFileName())
-                //.pipe(gulpUglify())
-                .pipe(gulp.dest(config.distGlob)));
-
+                .pipe(t.changeName());
+            await this.finish(task);
 
             //css 处理函数
             all = umGulp.getStream(ignoreArr);
             ignoreArr = [];
-            await finish(all.pipe(t.ignoreFile(/css/i, ignoreArr))
+            await this.finish(all.pipe(t.ignoreFile(/css/i, ignoreArr))
                 .pipe(t.gulpUtf8())
                 .pipe(t.changeName())
-                .pipe(t.changeFileName())
-                .pipe(minifyCss())
-                .pipe(gulp.dest(config.distGlob)));
+                .pipe(minifyCss()));
 
             //html 处理函数
             all = umGulp.getStream(ignoreArr);
             ignoreArr = [];
-            await finish(all.pipe(t.ignoreFile(/html/i, ignoreArr))
+            await this.finish(all.pipe(t.ignoreFile(/html/i, ignoreArr))
                 .pipe(t.gulpUtf8())
-                .pipe(t.changeName())
-                .pipe(t.changeFileName())
-                .pipe(gulp.dest(config.distGlob)));
+                .pipe(t.changeName()));
 
             //图片 处理函数
             all = umGulp.getStream(ignoreArr);
             ignoreArr = [];
-            await finish(all.pipe(t.ignoreFile(/(jpg|png|gif|jpeg)/i, ignoreArr))
+            await this.finish(all.pipe(t.ignoreFile(/(jpg|png|gif|jpeg)/i, ignoreArr))
                 .pipe(imagemin({
                     callback: function (length, minsize) {
                         util.success(length + ' 个图片压缩了 ' + minsize + ' 大小');
                     }
-                }))
-                .pipe(gulp.dest(config.distGlob)));
+                })));
 
             all = umGulp.getStream(ignoreArr);
             //其他文件
-            await finish(all.pipe(t.changeFileName())
-                .pipe(gulp.dest(config.distGlob)));
+            await this.finish(all);
 
-            return;
+            return '完成';
 
+        }
+        catch (e) {
+            throw e;
+        }
+    };
+
+    /**
+     * 扫描文件构建文件 通用
+     * @param task
+     */
+    private finish(task: NodeJS.ReadWriteStream) {
+        try {
+            let taskStream = task.pipe(this.changeFileName())
+                .pipe(this.delOldFile())
+                .pipe(gulp.dest(config.distGlob));
+            return umGulp.onFinish(taskStream)
         }
         catch (e) {
             throw e;
@@ -354,6 +374,26 @@ class Uglify {
     }
 
     /**
+  * 删除老
+  */
+    private delOldFile(): NodeJS.ReadWriteStream {
+        return through.obj(function (file, enc, cb) {
+            try {
+                let url = path.parse(util.clearPath(file.path).replace(/(-.{8})(\.[^-]+$)/g, "$2"));
+                var delUrl = url.dir + '/' + url.name + '-????????' + url.ext;
+                delUrl = delUrl.replace(new RegExp(config.baseGlob, 'g'), config.distGlob)
+
+                del([delUrl]).then(paths => {
+                    cb(null, file)
+                });
+            } catch (e) {
+                throw e;
+            }
+        });
+    }
+
+
+    /**
     * 修改名称 
     */
     private changeFileName(): NodeJS.ReadWriteStream {
@@ -363,18 +403,18 @@ class Uglify {
                 file.path = dependent.getMd5Path(file.path, thisMap.md5);
                 cb(null, file);
             } catch (e) {
-                util.log(e);
                 throw e;
             }
         });
     }
 
     /**
-   * 清除utf8文件 
-   */
+    * 清除utf8文件 
+    */
     gulpUtf8(options?: any): NodeJS.ReadWriteStream {
         return through.obj(function (file, enc, cb) {
             var self = this;
+
 
             options = options || {};
 

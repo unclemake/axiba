@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "chalk": "^1.1.3",
+    "del": "^2.2.1",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.0",
     "gulp-hash": "^3.1.0",

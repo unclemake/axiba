@@ -99,27 +99,31 @@ class umGulpPack {
     onFinish(stream: NodeJS.ReadWriteStream[]): Promise<boolean>
     onFinish(stream: NodeJS.ReadWriteStream): Promise<boolean>
     onFinish(stream): Promise<any> {
-        var t = this;
-        if (isArray(stream)) {
-            var pAll = [];
-            stream.forEach(function (va, i) {
-                pAll.push(t.onFinish(va));
-            })
+        try {
+            var t = this;
+            if (isArray(stream)) {
+                var pAll = [];
+                stream.forEach(function (va, i) {
+                    pAll.push(t.onFinish(va));
+                })
 
-            return Promise.all(pAll);
+                return Promise.all(pAll);
 
-        } else {
-            return new Promise(function (resolve) {
-                stream.on('finish', function () {
-                    resolve(true);
-                });
-            })
+            } else {
+                return new Promise((resolve) => {
+                    stream.on('finish', () => {
+                        resolve(true);
+                    });
+                })
+            }
+
+            function isArray(o) {
+                return Object.prototype.toString.call(o) === '[object Array]';
+            }
         }
-
-        function isArray(o) {
-            return Object.prototype.toString.call(o) === '[object Array]';
+        catch (e) {
+            throw e;
         }
-
     }
 
 

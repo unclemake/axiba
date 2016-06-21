@@ -31,7 +31,7 @@ var plog = (log) => {
 
 //uglify.uglify('assets/**/*.js');
 
-//uglify.uglify('assets/**/*.less');
+plog(uglify.uglify());
 
 //uglify.watch();
 

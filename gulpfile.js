@@ -3,7 +3,8 @@ var gulpTypescript = require('gulp-typescript');
 
 gulp.task('default', function () {
 
-    gulp.watch('./**/*.?(tsx|ts)', function (event) {
+    return gulp.watch('**/*.?(tsx|ts)', function (event) {
+        console.log(event.path);
         ts(event.path);
     });
 

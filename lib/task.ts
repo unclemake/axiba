@@ -1,4 +1,4 @@
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../typings/tsd.d.ts" />
 /// <type="system" />
 "use strict"
 
@@ -64,7 +64,7 @@ class Task {
             },
 
             { name: '生成文件依赖表', pid: '4', task: () => map.run() },
-            { name: '压缩优化构建', pid: '4', task: () => map.run() },
+            { name: '压缩优化构建', pid: '4', task: () => uglify.uglify() },
             { name: '合并', pid: '4', task: () => uglify.concatByArr() }
         ];
     }

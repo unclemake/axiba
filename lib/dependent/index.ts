@@ -251,44 +251,31 @@ export class Dependent {
                 });
             });
         } catch (e) {
-            console.log(e);
             throw (e)
         }
     }
 
+    /**
+  * 添加依赖到数据库
+  * @param  map 
+  */
+    delMap(path: string) {
+        try {
+            //数据
+            var mapSelect = this.getMap(path);
 
-    ///**
-    //* 添加依赖文件
-    //* @param  path 文件地址
-    //* @param  dep 文件名称
-    //*/
-    //addDep(path: string, dep: Set<string>, md5) {
-    //    var t = this;
+            if (mapSelect) {
+                mapSelect.dep && mapSelect.dep.forEach((va, i) => {
+                    this.delBeDep(va, [mapSelect.path]);
+                });
 
-    //    //数据
-    //    var map = this.db.select({ path: path })[0];
-    //    var depArr = Array.from(dep);
+                this.db.delete(mapSelect);
+            }
 
-    //    if (map) {
-    //        dep && dep.forEach(function (va, i) {
-    //            t.delBeDep(va, [path]);
-    //        });
-    //        this.db.update(map, { dep: depArr, md5: md5 });
-    //    } else {
-    //        this.db.insert({
-    //            path: path,
-    //            dep: depArr,
-    //            beDep: [],
-    //            md5: md5
-    //        });
-    //    }
-
-    //    depArr && depArr.forEach(function (va, i) {
-    //        t.addBeDep(va, new Set([path]));
-    //    });
-
-    //}
-
+        } catch (e) {
+            throw (e)
+        }
+    }
 
     /**
     * 计算 md5 路径
@@ -311,41 +298,12 @@ export class Dependent {
         var mapSelect = this.getMap(map.path);
         let beDep = map.beDep;
         if (mapSelect) {
-
-            if (mapSelect.path == "assets/components/global/1.0/styles/_quick.less")
-            {
-                console.log(beDep);
-            }
-
             beDep = mapSelect.beDep.concat(beDep);
             this.db.update(mapSelect, { beDep: beDep });
         } else {
             this.db.insert(map);
         }
     }
-
-    ///**
-    //* 添加被依赖文件
-    //* @param  path 文件地址
-    //* @param  dep 文件名称
-    //*/
-    //addBeDep(path: string, beDepSet: Set<string>): void {
-    //    var t = this;
-    //    var map = t.db.select({ path: path })[0];
-    //    let beDep = Array.from(beDepSet);
-
-    //    if (map) {
-    //        beDep = map.beDep.concat(beDep);
-    //        t.db.update(map, { beDep: beDep });
-    //    } else {
-    //        t.db.insert({
-    //            path: path,
-    //            dep: [],
-    //            beDep: beDep
-    //        });
-    //    }
-
-    //}
 
 
     /**
