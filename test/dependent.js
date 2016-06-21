@@ -1,7 +1,6 @@
 /// <reference path="../lib/dependent/js.ts" />
 "use strict";
 const index_1 = require('../lib/dependent/index');
-const config = require('../lib/config');
 var log = console.log;
 var plog = (log) => {
     try {
@@ -21,7 +20,10 @@ var plog = (log) => {
 // */
 index_1.default.db.clear();
 //plog(dep.run());
-plog(index_1.default.run(config.baseGlob + '/' + 'mobile.html'));
+(index_1.default.run([
+    'assets/components/global/1.0/index.less',
+    'assets/components/global/1.0/styles/_quick.less'
+]));
 //log(util.extend({
 //    aaa: 1
 //}, {

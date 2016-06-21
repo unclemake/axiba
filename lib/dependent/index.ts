@@ -216,7 +216,7 @@ export class Dependent {
         let beDep = data.beDep;
         beDep.forEach((value) => {
             if (beDepArr.indexOf(path) == -1) {
-                beDep = beDep.concat(this.getBeDep(value, beDep))
+                beDep = beDep.concat(this.getBeDep(value, beDep));
             }
         });
         beDep = util.clearSameByArr(beDep);
@@ -231,10 +231,14 @@ export class Dependent {
         try {
             //数据
             var mapSelect = this.getMap(map.path);
+
             if (mapSelect) {
                 mapSelect.dep && mapSelect.dep.forEach((va, i) => {
                     this.delBeDep(va, [map.path]);
                 });
+
+                //保存原有的被依赖
+                map.beDep = map.beDep.concat(mapSelect.beDep);
                 this.db.update(mapSelect, map);
             } else {
                 this.db.insert(map);
@@ -307,6 +311,12 @@ export class Dependent {
         var mapSelect = this.getMap(map.path);
         let beDep = map.beDep;
         if (mapSelect) {
+
+            if (mapSelect.path == "assets/components/global/1.0/styles/_quick.less")
+            {
+                console.log(beDep);
+            }
+
             beDep = mapSelect.beDep.concat(beDep);
             this.db.update(mapSelect, { beDep: beDep });
         } else {

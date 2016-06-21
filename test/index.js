@@ -24,5 +24,3 @@ require('./' + argv);
 //        })
 //    });
 //} ())).pipe(gulp.dest('img2'));
-
-

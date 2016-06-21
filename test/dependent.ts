@@ -30,7 +30,10 @@ var plog = (log) => {
 // */
 dep.db.clear();
 //plog(dep.run());
-plog(dep.run(config.baseGlob + '/' + 'mobile.html'));
+(dep.run([
+    'assets/components/global/1.0/index.less',
+    'assets/components/global/1.0/styles/_quick.less'
+]));
 
 
 //log(util.extend({
