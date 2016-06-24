@@ -136,7 +136,7 @@ class JsDependent {
      * @param contents
      */
     matchDep(contents: string): string[] {
-        return util.regexMatch(contents, this.reg, 2);
+        return util.regexMatch(contents, this.reg, 3);
     }
 
 

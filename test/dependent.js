@@ -1,6 +1,7 @@
 /// <reference path="../lib/dependent/js.ts" />
 "use strict";
 const index_1 = require('../lib/dependent/index');
+const js_1 = require('../lib/dependent/js');
 var log = console.log;
 var plog = (log) => {
     try {
@@ -18,12 +19,12 @@ var plog = (log) => {
 ///**
 // * 依赖
 // */
-index_1.default.db.clear();
+//dep.db.clear();
 //plog(dep.run());
-(index_1.default.run([
-    'assets/components/global/1.0/index.less',
-    'assets/components/global/1.0/styles/_quick.less'
-]));
+//(dep.run([
+//    'assets/components/global/1.0/index.less',
+//    'assets/components/global/1.0/styles/_quick.less'
+//]));
 //log(util.extend({
 //    aaa: 1
 //}, {
@@ -56,9 +57,9 @@ index_1.default.db.clear();
 //dep.getVinylByUrl('D:/github/axiba/assets/components/require.js').then(vinyl => {
 //    plog(jsDep.getDep(vinyl));
 //})
-//dep.getVinylByUrl('assets/components/test/actions.js').then(vinyl => {
-//    plog(jsDep.getRelativeVinyl(vinyl));
-//})
+index_1.default.getVinylByUrl('D:/github/axiba/node_modules/redux-actions/lib/index.js').then(vinyl => {
+    plog(js_1.default.getRelativeVinyl(vinyl));
+});
 //console.log(path.extname('node_modules/core-js/modules/$.strict-new.js'));
 //console.log(log);
 /**
@@ -380,7 +381,7 @@ var dependencies = {
 //});
 //plog(nodeDep.normalize('node_modules/react-router-redux/lib/index'));
 //根据依赖列表获取所有 依赖js文件url
-//nodeDep.getDepByName('react').then((value) => {
+//nodeDep.getDepByName('redux-actions').then((value) => {
 //    value.forEach((value) => {
 //        console.log(value.path);
 //    })

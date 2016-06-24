@@ -28,12 +28,12 @@ var plog = (log) => {
 ///**
 // * 依赖
 // */
-dep.db.clear();
+//dep.db.clear();
 //plog(dep.run());
-(dep.run([
-    'assets/components/global/1.0/index.less',
-    'assets/components/global/1.0/styles/_quick.less'
-]));
+//(dep.run([
+//    'assets/components/global/1.0/index.less',
+//    'assets/components/global/1.0/styles/_quick.less'
+//]));
 
 
 //log(util.extend({
@@ -84,9 +84,9 @@ dep.db.clear();
 //})
 
 
-//dep.getVinylByUrl('assets/components/test/actions.js').then(vinyl => {
-//    plog(jsDep.getRelativeVinyl(vinyl));
-//})
+dep.getVinylByUrl('D:/github/axiba/node_modules/redux-actions/lib/index.js').then(vinyl => {
+    plog(jsDep.getRelativeVinyl(vinyl));
+})
 
 
 
@@ -432,7 +432,7 @@ var dependencies = {
 
 
 //根据依赖列表获取所有 依赖js文件url
-//nodeDep.getDepByName('react').then((value) => {
+//nodeDep.getDepByName('redux-actions').then((value) => {
 //    value.forEach((value) => {
 //        console.log(value.path);
 //    })
