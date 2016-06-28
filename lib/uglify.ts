@@ -57,12 +57,16 @@ class Uglify {
 
         config.concat.forEach((value, i) => {
             gulp.watch(value.list, (event) => {
-                this.concat(value.name, value.dest, value.list);
+                if (event.type == 'changed') {
+                    this.concat(value.name, value.dest, value.list);
+                }
             });
         });
 
         gulp.watch(config.baseGlob + '/' + config.glob.ts, (event) => {
-            this.ts(event.path);
+            if (event.type == 'changed') {
+                this.ts(event.path);
+            }
         });
 
         return this.watchLess();
@@ -78,9 +82,9 @@ class Uglify {
             let {type, path, old} = event;
             switch (event.type) {
                 case 'renamed':
-                    dependent.delMap(old);
-                    beDep.push(event.path);
-                    break;
+                    //dependent.delMap(old);
+                    //beDep.push(event.path);
+                    return;
                 case 'changed':
                     beDep.push(event.path);
                     break;
@@ -88,8 +92,8 @@ class Uglify {
                     dependent.delMap(path);
                     break;
                 case 'added':
-                    beDep.push(event.path);
-                    break;
+                    //beDep.push(event.path);
+                    return;
             }
 
             dependent.run(event.path).then(() => {
