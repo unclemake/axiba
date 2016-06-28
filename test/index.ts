@@ -3,7 +3,6 @@
 "use strict"
 //测试
 
-console.log(1);
 var argv = process.argv.slice(2)[0] || 'task';
 require('./' + argv);
 //制作素材图片代码

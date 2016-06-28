@@ -166,4 +166,13 @@ class config {
 
 var newConfig: config = new config();
 
+
+
+try {
+    var cof = require(process.cwd() + '/axibaConfig.js');
+    newConfig = Object.assign(newConfig, cof);
+} catch (e) {
+    console.log('配置没写');
+}
+
 export = newConfig;
