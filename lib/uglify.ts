@@ -78,31 +78,34 @@ class Uglify {
      */
     watchLess() {
         return gulp.watch(config.baseGlob + '/' + config.glob.less, async (event) => {
-            let beDep = dependent.getBeDep(event.path) || [];
+            let list;
             let {type, path, old} = event;
             switch (event.type) {
                 case 'renamed':
-                    //dependent.delMap(old);
-                    //beDep.push(event.path);
-                    return;
+                    list = dependent.getBeDep(old) || [];
+                    dependent.delMap(old);
+                    dependent.run(path);
+                    break;
                 case 'changed':
-                    beDep.push(event.path);
+                    list = dependent.getBeDep(path) || [];
+                    list.push(path);
+                    dependent.run(path);
                     break;
                 case 'deleted':
+                    list = dependent.getBeDep(path) || [];
                     dependent.delMap(path);
-                    break;
+                    dependent.db.save();
+                    return;
                 case 'added':
-                    //beDep.push(event.path);
+                    dependent.run(path);
                     return;
             }
 
-            dependent.run(event.path).then(() => {
-                console.log(beDep);
-                return gulp.src(beDep, { base: './' })
-                    .pipe(this.ignore())
-                    .pipe(gulpLess())
-                    .pipe(gulp.dest('./'));
-            });
+            return gulp.src(list, { base: './' })
+                .pipe(this.ignore())
+                .pipe(gulpLess())
+                .pipe(gulp.dest('./'));
+
 
         });
     }
