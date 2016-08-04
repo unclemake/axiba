@@ -2,7 +2,9 @@
 
 ##标准
 ###语言
-typescript es6
+[typescript](https://www.gitbook.com/book/zhongsp/typescript-handbook/details)
+[ES6](http://es6.ruanyifeng.com/)
+
 ###编码规范
 [点击这里](https://github.com/fex-team/styleguide/blob/master/javascript.md)
 ###注释
