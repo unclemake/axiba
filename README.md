@@ -17,7 +17,7 @@ tsdoc 或 jsdoc 待定
 
 ##项目划分 $必须划分出去建项目重写
 
-* axiba-init 项目模版 $
+* [axiba-init 项目模版] $(https://github.com/unclemake/axiba-init)
 
 axiba-dependent  文件依赖分析 $
 
