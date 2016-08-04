@@ -14,8 +14,8 @@ tsdoc 或 jsdoc 待定
 
 
 ##项目划分 $必须划分出去建项目重写
-<div style="color:red">
-axiba-init 项目模版 $
+
+* axiba-init 项目模版 $
 
 axiba-dependent  文件依赖分析 $
 
@@ -28,7 +28,8 @@ axiba-git        git方法 $
 axiba-gulp       gulp 扩展 $
 
 axiba-npm        npm 依赖获取 $
-</div>
+
+
 user    项目成员
 
 release 发布
