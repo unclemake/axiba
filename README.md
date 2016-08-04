@@ -14,18 +14,29 @@ tsdoc 或 jsdoc 待定
 
 
 ##项目划分 $必须划分出去建项目重写
-*axiba-init 项目模版 $
-*axiba-dependent  文件依赖分析 $
-*axiba-popup      系统弹窗 $
-*axiba-util       全局方法 $
-*axiba-git        git方法 $
-*axiba-gulp       gulp 扩展 $
-*axiba-npm        npm 依赖获取 $
-*user    项目成员
-*release 发布
-*compile 文件编译
-*systemTest 环境检测 
-*other  其他
+axiba-init 项目模版 $
+
+axiba-dependent  文件依赖分析 $
+
+axiba-popup      系统弹窗 $
+
+axiba-util       全局方法 $
+
+axiba-git        git方法 $
+
+axiba-gulp       gulp 扩展 $
+
+axiba-npm        npm 依赖获取 $
+
+user    项目成员
+
+release 发布
+
+compile 文件编译
+
+systemTest 环境检测 
+
+other  其他
  
 
 ###gulp插件重构
