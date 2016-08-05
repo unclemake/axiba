@@ -8,7 +8,7 @@
 ###编码规范
 [点击这里](https://github.com/fex-team/styleguide/blob/master/javascript.md)
 ###注释
-tsdoc 或 jsdoc 待定
+[jsdoc](http://usejsdoc.org/)
 
 
 ##脑图
