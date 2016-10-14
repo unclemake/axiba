@@ -29,7 +29,7 @@ axiba-git        git方法 $
 
 axiba-gulp       gulp 扩展 $
 
-axiba-npm        npm 依赖获取 $
+axiba-npm-dependent  npm 依赖获取 $
 
 
 user    项目成员
