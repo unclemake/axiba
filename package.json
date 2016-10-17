@@ -1,49 +1,38 @@
 {
-  "name": "axiba",
-  "version": "0.2.2",
-  "description": "前端构建",
-  "main": "index.js",
-  "bin": {
-    "axiba": "index.js"
-  },
-  "directories": {
-    "test": "test"
+  "name": "axiba-init",
+  "version": "1.0.2",
+  "description": "",
+  "typings": "src/index.ts",
+  "main": "src/index.js",
+  "devDependencies": {
+    "axiba-unit-test": "^1.0.11",
+    "gulp": "^3.9.1",
+    "gulp-jsdoc3": "^0.3.0",
+    "gulp-sourcemaps": "^2.1.1",
+    "gulp-typescript": "^2.13.6"
   },
   "dependencies": {
-    "chalk": "^1.1.3",
-    "del": "^2.2.1",
+    "@types/gulp-util": "^3.0.29",
+    "@types/through2": "^2.0.31",
+    "axiba-dependencies": "^1.0.2",
+    "axiba-npm-dependencies": "0.0.1",
     "gulp": "^3.9.1",
-    "gulp-concat": "^2.6.0",
-    "gulp-hash": "^3.1.0",
-    "gulp-imagemin": "^3.0.1",
-    "gulp-less": "^3.1.0",
-    "gulp-minify-css": "^1.2.4",
-    "gulp-stripbom": "^1.0.4",
-    "gulp-typescript": "^2.13.6",
-    "gulp-zip": "^3.2.0",
-    "iconv-lite": "^0.4.13",
-    "inquirer": "^1.0.3",
-    "is-utf8": "^0.2.1",
-    "jschardet": "^1.4.1",
-    "md5": "^2.1.0",
-    "npm": "^3.9.6",
-    "pretty-hrtime": "^1.0.2",
+    "gulp-util": "^3.0.7",
+    "seajs": "^2.3.0",
     "through2": "^2.0.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "gulp",
+    "test": "node test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/unclemake/frame.git"
+    "url": "git+https://github.com/unclemake/axiba-init.git"
   },
   "author": "unclemake",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/unclemake/frame/issues"
+    "url": "https://github.com/unclemake/axiba-init/issues"
   },
-  "homepage": "https://github.com/unclemake/frame#readme",
-  "engines": {
-    "node": ">= 3.5.2"
-  }
+  "homepage": "https://github.com/unclemake/axiba-init#readme"
 }

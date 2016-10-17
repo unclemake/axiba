@@ -5,6 +5,7 @@
     "watch": false,
     "noImplicitAny": false,
     "removeComments": false,
-    "sourceMap": true
+    "sourceMap": true,
+    "jsx": "react"
   }
 }

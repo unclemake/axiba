@@ -1,14 +1,17 @@
-﻿# axiba 前端构建
+﻿# axiba-init 项目模版
 
-
+需要 nodejs 6.2.0+
 ## 安装
-npm install axiba -g
+npm install gulp -g
 
-## 运行
-axiba
+npm install
 
-##脑图
-[点击这里](http://naotu.baidu.com/file/2e1b4d50163abd4f1b55488afa4b1a66?token=5b84664b8eaaab05&qq-pf-to=pcqq.group)
+## 调试 监视ts编译
+gulp
 
-##干死黄旭东
-[有兴趣的一起做的 可以看1.0分支](https://github.com/unclemake/axiba/tree/1.0)
+## 生成jsdoc文档
+gulp jsdoc
+
+## test
+node test
+
