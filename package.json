@@ -12,6 +12,7 @@
     "gulp-typescript": "^2.13.6"
   },
   "dependencies": {
+    "@types/gulp": "^3.8.32",
     "@types/gulp-util": "^3.0.29",
     "@types/through2": "^2.0.31",
     "axiba-dependencies": "^1.0.2",
