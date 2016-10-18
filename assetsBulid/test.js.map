@@ -1,1 +1,1 @@
-{"version":3,"sources":["test.js","test.ts"],"names":["define","require","exports","module"],"mappings":"yHAAAA,OAAO,iBAAiB,SAASC,EAASC,EAASC,GCEnDF,EAAA","file":"test.js","sourceRoot":"assets"}
+{"version":3,"sources":["test.js","test.ts"],"names":["require","lo","parameters","_classCallCheck","this","name"],"mappings":"AAAA,yHCAAA,QAAO,gBAKPC,IACI,QAAAA,GAAYC,GAAUC,gBAAAC,KAAAH,GAGtBG,KAAAC,KAAO","file":"test.js","sourceRoot":"assets"}

@@ -41,7 +41,7 @@ class Axiba {
           */
         this.addDefine = (file, enc, cb) => {
             var content = file.contents.toString();
-            content = 'define("' + axiba_dependencies_1.default.clearPath(file.path) + '",function(require, exports, module) {\n' + content + '})';
+            content = 'define("' + axiba_dependencies_1.default.clearPath(file.path) + '",function(require, exports, module) {' + content + '})';
             file.contents = new Buffer(content);
             return cb(null, file);
         };
@@ -59,11 +59,9 @@ class Axiba {
                 return sourcemaps.init();
             },
                 () => gulpTypescript(tsconfig),
-            this.makeLoader(this.addDefine),
                 () => gulpBabel({ presets: ['es2015'] }),
-                () => gulpUglify({
-                mangle: { require: false }
-            }),
+                () => gulpUglify(),
+            this.makeLoader(this.addDefine),
                 () => {
                 return sourcemaps.write('./', {
                     includeContent: false, sourceRoot: this.config.assets
