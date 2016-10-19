@@ -1,9 +1,9 @@
 "use strict";
 const gulp = require('gulp');
+const gulp_1 = require('./gulp');
 const axiba_dependencies_1 = require('axiba-dependencies');
 const through = require('through2');
 const ph = require('path');
-const gulpUtil = require('gulp-util');
 const sourcemaps = require('gulp-sourcemaps');
 const gulpBabel = require('gulp-babel');
 const gulpUglify = require('gulp-uglify');
@@ -24,49 +24,20 @@ class Axiba {
             mainPath: 'index.js',
             mainModules: ['react']
         };
-        /**
-         * css文件转js文件
-         * @param  {} file
-         * @param  {} enc
-         * @param  {} cb
-         */
-        this.cssToJs = (file, enc, cb) => {
-            var content = file.contents.toString();
-            content = '__loaderCss("' + content + '")';
-            file.contents = new Buffer(content);
-            return cb(null, file);
-        };
-        /**
-          * 编译文件 添加
-          */
-        this.addDefine = (file, enc, cb) => {
-            var content = file.contents.toString();
-            content = 'define("' + axiba_dependencies_1.default.clearPath(file.path) + '",function(require, exports, module) {' + content + '})';
-            file.contents = new Buffer(content);
-            return cb(null, file);
-        };
         /** 流插件 列表 */
         this.loaderList = [];
         this.addGulpLoader('.less', [
                 () => gulpLess(),
                 () => gulpMinifyCss(),
-            this.changeExtnameLoader('.less.js'),
-            this.makeLoader(this.cssToJs),
-            this.makeLoader(this.addDefine)
+                () => gulp_1.default.changeExtnameLoader('.less.js'),
+                () => gulp_1.default.cssToJs(),
+                () => gulp_1.default.addDefine()
         ]);
         this.addGulpLoader('.ts', [
-                () => {
-                return sourcemaps.init();
-            },
-                () => gulpTypescript(tsconfig),
-                () => gulpBabel({ presets: ['es2015'] }),
-                () => gulpUglify(),
-            this.makeLoader(this.addDefine),
-                () => {
-                return sourcemaps.write('./', {
-                    includeContent: false, sourceRoot: this.config.assets
-                });
-            }
+            // () => {
+            //     return sourcemaps.init();
+            // },
+                () => gulp_1.default.bulidNodeModule(),
         ]);
     }
     /**
@@ -101,25 +72,6 @@ class Axiba {
             callback(null, file);
         }))
             .pipe(gulp.dest(this.config.assetsBulid));
-    }
-    /**
-     * 生成 流插件
-     * @param  {string} extname
-     * @param {stream.Transform} name loader
-     */
-    makeLoader(transform, flush) {
-        return () => through.obj(transform, flush);
-    }
-    /**
-    * 修改文件名流插件
-    * @param  {string} extname
-    * @param {stream.Transform} name loader
-    */
-    changeExtnameLoader(name) {
-        return this.makeLoader((file, enc, callback) => {
-            file.path = gulpUtil.replaceExtension(file.path, name);
-            callback(null, file);
-        });
     }
     addGulpLoader(extname, gulpLoader) {
         let loaderObj = this.loaderList.find(value => value.extname === extname);

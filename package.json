@@ -12,12 +12,14 @@
     "gulp-less": "^3.1.0",
     "gulp-sourcemaps": "^2.1.1",
     "gulp-typescript": "^2.13.6",
-    "gulp-uglify": "^2.0.0"
+    "gulp-uglify": "^2.0.0",
+    "react": "^15.3.2"
   },
   "dependencies": {
     "@types/gulp": "^3.8.32",
     "@types/gulp-util": "^3.0.29",
     "@types/through2": "^2.0.31",
+    "@types/vinyl-fs": "0.0.28",
     "axiba-dependencies": "^1.0.2",
     "axiba-npm-dependencies": "0.0.1",
     "gulp": "^3.9.1",

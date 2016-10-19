@@ -1,5 +1,5 @@
 import 'test.less';
-import 'react';
+import 'gulp';
 
 /**
  * lo
