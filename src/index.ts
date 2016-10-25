@@ -7,7 +7,6 @@ import * as ph from 'path';
 import * as gulpUtil from 'gulp-util';
 import * as stream from 'stream';
 import vinyl = require('vinyl');
-import vinylFs = require('vinyl-fs');
 
 const sourcemaps = require('gulp-sourcemaps');
 const gulpBabel = require('gulp-babel');
