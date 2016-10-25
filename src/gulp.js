@@ -7,32 +7,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const gulpUtil = require('gulp-util');
-const gulp = require('gulp');
-const through = require('through2');
 const axiba_dependencies_1 = require('axiba-dependencies');
 const axiba_npm_dependencies_1 = require('axiba-npm-dependencies');
+const axiba_gulp_1 = require('axiba-gulp');
 class Gulp {
-    /**
-     * 获取文件
-     * @param  {string} path
-     */
-    getFile(path) {
-        return new Promise((resolve, reject) => {
-            gulp.src(path, {
-                base: './'
-            }).pipe(this.makeLoader((file, enc, cb) => {
-                resolve(file);
-            }));
-        });
-    }
-    /**
-  * 生成 流插件
-  * @param  {string} extname
-  * @param {stream.Transform} name loader
-  */
-    makeLoader(transform, flush) {
-        return through.obj(transform, flush);
+    constructor() {
+        this.alias = {};
     }
     /**
     * 生成node模块
@@ -41,8 +21,7 @@ class Gulp {
     * @param  {} cb
     */
     bulidNodeModule() {
-        let self = this;
-        return this.makeLoader(function (file, enc, callback) {
+        return axiba_gulp_1.makeLoader(function (file, enc, callback) {
             return __awaiter(this, void 0, void 0, function* () {
                 yield axiba_dependencies_1.default.src(file.path);
                 let depArray = axiba_dependencies_1.default.getDependenciesArr(file.path);
@@ -50,11 +29,9 @@ class Gulp {
                 for (let key in depArray) {
                     let element = depArray[key];
                     let filePathArray = yield axiba_npm_dependencies_1.default.get(element);
-                    console.log(filePathArray.length);
                     for (let key in filePathArray) {
-                        console.log(key);
                         let element = filePathArray[key];
-                        this.push(yield self.getFile(element));
+                        this.push(yield axiba_gulp_1.getFile(element));
                     }
                 }
                 callback(null, file);
@@ -66,10 +43,18 @@ class Gulp {
       * @param  {string} extname
       * @param {stream.Transform} name loader
       */
-    changeExtnameLoader(name) {
-        return this.makeLoader((file, enc, callback) => {
-            file.path = gulpUtil.replaceExtension(file.path, name);
+    changeExtnameLoader(name, reg = /.+/g) {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            file.path = file.path.replace(reg, name);
             callback(null, file);
+        });
+    }
+    /**
+       * 空loader
+       */
+    nullLoader() {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            return callback(null, file);
         });
     }
     /**
@@ -79,7 +64,7 @@ class Gulp {
     * @param  {} cb
     */
     cssToJs() {
-        return this.makeLoader((file, enc, callback) => {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
             var content = file.contents.toString();
             content = '__loaderCss("' + content + '")';
             file.contents = new Buffer(content);
@@ -90,9 +75,16 @@ class Gulp {
       * 编译文件 添加
       */
     addDefine() {
-        return this.makeLoader((file, enc, callback) => {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
             var content = file.contents.toString();
-            content = 'define("' + axiba_dependencies_1.default.clearPath(file.path) + '",function(require, exports, module) {' + content + '})';
+            content = 'define("' + axiba_dependencies_1.default.clearPath(file.path).replace('assets/', '') + '",function(require, exports, module) {' + content + '})';
+            file.contents = new Buffer(content);
+            return callback(null, file);
+        });
+    }
+    changeLoaderName() {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            var content = file.contents.toString();
             file.contents = new Buffer(content);
             return callback(null, file);
         });

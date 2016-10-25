@@ -1,5 +1,7 @@
 ﻿import * as gulpUtil from 'gulp-util';
 import * as gulp from 'gulp';
+import * as ph from 'path';
+import * as fs from 'fs';
 import * as through from 'through2';
 import { default as dep, DependenciesModel } from 'axiba-dependencies';
 import { default as npmDep } from 'axiba-npm-dependencies';
@@ -7,6 +9,9 @@ import { TransformFunction, FlushFunction, makeLoader, getFile } from 'axiba-gul
 
 
 export class Gulp {
+
+
+    alias: { [key: string]: string } = {}
     /**
     * 生成node模块
     * @param  {} file
@@ -21,11 +26,7 @@ export class Gulp {
             for (let key in depArray) {
                 let element = depArray[key];
                 let filePathArray = await npmDep.get(element);
-
-                console.log(filePathArray.length);
-
                 for (let key in filePathArray) {
-                    console.log(key);
                     let element = filePathArray[key];
                     this.push(await getFile(element));
                 }
@@ -39,12 +40,23 @@ export class Gulp {
       * @param  {string} extname
       * @param {stream.Transform} name loader
       */
-    changeExtnameLoader(name: string) {
+    changeExtnameLoader(name: string, reg = /.+/g) {
         return makeLoader((file, enc, callback) => {
-            file.path = gulpUtil.replaceExtension(file.path, name);
+            file.path = file.path.replace(reg, name);
             callback(null, file);
         })
     }
+
+
+    /**
+       * 空loader
+       */
+    nullLoader() {
+        return makeLoader((file, enc, callback) => {
+            return callback(null, file);
+        })
+    }
+
 
     /**
     * css文件转js文件
@@ -67,11 +79,24 @@ export class Gulp {
     addDefine() {
         return makeLoader((file, enc, callback) => {
             var content: string = file.contents.toString();
-            content = 'define("' + dep.clearPath(file.path) + '",function(require, exports, module) {' + content + '})';
+            content = 'define("' + dep.clearPath(file.path).replace('assets/', '') + '",function(require, exports, module) {' + content + '})';
             file.contents = new Buffer(content);
             return callback(null, file);
         })
     }
+
+
+    changeLoaderName() {
+        return makeLoader((file, enc, callback) => {
+            var content: string = file.contents.toString();
+
+
+
+            file.contents = new Buffer(content);
+            return callback(null, file);
+        })
+    }
+
 
 }
 export default new Gulp();

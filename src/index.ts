@@ -6,15 +6,17 @@ import * as through from 'through2';
 import * as ph from 'path';
 import * as gulpUtil from 'gulp-util';
 import * as stream from 'stream';
+import { TransformFunction, FlushFunction, makeLoader, getFile } from 'axiba-gulp';
 import vinyl = require('vinyl');
-
 const sourcemaps = require('gulp-sourcemaps');
 const gulpBabel = require('gulp-babel');
 const gulpUglify = require('gulp-uglify');
+const gulpConcat = require('gulp-concat');
 const gulpMinifyCss = require('gulp-minify-css');
 const gulpLess = require('gulp-less');
 const gulpTypescript = require('gulp-typescript');
 const tsconfig = require('../tsconfig.json').compilerOptions;
+const json = require('../package.json');
 
 interface Config {
     // 项目静态文件开发目录
@@ -68,31 +70,88 @@ export class Axiba {
 
         this.addGulpLoader('.less', [
             () => gulpLess(),
+            () => gulpClass.changeExtnameLoader('.less.js', /\.css/g),
             () => gulpMinifyCss(),
-            () => gulpClass.changeExtnameLoader('.less.js'),
             () => gulpClass.cssToJs(),
             () => gulpClass.addDefine()
         ]);
 
         this.addGulpLoader('.ts', [
-            // () => {
-            //     return sourcemaps.init();
-            // },
-            () => gulpClass.bulidNodeModule(),
-            // () => gulpTypescript(tsconfig),
-            // () => gulpBabel({ presets: ['es2015'] }),
-            // () => gulpUglify(),
-            // () => gulpClass.addDefine(),
-            // () => {
-            //     return sourcemaps.write('./', {
-            //         includeContent: false, sourceRoot: this.config.assets
-            //     })
-            // }
+            () => gulpClass.changeLoaderName(),
+            () => sourcemaps.init({ loadMaps: true }),
+            () => gulpTypescript(tsconfig),
+            () => gulpBabel({ presets: ['es2015'] }),
+            () => gulpClass.addDefine(),
+            () => gulpUglify({ mangle: false }),
+            () => sourcemaps.write('./'),
         ]);
 
     }
 
 
+    async makeMainFile() {
+        return await new Promise((resolve) => {
+            gulp.src('node_modules/seajs/dist/sea.js')
+                .pipe(gulpClass.changeExtnameLoader(this.config.mainPath))
+                .pipe(this.makeMainFileConCat())
+                .pipe(gulp.dest(this.config.assets))
+                .on('finish', () => resolve());
+        });
+    }
+
+    private makeMainFileConCat() {
+        return makeLoader((file, enc, callback) => {
+            var content: string = file.contents.toString();
+
+            content += `seajs.config({ base: './', alias: ${JSON.stringify(this.dependenciesObj)} })`;
+
+            content += 'function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
+            
+            file.contents = new Buffer(content);
+            callback(null, file);
+        })
+    }
+
+    /**
+     * 打包node所有依赖模块
+     * @param  {string} name
+     * @param  {string} version?
+     */
+    async packNodeDependencies(dependencies: {
+        name: string,
+        version: string,
+    }[] = npmDep.dependenciesObjToArr(json.dependencies)) {
+        for (let key in dependencies) {
+            let ele = dependencies[key];
+
+            let obj = await npmDep.getDependenciesObj(ele.name, ele.version);
+            this.dependenciesObj[ele.name] = `node_modules/${ele.name}.js`;
+
+            await this.packNodeDependencies(obj.dependencies);
+            await this.packNodeModules(ele.name, ele.version);
+        }
+
+    }
+
+
+    dependenciesObj: { [key: string]: string } = {}
+    /**
+     * 打包node模块
+     * @param  {string} name
+     * @param  {string} version?
+     */
+    async packNodeModules(name: string, version?: string) {
+        let arr = await npmDep.get(name, version);
+
+        return await new Promise((resolve) => {
+            gulp.src(arr, {
+                base: this.config.assets
+            }).pipe(gulpClass.addDefine())
+                .pipe(gulpConcat(`node_modules/${name}.js`))
+                .pipe(gulp.dest(this.config.assetsBulid))
+                .on('finish', () => resolve());
+        });
+    }
 
     /**
      * 启动
@@ -123,10 +182,10 @@ export class Axiba {
         // 扫描依赖
         let gulpStream = gulp.src(path, {
             base: this.config.assets
-        }).pipe(dep.readWriteStream());
+        }).pipe(dep.readWriteStream(true));
+
         this.loader(gulpStream, ph.extname(path))
             .pipe(through.obj((file, enc, callback) => {
-                console.log(file.path);
                 callback(null, file);
             }))
             .pipe(gulp.dest(this.config.assetsBulid));

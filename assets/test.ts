@@ -1,12 +1,14 @@
-import 'test.less';
-import 'react';
+import * as react from 'react';
+import './test.less';
 
 /**
  * lo
  */
 class lo {
-    constructor(parameters) {
-
+    constructor(nu) {
+        console.log(1);
     }
-    name = 122
+    name = 1222
 }
+
+new lo(1);
