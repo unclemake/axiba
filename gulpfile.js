@@ -3,7 +3,7 @@ var gulpTypescript = require('gulp-typescript');
 var jsdoc = require("gulp-jsdoc3");
 const sourcemaps = require('gulp-sourcemaps');;
 
-gulp.task('default', function () {
+gulp.task('build', function () {
 
     return gulp.watch(['src/**/*.?(tsx|ts)', 'test/**/*.?(tsx|ts)'], function (event) {
         console.log(event.path);

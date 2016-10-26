@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
+const ph = require('path');
 const axiba_dependencies_1 = require('axiba-dependencies');
 const axiba_npm_dependencies_1 = require('axiba-npm-dependencies');
 const axiba_gulp_1 = require('axiba-gulp');
@@ -39,6 +40,21 @@ class Gulp {
         });
     }
     /**
+     * 添加js的alias
+     * @param  {string} alias
+     * @param  {string} path
+     */
+    addAlias(alias, path) {
+        return axiba_gulp_1.makeLoader(function (file, enc, callback) {
+            return __awaiter(this, void 0, void 0, function* () {
+                var content = file.contents.toString();
+                content += `\n define("${alias}", function (require, exports, module) {var exp = require('${path}');module.exports = exp;});`;
+                file.contents = new Buffer(content);
+                callback(null, file);
+            });
+        });
+    }
+    /**
       * 修改文件名流插件
       * @param  {string} extname
       * @param {stream.Transform} name loader
@@ -66,27 +82,34 @@ class Gulp {
     cssToJs() {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
             var content = file.contents.toString();
-            content = '__loaderCss("' + content + '")';
+            content = '__loaderCss(`' + content + '`)';
             file.contents = new Buffer(content);
             return callback(null, file);
         });
     }
     /**
-      * 编译文件 添加
-      */
+    * 编译文件 添加
+    */
     addDefine() {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
             var content = file.contents.toString();
-            content = 'define("' + axiba_dependencies_1.default.clearPath(file.path).replace('assets/', '') + '",function(require, exports, module) {' + content + '})';
+            content = 'define("' + axiba_dependencies_1.default.clearPath(file.path).replace('assets/', '') + '",function(require, exports, module) {' + content + '});';
             file.contents = new Buffer(content);
             return callback(null, file);
         });
     }
-    changeLoaderName() {
+    /**
+    * 过滤忽略文件 文件名开始为_
+    */
+    ignoreLess() {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
-            var content = file.contents.toString();
-            file.contents = new Buffer(content);
-            return callback(null, file);
+            var bl = /^_.+/g.test(ph.basename(file.path));
+            if (bl) {
+                callback();
+            }
+            else {
+                callback(null, file);
+            }
         });
     }
 }

@@ -15,7 +15,7 @@ export class Gulp {
     /**
     * 生成node模块
     * @param  {} file
-    * @param  {} enc
+    * @param  {} enc 
     * @param  {} cb
     */
     bulidNodeModule() {
@@ -34,6 +34,21 @@ export class Gulp {
             callback(null, file);
         })
     }
+
+    /**
+     * 添加js的alias
+     * @param  {string} alias
+     * @param  {string} path
+     */
+    addAlias(alias: string, path: string) {
+        return makeLoader(async function (file, enc, callback) {
+            var content: string = file.contents.toString();
+            content += `\n define("${alias}", function (require, exports, module) {var exp = require('${path}');module.exports = exp;});`;
+            file.contents = new Buffer(content);
+            callback(null, file);
+        })
+    }
+
 
     /**
       * 修改文件名流插件
@@ -67,34 +82,38 @@ export class Gulp {
     cssToJs() {
         return makeLoader((file, enc, callback) => {
             var content: string = file.contents.toString();
-            content = '__loaderCss("' + content + '")';
+            content = '__loaderCss(`' + content + '`)';
             file.contents = new Buffer(content);
             return callback(null, file);
         })
     }
 
+
     /**
-      * 编译文件 添加
-      */
+    * 编译文件 添加
+    */
     addDefine() {
         return makeLoader((file, enc, callback) => {
             var content: string = file.contents.toString();
-            content = 'define("' + dep.clearPath(file.path).replace('assets/', '') + '",function(require, exports, module) {' + content + '})';
+            content = 'define("' + dep.clearPath(file.path).replace('assets/', '') + '",function(require, exports, module) {' + content + '});';
             file.contents = new Buffer(content);
             return callback(null, file);
         })
     }
 
 
-    changeLoaderName() {
+    /**
+    * 过滤忽略文件 文件名开始为_ 
+    */
+    ignoreLess() {
         return makeLoader((file, enc, callback) => {
-            var content: string = file.contents.toString();
-
-
-
-            file.contents = new Buffer(content);
-            return callback(null, file);
-        })
+            var bl = /^_.+/g.test(ph.basename(file.path));
+            if (bl) {
+                callback();
+            } else {
+                callback(null, file);
+            }
+        });
     }
 
 
