@@ -18,7 +18,7 @@ const gulpMinifyCss = require('gulp-minify-css');
 const gulpLess = require('gulp-less');
 const gulpTypescript = require('gulp-typescript');
 const tsconfig = require('../tsconfig.json').compilerOptions;
-const json = require('../package.json');
+const json = require(process.cwd() + '/package.json');
 
 interface Config {
     // 项目静态文件开发目录
@@ -71,12 +71,14 @@ export class Axiba {
         ]);
 
         this.addGulpLoader(['.ts', '.tsx'], [
-            () => sourcemaps.init({ loadMaps: true }),
+            () => sourcemaps.init(),
             () => gulpTypescript(tsconfig),
             () => gulpBabel({ presets: ['es2015'] }),
             () => gulpClass.addDefine(),
             () => gulpUglify({ mangle: false }),
-            () => sourcemaps.write('./'),
+            () => sourcemaps.write('/', {
+                sourceRoot: config.assetsBulid
+            }),
         ]);
 
         this.addGulpLoader(['.js'], []);

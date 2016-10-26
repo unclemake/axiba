@@ -19,7 +19,7 @@ export function run() {
         console.log('Example app listening at http://%s:%s', host, port);
     });
 
-    app.use(express.static(config.assetsBulid));
+    app.use(express.static('./'));
 
 
     // app.get(/.*[^(dev)]\.js$/, function (req, res) {

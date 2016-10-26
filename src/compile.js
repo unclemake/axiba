@@ -23,7 +23,7 @@ const gulpMinifyCss = require('gulp-minify-css');
 const gulpLess = require('gulp-less');
 const gulpTypescript = require('gulp-typescript');
 const tsconfig = require('../tsconfig.json').compilerOptions;
-const json = require('../package.json');
+const json = require(process.cwd() + '/package.json');
 /**
  * 啊洗吧
  */
@@ -43,12 +43,14 @@ class Axiba {
                 () => gulp_1.default.addDefine()
         ]);
         this.addGulpLoader(['.ts', '.tsx'], [
-                () => sourcemaps.init({ loadMaps: true }),
+                () => sourcemaps.init(),
                 () => gulpTypescript(tsconfig),
                 () => gulpBabel({ presets: ['es2015'] }),
                 () => gulp_1.default.addDefine(),
                 () => gulpUglify({ mangle: false }),
-                () => sourcemaps.write('./'),
+                () => sourcemaps.write('/', {
+                sourceRoot: config_1.default.assetsBulid
+            }),
         ]);
         this.addGulpLoader(['.js'], []);
         this.addGulpLoader(['.html', '.tpl'], []);
