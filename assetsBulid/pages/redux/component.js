@@ -17,6 +17,7 @@ define("pages/redux/component.js", function (require, exports, module) {
     var React = require('react');
     var antd_1 = require('antd');
     var react_redux_1 = require('react-redux');
+    var action = require('./action');
     require('./index.css');
 
     var App = function (_React$Component) {
@@ -48,13 +49,17 @@ define("pages/redux/component.js", function (require, exports, module) {
         }, {
             key: "render",
             value: function render() {
-                var _props = this.props;
-                var state = _props.state;
-                var dispatch = _props.dispatch;
+                var _this2 = this;
 
-                return React.createElement("section", { className: "page-redux" }, React.createElement("h2", null, "redux"), React.createElement(antd_1.Input, { placeholder: "Basic usage", value: this.state.str, onChange: this.change.bind(this) }), React.createElement(antd_1.Button, { onClick: function onClick() {} }, "添加"), React.createElement("ul", null, state.list.map(function (value) {
+                var _props = this.props,
+                    state = _props.state,
+                    dispatch = _props.dispatch;
+
+                return React.createElement("section", { className: "page-redux" }, React.createElement("h2", null, "redux"), React.createElement(antd_1.Input, { placeholder: "Basic usage", value: this.state.str, onChange: this.change.bind(this) }), React.createElement(antd_1.Button, { onClick: function onClick() {
+                        return dispatch(action.addStr(_this2.state.str));
+                    } }, "添加"), React.createElement("ul", null, state.list.map(function (value) {
                     return React.createElement("li", null, value);
-                })), React.createElement("p", { className: "red" }));
+                })), React.createElement("h2", null, "样式"), React.createElement("p", { className: "css1" }, "样式"));
             }
         }]);
 

@@ -5,7 +5,6 @@
   "typings": "src/index.ts",
   "main": "src/index.js",
   "devDependencies": {
-    "@types/antd": "^0.12.31",
     "@types/react": "^0.14.43",
     "@types/react-dom": "^0.14.18",
     "@types/react-redux": "^4.4.32",

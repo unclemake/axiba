@@ -30,12 +30,15 @@ class App extends React.Component<AppProps, any> {
         return <section className="page-redux">
             <h2>redux</h2>
             <Input placeholder="Basic usage" value={this.state.str} onChange={this.change.bind(this)}></Input>
-            <Button onClick={() => { } }>添加</Button>
+            <Button onClick={() => dispatch(action.addStr(this.state.str))} >添加</Button>
             <ul>
                 {state.list.map(value => <li>{value}</li>)}
             </ul>
-            <p className="red"></p>
-        </section>
+            <h2>样式</h2>
+            <p className="css1">
+                样式
+            </p>
+        </section >
     }
 }
 
