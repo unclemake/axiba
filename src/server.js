@@ -1,7 +1,6 @@
 "use strict";
 const express = require('express');
 const config_1 = require('./config');
-const open = require("open");
 function run() {
     var app = express();
     app.get('/', function (req, res) {
@@ -16,7 +15,7 @@ function run() {
     // app.get(/.*[^(dev)]\.js$/, function (req, res) {
     //     res.redirect(req.url + '.dev.js');
     // });
-    open('http://localhost:666/', 'chrome');
+    // open('http://localhost:666/', 'chrome');
 }
 exports.run = run;
 

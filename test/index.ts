@@ -1,12 +1,20 @@
 ﻿
 import axiba from '../src/compile';
+import { run as server } from '../src/server';
 import { describe, describeClass, its, run, it, itAdd, itClass } from 'axiba-unit-test';
 import { default as npmDep } from 'axiba-npm-dependencies';
 import * as gulp from 'gulp';
 // import '../src/server'
 
-// axiba.watch();
-// axiba.bulid();
+
+(async () => {
+  await axiba.makeMainFile();
+  await axiba.bulid();
+  axiba.watch();
+  server();
+})();
+
+
 
 // (async () => {
     // await axiba.packNodeDependencies(npmDep.dependenciesObjToArr({
@@ -16,7 +24,7 @@ import * as gulp from 'gulp';
 //     await axiba.makeMainFile();
 // })();
 
-axiba.makeMainFile();
+// axiba.makeMainFile();
 
 
 // describeClass('axiba', axiba, () => {

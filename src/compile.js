@@ -37,20 +37,16 @@ class Axiba {
         this.addGulpLoader('.less', [
                 () => gulp_1.default.ignoreLess(),
                 () => gulpLess(),
-                () => gulp_1.default.changeExtnameLoader('.less.js', /\.css/g),
-                () => gulpMinifyCss(),
-                () => gulp_1.default.cssToJs(),
-                () => gulp_1.default.addDefine()
         ]);
         this.addGulpLoader(['.ts', '.tsx'], [
-                () => sourcemaps.init(),
                 () => gulpTypescript(tsconfig),
-                () => gulpBabel({ presets: ['es2015'] }),
                 () => gulp_1.default.addDefine(),
-                () => gulpUglify({ mangle: false }),
-                () => sourcemaps.write('/', {
-                sourceRoot: config_1.default.assetsBulid
-            }),
+                () => sourcemaps.init(),
+                () => gulpBabel({ presets: ['es2015'] }),
+            // () => gulpUglify({ mangle: false }),
+                () => sourcemaps.write('./', {
+                sourceRoot: '/' + config_1.default.assetsBulid
+            })
         ]);
         this.addGulpLoader(['.js'], []);
         this.addGulpLoader(['.html', '.tpl'], []);
@@ -80,12 +76,22 @@ class Axiba {
     */
     makeMainFile() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.packNodeDependencies();
+            yield this.packNodeDependencies(axiba_npm_dependencies_1.default.dependenciesObjToArr({
+                "react": "^15.3.2",
+                "react-dom": "^15.3.2",
+                "react-redux": "^4.4.5",
+                "react-router": "^3.0.0",
+                "redux": "^3.6.0",
+                "redux-actions": "^0.12.0",
+                "redux-thunk": "^2.1.0",
+                "antd": "^2.1.0"
+            }));
             return yield new Promise((resolve) => {
-                gulp.src('node_modules/seajs/dist/sea.js', {
+                gulp.src(['node_modules/seajs/dist/sea.js', 'node_modules/seajs-css/dist/seajs-css.js'], {
                     base: './'
                 })
-                    .pipe(gulp_1.default.changeExtnameLoader(config_1.default.mainPath))
+                    .pipe(gulp_1.default.nullLoader())
+                    .pipe(gulpConcat(config_1.default.mainPath))
                     .pipe(this.makeMainFileConCat())
                     .pipe(gulp.dest(config_1.default.assets))
                     .on('finish', () => {
@@ -100,7 +106,7 @@ class Axiba {
     makeMainFileConCat() {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
             var content = file.contents.toString();
-            content += `seajs.config({ base: './', alias: ${JSON.stringify(this.dependenciesObj)} });`;
+            content += `seajs.config({ base: './${config_1.default.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
             content += 'function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
             file.contents = new Buffer(content);
             callback(null, file);
@@ -129,13 +135,13 @@ class Axiba {
      */
     packNodeModules(name, version) {
         return __awaiter(this, void 0, void 0, function* () {
-            let dependenciesObj = yield axiba_npm_dependencies_1.default.getDependenciesObj(name, version);
+            let fileArray = yield axiba_npm_dependencies_1.default.get(name, version);
             return yield new Promise((resolve) => {
-                gulp.src(dependenciesObj.fileArray, {
+                gulp.src(fileArray, {
                     base: config_1.default.assets
                 }).pipe(gulp_1.default.addDefine())
                     .pipe(gulpConcat(`node_modules/${name}.js`))
-                    .pipe(gulp_1.default.addAlias(name, dependenciesObj.fileArray[0]))
+                    .pipe(gulp_1.default.addAlias(name, fileArray[0]))
                     .pipe(gulp.dest(config_1.default.assetsBulid))
                     .on('finish', () => {
                     resolve();
@@ -151,7 +157,7 @@ class Axiba {
             if (this.loaderList.find(value => value.extname === ph.extname(event.path))) {
                 switch (event.type) {
                     case 'added':
-                        this.changed(event.path);
+                        // this.changed(event.path);
                         break;
                     case 'changed':
                         this.changed(event.path);
@@ -161,6 +167,9 @@ class Axiba {
                         break;
                 }
             }
+        });
+        process.on('uncaughtException', function (err) {
+            console.log('出错咯' + err);
         });
     }
     deleted(path) {
@@ -183,7 +192,12 @@ class Axiba {
                 .pipe(through.obj((file, enc, callback) => {
                 callback(null, file);
             }))
-                .pipe(gulp.dest(config_1.default.assetsBulid));
+                .pipe(gulp.dest(config_1.default.assetsBulid))
+                .on('error', () => {
+                {
+                    console.log('出错了');
+                }
+            });
         });
     }
     /**

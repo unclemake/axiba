@@ -1,0 +1,1 @@
+{"version":3,"sources":["pages/redux/model.js"],"names":["define","require","exports","module"],"mappings":";;AAAAA,OAAO,sBAAP,EAA8B,UAASC,OAAT,EAAkBC,OAAlB,EAA2BC,MAA3B,EAAmC,CAGhE,CAHD","file":"model.js","sourcesContent":["define(\"pages/redux/model.js\",function(require, exports, module) {\n\"use strict\";\n\n});"],"sourceRoot":"/assetsBulid"}

@@ -26,6 +26,6 @@ export function run() {
     //     res.redirect(req.url + '.dev.js');
     // });
 
-    open('http://localhost:666/', 'chrome');
+    // open('http://localhost:666/', 'chrome');
 }
 

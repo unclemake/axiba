@@ -6,6 +6,7 @@ import * as through from 'through2';
 import { default as dep, DependenciesModel } from 'axiba-dependencies';
 import { default as npmDep } from 'axiba-npm-dependencies';
 import { TransformFunction, FlushFunction, makeLoader, getFile } from 'axiba-gulp';
+import config from './config';
 
 
 export class Gulp {
@@ -95,7 +96,7 @@ export class Gulp {
     addDefine() {
         return makeLoader((file, enc, callback) => {
             var content: string = file.contents.toString();
-            content = 'define("' + dep.clearPath(file.path).replace('assets/', '') + '",function(require, exports, module) {' + content + '});';
+            content = `define("${dep.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {\n${content}\n});`;
             file.contents = new Buffer(content);
             return callback(null, file);
         })
