@@ -86,8 +86,8 @@ export class Axiba {
         this.addGulpLoader(['.html', '.tpl'], []);
         this.addGulpLoader(['.png', '.jpg', '.jpeg'], []);
         this.addGulpLoader(['.eot', '.svg', '.ttf', '.woff'], []);
+        
     }
-
 
     /**
      * 生成全部文件
@@ -107,7 +107,6 @@ export class Axiba {
         }
     }
 
-
     /**
     * 生成框架文件
     */
@@ -120,6 +119,7 @@ export class Axiba {
             "redux": "^3.6.0",
             "redux-actions": "^0.12.0",
             "redux-thunk": "^2.1.0",
+            "superagent": "^2.3.0",
             "antd": "^2.1.0"
         }));
         return await new Promise((resolve) => {
@@ -135,6 +135,7 @@ export class Axiba {
                 })
         });
     }
+
     /**
      *  合并框架文件
      */
@@ -184,6 +185,13 @@ export class Axiba {
                 base: config.assets
             }).pipe(gulpClass.addDefine())
                 .pipe(gulpConcat(`node_modules/${name}.js`))
+                .pipe((() => {
+                    if (name === "superagent") {
+                        return gulpUglify();
+                    } else {
+                        return gulpClass.nullLoader();
+                    }
+                })())
                 .pipe(gulpClass.addAlias(name, fileArray[0]))
                 .pipe(gulp.dest(config.assetsBulid))
                 .on('finish', () => {

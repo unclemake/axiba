@@ -84,6 +84,7 @@ class Axiba {
                 "redux": "^3.6.0",
                 "redux-actions": "^0.12.0",
                 "redux-thunk": "^2.1.0",
+                "superagent": "^2.3.0",
                 "antd": "^2.1.0"
             }));
             return yield new Promise((resolve) => {
@@ -141,6 +142,14 @@ class Axiba {
                     base: config_1.default.assets
                 }).pipe(gulp_1.default.addDefine())
                     .pipe(gulpConcat(`node_modules/${name}.js`))
+                    .pipe((() => {
+                    if (name === "superagent") {
+                        return gulpUglify();
+                    }
+                    else {
+                        return gulp_1.default.nullLoader();
+                    }
+                })())
                     .pipe(gulp_1.default.addAlias(name, fileArray[0]))
                     .pipe(gulp.dest(config_1.default.assetsBulid))
                     .on('finish', () => {
