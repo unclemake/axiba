@@ -10,6 +10,7 @@ import * as gulp from 'gulp';
 (async () => {
   await axiba.makeMainFile();
   await axiba.bulid();
+  
   axiba.watch();
   server();
 })();

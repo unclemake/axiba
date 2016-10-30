@@ -1,11 +1,13 @@
-import * as gulp from 'gulp';
 import gulpClass from './gulp';
 import config from './config';
+import * as server from './server';
 
+import * as gulp from 'gulp';
 import { default as dep, DependenciesModel } from 'axiba-dependencies';
 import { default as npmDep } from 'axiba-npm-dependencies';
 import * as through from 'through2';
 import * as ph from 'path';
+import * as fs from 'fs';
 import * as gulpUtil from 'gulp-util';
 import * as stream from 'stream';
 import { TransformFunction, FlushFunction, makeLoader, getFile } from 'axiba-gulp';
@@ -19,6 +21,8 @@ const gulpLess = require('gulp-less');
 const gulpTypescript = require('gulp-typescript');
 const tsconfig = require('../tsconfig.json').compilerOptions;
 const json = require(process.cwd() + '/package.json');
+const watch = require('gulp-watch');
+
 
 interface Config {
     // 项目静态文件开发目录
@@ -86,18 +90,20 @@ export class Axiba {
         this.addGulpLoader(['.html', '.tpl'], []);
         this.addGulpLoader(['.png', '.jpg', '.jpeg'], []);
         this.addGulpLoader(['.eot', '.svg', '.ttf', '.woff'], []);
-        
+
     }
 
     /**
-     * 生成全部文件
+     * 生成全部文件 生成依赖列表
      */
     async bulid() {
+
+        await dep.src(`${config.assets}/**/*.*`);
         for (let key in this.loaderList) {
             let element = this.loaderList[key];
             let gulpStream = gulp.src(`${config.assets}/**/*${element.extname}`, {
                 base: config.assets
-            })
+            });
 
             await new Promise((resolve) => {
                 this.loader(gulpStream, element.extname)
@@ -112,6 +118,7 @@ export class Axiba {
     */
     async makeMainFile() {
         await this.packNodeDependencies(npmDep.dependenciesObjToArr({
+            "superagent": "^2.3.0",
             "react": "^15.3.2",
             "react-dom": "^15.3.2",
             "react-redux": "^4.4.5",
@@ -119,9 +126,9 @@ export class Axiba {
             "redux": "^3.6.0",
             "redux-actions": "^0.12.0",
             "redux-thunk": "^2.1.0",
-            "superagent": "^2.3.0",
             "antd": "^2.1.0"
         }));
+
         return await new Promise((resolve) => {
             gulp.src(['node_modules/seajs/dist/sea.js', 'node_modules/seajs-css/dist/seajs-css.js'], {
                 base: './'
@@ -147,6 +154,9 @@ export class Axiba {
 
             content += 'function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
 
+            content += fs.readFileSync('src/socket.io.js');
+            content += fs.readFileSync('src/socket.js');
+            
             file.contents = new Buffer(content);
             callback(null, file);
         })
@@ -161,11 +171,22 @@ export class Axiba {
         name: string,
         version: string,
     }[] = npmDep.dependenciesObjToArr(json.dependencies)) {
+
         for (let key in dependencies) {
             let ele = dependencies[key];
             if (ele.name[0] !== '@') {
-                this.dependenciesObj[ele.name] = `node_modules/${ele.name}.js`;
-                await this.packNodeModules(ele.name, ele.version);
+                if (npmDep.haveMin(ele.name)) {
+                    await this.packNodeModules(ele.name);
+                } else {
+                    let depObj = await npmDep.get(ele.name);
+                    let depArr = await npmDep.getBaseModules(depObj);
+
+                    for (let key in depArr) {
+                        let element = depArr[key];
+                        await this.packNodeModules(element);
+                    }
+                }
+
             }
         }
 
@@ -178,21 +199,19 @@ export class Axiba {
      * @param  {string} name
      * @param  {string} version?
      */
-    async packNodeModules(name: string, version?: string) {
-        let fileArray = await npmDep.get(name, version);
+    async packNodeModules(name: string) {
+        let stream = await npmDep.getFileStream(name);
+        this.dependenciesObj[name] = `node_modules/${name}/index.js`;
         return await new Promise((resolve) => {
-            gulp.src(fileArray, {
-                base: config.assets
-            }).pipe(gulpClass.addDefine())
-                .pipe(gulpConcat(`node_modules/${name}.js`))
-                .pipe((() => {
-                    if (name === "superagent") {
-                        return gulpUglify();
-                    } else {
-                        return gulpClass.nullLoader();
-                    }
-                })())
-                .pipe(gulpClass.addAlias(name, fileArray[0]))
+            stream.pipe((() => {
+                if (name === "superagent") {
+                    return gulpUglify();
+                } else {
+                    return gulpClass.nullLoader();
+                }
+            })())
+                .pipe(gulpClass.addDefine())
+                .pipe(gulpConcat(`node_modules/${name}/index.js`))
                 .pipe(gulp.dest(config.assetsBulid))
                 .on('finish', () => {
                     resolve();
@@ -204,19 +223,20 @@ export class Axiba {
      * 监视
      */
     watch() {
-        gulp.watch(config.assets + '/**/*.*', (event) => {
-            if (this.loaderList.find(value => value.extname === ph.extname(event.path))) {
-                switch (event.type) {
-                    case 'added':
+        watch(config.assets + '/**/*.*', (file) => {
+            if (this.loaderList.find(value => value.extname === ph.extname(file.path))) {
+                switch (file.event) {
+                    case 'add':
                         // this.changed(event.path);
                         break;
-                    case 'changed':
-                        this.changed(event.path);
+                    case 'change':
+                        this.changed(file.path);
                         break;
-                    case 'deleted':
-                        this.deleted(event.path);
+                    case 'delete':
+                        this.deleted(file.path);
                         break;
                 }
+                server.reload();
             }
         });
 
@@ -242,7 +262,7 @@ export class Axiba {
 
 
         // 扫描依赖
-        let gulpStream = gulp.src(path, {
+        let gulpStream = gulp.src(pathArr, {
             base: config.assets
         }).pipe(dep.readWriteStream(true));
 

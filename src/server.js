@@ -1,6 +1,9 @@
 "use strict";
 const express = require('express');
+const http = require('http');
+const socket = require('socket.io');
 const config_1 = require('./config');
+exports.reload = () => { };
 function run() {
     var app = express();
     app.get('/', function (req, res) {
@@ -16,6 +19,17 @@ function run() {
     //     res.redirect(req.url + '.dev.js');
     // });
     // open('http://localhost:666/', 'chrome');
+    var server = http.createServer();
+    var io = socket(server);
+    io.on('connection', function (client) {
+        exports.reload = () => {
+            client.emit('reload', {});
+        };
+        client.on('message', function (data) {
+            console.log(data);
+        });
+    });
+    server.listen(3000);
 }
 exports.run = run;
 
