@@ -126,7 +126,8 @@ export class Axiba {
             "redux": "^3.6.0",
             "redux-actions": "^0.12.0",
             "redux-thunk": "^2.1.0",
-            "antd": "^2.1.0"
+            "antd": "^2.1.0",
+            "css-animation":"sss"
         }));
 
         return await new Promise((resolve) => {
@@ -150,13 +151,13 @@ export class Axiba {
         return makeLoader((file, enc, callback) => {
             var content: string = file.contents.toString();
 
-            content += `seajs.config({ base: './${config.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
+            content += `\n\n seajs.config({ base: './${config.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
 
-            content += 'function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
+            content += '\n function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
 
             content += fs.readFileSync('src/socket.io.js');
             content += fs.readFileSync('src/socket.js');
-            
+
             file.contents = new Buffer(content);
             callback(null, file);
         })
@@ -179,7 +180,7 @@ export class Axiba {
                     await this.packNodeModules(ele.name);
                 } else {
                     let depObj = await npmDep.get(ele.name);
-                    let depArr = await npmDep.getBaseModules(depObj);
+                    let depArr = await npmDep.getModulesDep(depObj);
 
                     for (let key in depArr) {
                         let element = depArr[key];

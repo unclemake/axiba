@@ -89,7 +89,8 @@ class Axiba {
                 "redux": "^3.6.0",
                 "redux-actions": "^0.12.0",
                 "redux-thunk": "^2.1.0",
-                "antd": "^2.1.0"
+                "antd": "^2.1.0",
+                "css-animation": "sss"
             }));
             return yield new Promise((resolve) => {
                 gulp.src(['node_modules/seajs/dist/sea.js', 'node_modules/seajs-css/dist/seajs-css.js'], {
@@ -111,8 +112,8 @@ class Axiba {
     makeMainFileConCat() {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
             var content = file.contents.toString();
-            content += `seajs.config({ base: './${config_1.default.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
-            content += 'function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
+            content += `\n\n seajs.config({ base: './${config_1.default.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
+            content += '\n function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
             content += fs.readFileSync('src/socket.io.js');
             content += fs.readFileSync('src/socket.js');
             file.contents = new Buffer(content);
@@ -134,7 +135,7 @@ class Axiba {
                     }
                     else {
                         let depObj = yield axiba_npm_dependencies_1.default.get(ele.name);
-                        let depArr = yield axiba_npm_dependencies_1.default.getBaseModules(depObj);
+                        let depArr = yield axiba_npm_dependencies_1.default.getModulesDep(depObj);
                         for (let key in depArr) {
                             let element = depArr[key];
                             yield this.packNodeModules(element);

@@ -2,6 +2,9 @@ var gulp = require('gulp');
 var gulpTypescript = require('gulp-typescript');
 var jsdoc = require("gulp-jsdoc3");
 const sourcemaps = require('gulp-sourcemaps');;
+const through = require('through2');;
+const ph = require('path');;
+const fs = require('fs');;
 
 gulp.task('build', function () {
 
@@ -22,15 +25,75 @@ gulp.task('build', function () {
             })
             .pipe(sourcemaps.init())
             .pipe(gulpTypescript(tsconfig))
-            .pipe(sourcemaps.write('./', {includeContent: false, sourceRoot: './'}))
+            .pipe(sourcemaps.write('./', { includeContent: false, sourceRoot: './' }))
             .pipe(gulp.dest('./'));
     }
 });
 
 gulp.task('jsdoc', function (cb) {
     return gulp.src(['README.md', './src/**/*.js'], { read: false })
-      .pipe(jsdoc());
+        .pipe(jsdoc());
 })
+
+
+gulp.task('antd', function (cb) {
+    function antd() {
+        return through.obj((file, enc, callback) => {
+            var content = file.contents.toString();
+            content = content.replace(/import React from 'react';/g, `import * as React from 'react';`);
+            content = content.replace(/import classNames from 'classnames';/g, `import * as classNames from 'classnames';`);
+            file.contents = new Buffer(content);
+            callback(null, file);
+        })
+    }
+
+    return gulp.src(['./assets/components/antd/**/*.tsx'], {
+        base: './'
+    })
+        .pipe(antd())
+        .pipe(gulp.dest('./'));
+
+})
+
+gulp.task('antdless', function (cb) {
+    function antd() {
+        return through.obj((file, enc, callback) => {
+            var content = file.contents.toString();
+            let extname = ph.extname(file.path);
+            let dirname = ph.dirname(file.path);
+            let basename = ph.basename(file.path);
+
+            content = content.replace(/@import +['"](.+?)['"]/g, (str, $1) => {
+                let extname = ph.extname($1);
+                let dirname = ph.dirname($1);
+                let basename = ph.basename($1);
+                if (basename === 'index.less' || basename === 'index') {
+                    return str;
+                } else {
+                    basename = '_' + basename;
+                    return `@import "${dirname}/${basename}"`;
+                }
+            });
+
+            if (basename !== 'index.less') {
+                fs.unlinkSync(file.path);
+                file.path = `${dirname}/_${basename}`;
+            }
+
+            file.contents = new Buffer(content);
+            callback(null, file);
+        })
+    }
+
+    return gulp.src(['./assets/components/antd/**/*.less'], {
+        base: './'
+    })
+        .pipe(antd())
+        .pipe(gulp.dest('./'));
+
+})
+
+
 
 
 
