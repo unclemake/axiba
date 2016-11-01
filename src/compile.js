@@ -90,8 +90,7 @@ class Axiba {
                 "redux": "^3.6.0",
                 "redux-actions": "^0.12.0",
                 "redux-thunk": "^2.1.0",
-                "antd": "^2.1.0",
-                "css-animation": "sss"
+                "antd": "^2.1.0"
             }));
             return yield new Promise((resolve) => {
                 gulp.src(['node_modules/seajs/dist/sea.js', 'node_modules/seajs-css/dist/seajs-css.js'], {

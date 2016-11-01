@@ -1,8 +1,7 @@
-import '../../components/antd/select/style/index.css';
-import '../../components/antd/button/style/index.css';
-
 import * as React from 'react';
-import { Select, Button } from 'antd';
+import Button from '../../components/button/index';
+import Select from '../../components/select/index';
+
 const Option = Select.Option;
 export default class Component extends React.Component<any, void> {
     render() {
