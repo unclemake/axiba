@@ -76,6 +76,7 @@ export class Axiba {
 
         this.addGulpLoader(['.ts', '.tsx'], [
             () => gulpTypescript(tsconfig),
+            () => gulpClass.jsPathReplace(),
             () => gulpClass.addDefine(),
             () => sourcemaps.init(),
             () => gulpBabel({ presets: ['es2015'] }),
@@ -90,7 +91,6 @@ export class Axiba {
         this.addGulpLoader(['.html', '.tpl'], []);
         this.addGulpLoader(['.png', '.jpg', '.jpeg'], []);
         this.addGulpLoader(['.eot', '.svg', '.ttf', '.woff'], []);
-
     }
 
     /**
@@ -127,7 +127,7 @@ export class Axiba {
             "redux-actions": "^0.12.0",
             "redux-thunk": "^2.1.0",
             "antd": "^2.1.0",
-            "css-animation":"sss"
+            "css-animation": "sss"
         }));
 
         return await new Promise((resolve) => {
@@ -144,6 +144,8 @@ export class Axiba {
         });
     }
 
+
+
     /**
      *  合并框架文件
      */
@@ -153,7 +155,10 @@ export class Axiba {
 
             content += `\n\n seajs.config({ base: './${config.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
 
-            content += '\n function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
+            // content += '\n function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
+
+
+            content += `let process = { env: { NODE_ENV: null } };`;
 
             content += fs.readFileSync('src/socket.io.js');
             content += fs.readFileSync('src/socket.js');
@@ -162,6 +167,9 @@ export class Axiba {
             callback(null, file);
         })
     }
+
+
+
 
     /**
      * 打包node所有依赖模块
@@ -201,6 +209,14 @@ export class Axiba {
      * @param  {string} version?
      */
     async packNodeModules(name: string) {
+        // let stream = await npmDep.getAllFileStream(name);
+        // await new Promise((resolve) => {
+        //     stream.pipe(gulpClass.addDefine())
+        //         .pipe(gulp.dest(config.assetsBulid))
+        //         .on('finish', () => {
+        //             resolve();
+        //         });
+        // });
         let stream = await npmDep.getFileStream(name);
         this.dependenciesObj[name] = `node_modules/${name}/index.js`;
         return await new Promise((resolve) => {
@@ -218,6 +234,7 @@ export class Axiba {
                     resolve();
                 });
         });
+
     }
 
     /**

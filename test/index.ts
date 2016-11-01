@@ -4,13 +4,16 @@ import { run as server } from '../src/server';
 import { describe, describeClass, its, run, it, itAdd, itClass } from 'axiba-unit-test';
 import { default as npmDep } from 'axiba-npm-dependencies';
 import * as gulp from 'gulp';
+import * as fs from 'fs';
 // import '../src/server'
+
+
 
 
 (async () => {
   await axiba.makeMainFile();
   await axiba.bulid();
-  
+
   axiba.watch();
   server();
 })();

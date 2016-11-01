@@ -118,5 +118,61 @@ export class Gulp {
     }
 
 
+    /**
+    * alias 替换
+    */
+    jsPathReplace() {
+        let self = this;
+        return makeLoader((file, enc, callback) => {
+            var content: string = file.contents.toString();
+
+            let extname = ph.extname(file.path);
+            let depConfig = dep.config.find(value => value.extname === '.js');
+            depConfig.parserRegExpList.forEach(value => {
+                let match = parseInt(value.match.split('$')[1]);
+                content = content.replace(value.regExp, function () {
+
+                    //匹配的全部
+                    let str: string = arguments[0];
+                    //匹配的路径名
+                    let matchStr = arguments[match];
+                    //替换后的名字
+                    let url: string = matchStr;
+
+                    str = str.replace(matchStr, self.aliasReplacePath(matchStr));
+
+                    return str;
+                });
+            });
+
+            file.contents = new Buffer(content);
+            return callback(null, file);
+        });
+    }
+
+
+    /**
+     * 根据路径获取别名
+     * @param  {string} path
+     */
+    aliasReplacePath(path: string) {
+        let alias = '';
+
+        if (/^[^\.\/]/g.test(path)) {
+            let isAlias = !path.match(/[\/\\]/g);
+            //获得别名
+            if (isAlias) {
+                alias = path;
+                path = `node_modules/${alias}/index`;
+            } else {
+                alias = path.match(/^.+?(?=\/)/g)[0];
+                path = path.replace(alias, `node_modules/${alias}`)
+            }
+        }
+
+        return path;
+    }
+
+
 }
 export default new Gulp();

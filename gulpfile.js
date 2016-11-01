@@ -42,12 +42,35 @@ gulp.task('antd', function (cb) {
             var content = file.contents.toString();
             content = content.replace(/import React from 'react';/g, `import * as React from 'react';`);
             content = content.replace(/import classNames from 'classnames';/g, `import * as classNames from 'classnames';`);
+
+            content = content.replace(/import warning from 'warning';/g, `import * as warning from 'warning';`);
+            content = content.replace(/null = null/g, `null`);
             file.contents = new Buffer(content);
             callback(null, file);
         })
     }
 
     return gulp.src(['./assets/components/antd/**/*.tsx'], {
+        base: './'
+    })
+        .pipe(antd())
+        .pipe(gulp.dest('./'));
+
+})
+
+
+gulp.task('antdAddLess', function () {
+
+    function antd() {
+        return through.obj((file, enc, callback) => {
+            var content = file.contents.toString();
+            content = `import './style/index.css';\n` + content;
+            file.contents = new Buffer(content);
+            callback(null, file);
+        })
+    }
+
+    return gulp.src(['./assets/components/antd/**/index.tsx'], {
         base: './'
     })
         .pipe(antd())
@@ -90,6 +113,27 @@ gulp.task('antdless', function (cb) {
     })
         .pipe(antd())
         .pipe(gulp.dest('./'));
+
+})
+
+
+
+gulp.task('antddel', function (cb) {
+    function antd() {
+        return through.obj((file, enc, callback) => {
+            let extname = ph.extname(file.path);
+            if (extname != '.less') {
+                fs.unlinkSync(file.path);
+            }
+            callback(null);
+        })
+    }
+
+    return gulp.src(['./assets/components/antd/**/*.*'], {
+        base: './'
+    })
+        .pipe(antd())
+        .pipe(gulp.dest('./dddd'));
 
 })
 

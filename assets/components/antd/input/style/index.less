@@ -1,0 +1,14 @@
+@import "../../style/themes/_default";
+@import "../../style/mixins/index";
+@import "./_mixin";
+@import "./_search-input";
+
+// Input styles
+.@{ant-prefix}-input {
+  .input;
+}
+
+//== Style for input-group: input with label, with button or dropdown...
+.@{ant-prefix}-input-group {
+  .input-group(~"@{ant-prefix}-input");
+}

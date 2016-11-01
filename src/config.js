@@ -1,9 +1,11 @@
 "use strict";
-var config = {
+let config = {
     assets: 'assets',
     assetsBulid: 'assetsBulid',
     mainPath: 'index.js',
     mainModules: ['react']
 };
-exports.__esModule = true;
-exports["default"] = config;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = config;
+
+//# sourceMappingURL=config.js.map

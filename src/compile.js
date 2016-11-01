@@ -43,6 +43,7 @@ class Axiba {
         ]);
         this.addGulpLoader(['.ts', '.tsx'], [
                 () => gulpTypescript(tsconfig),
+                () => gulp_1.default.jsPathReplace(),
                 () => gulp_1.default.addDefine(),
                 () => sourcemaps.init(),
                 () => gulpBabel({ presets: ['es2015'] }),
@@ -113,7 +114,8 @@ class Axiba {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
             var content = file.contents.toString();
             content += `\n\n seajs.config({ base: './${config_1.default.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
-            content += '\n function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
+            // content += '\n function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
+            content += `let process = { env: { NODE_ENV: null } };`;
             content += fs.readFileSync('src/socket.io.js');
             content += fs.readFileSync('src/socket.js');
             file.contents = new Buffer(content);
@@ -152,6 +154,14 @@ class Axiba {
      */
     packNodeModules(name) {
         return __awaiter(this, void 0, void 0, function* () {
+            // let stream = await npmDep.getAllFileStream(name);
+            // await new Promise((resolve) => {
+            //     stream.pipe(gulpClass.addDefine())
+            //         .pipe(gulp.dest(config.assetsBulid))
+            //         .on('finish', () => {
+            //             resolve();
+            //         });
+            // });
             let stream = yield axiba_npm_dependencies_1.default.getFileStream(name);
             this.dependenciesObj[name] = `node_modules/${name}/index.js`;
             return yield new Promise((resolve) => {

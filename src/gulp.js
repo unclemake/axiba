@@ -112,6 +112,52 @@ class Gulp {
             }
         });
     }
+    /**
+    * alias 替换
+    */
+    jsPathReplace() {
+        let self = this;
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            var content = file.contents.toString();
+            let extname = ph.extname(file.path);
+            let depConfig = axiba_dependencies_1.default.config.find(value => value.extname === '.js');
+            depConfig.parserRegExpList.forEach(value => {
+                let match = parseInt(value.match.split('$')[1]);
+                content = content.replace(value.regExp, function () {
+                    //匹配的全部
+                    let str = arguments[0];
+                    //匹配的路径名
+                    let matchStr = arguments[match];
+                    //替换后的名字
+                    let url = matchStr;
+                    str = str.replace(matchStr, self.aliasReplacePath(matchStr));
+                    return str;
+                });
+            });
+            file.contents = new Buffer(content);
+            return callback(null, file);
+        });
+    }
+    /**
+     * 根据路径获取别名
+     * @param  {string} path
+     */
+    aliasReplacePath(path) {
+        let alias = '';
+        if (/^[^\.\/]/g.test(path)) {
+            let isAlias = !path.match(/[\/\\]/g);
+            //获得别名
+            if (isAlias) {
+                alias = path;
+                path = `node_modules/${alias}/index`;
+            }
+            else {
+                alias = path.match(/^.+?(?=\/)/g)[0];
+                path = path.replace(alias, `node_modules/${alias}`);
+            }
+        }
+        return path;
+    }
 }
 exports.Gulp = Gulp;
 Object.defineProperty(exports, "__esModule", { value: true });
