@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const gulp_1 = require('./gulp');
 const config_1 = require('./config');
 const server = require('./server');
+const index_1 = require('./webDev/index');
 const gulp = require('gulp');
 const axiba_dependencies_1 = require('axiba-dependencies');
 const axiba_npm_dependencies_1 = require('axiba-npm-dependencies');
 const through = require('through2');
 const ph = require('path');
-const fs = require('fs');
 const axiba_gulp_1 = require('axiba-gulp');
 const sourcemaps = require('gulp-sourcemaps');
 const gulpBabel = require('gulp-babel');
@@ -113,10 +113,8 @@ class Axiba {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
             var content = file.contents.toString();
             content += `\n\n seajs.config({ base: './${config_1.default.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
-            // content += '\n function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
             content += `let process = { env: { NODE_ENV: null } };`;
-            content += fs.readFileSync('src/socket.io.js');
-            content += fs.readFileSync('src/socket.js');
+            content += index_1.get();
             file.contents = new Buffer(content);
             callback(null, file);
         });

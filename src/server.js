@@ -9,11 +9,13 @@ function run() {
     app.get('/', function (req, res) {
         res.sendfile(config_1.default.assetsBulid + '/index.html');
     });
-    var server = app.listen(666, function () {
+    //监听 666
+    var server = app.listen(config_1.default.webPort, function () {
         var host = server.address().address;
         var port = server.address().port;
         console.log('Example app listening at http://%s:%s', host, port);
     });
+    //静态文件访问
     app.use(express.static('./'));
     // app.get(/.*[^(dev)]\.js$/, function (req, res) {
     //     res.redirect(req.url + '.dev.js');
@@ -29,7 +31,7 @@ function run() {
             console.log(data);
         });
     });
-    server.listen(3000);
+    server.listen(config_1.default.devPort);
 }
 exports.run = run;
 

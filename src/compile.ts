@@ -1,6 +1,7 @@
 import gulpClass from './gulp';
 import config from './config';
 import * as server from './server';
+import { get as webDevGet } from './webDev/index';
 
 import * as gulp from 'gulp';
 import { default as dep, DependenciesModel } from 'axiba-dependencies';
@@ -154,19 +155,14 @@ export class Axiba {
 
             content += `\n\n seajs.config({ base: './${config.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
 
-            // content += '\n function __loaderCss(b){var a=document.createElement("style");a.type="text/css";if(a.styleSheet){a.styleSheet.cssText=b}else{a.innerHTML=b}document.getElementsByTagName("head")[0].appendChild(a)};';
-
-
             content += `let process = { env: { NODE_ENV: null } };`;
 
-            content += fs.readFileSync('src/socket.io.js');
-            content += fs.readFileSync('src/socket.js');
+            content += webDevGet();
 
             file.contents = new Buffer(content);
             callback(null, file);
         })
     }
-
 
 
 

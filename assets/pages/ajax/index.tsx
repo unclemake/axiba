@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as Superagent from 'superagent';
+import { get, post } from '../../components/ajax/index';
 
 
 export default class Component extends React.Component<any, any> {
@@ -10,14 +10,14 @@ export default class Component extends React.Component<any, any> {
 
 
     getClick() {
-        Superagent.get('assets/components/nav/index.tsx').then(res => {
+        post('assets/components/nav/index.tsx').then(res => {
             this.state.text = res.text;
             this.setState(this.state);
         })
     }
 
     postClick() {
-        Superagent.post('assets/components/nav/index.tsx').then(res => {
+        get('assets/components/nav/index.tsx').then(res => {
             this.state.text = res.text;
             this.setState(this.state);
         })
@@ -26,10 +26,10 @@ export default class Component extends React.Component<any, any> {
     render() {
         const {state} = this;
         return <section className="page=home">
-            <h2>简单例子1</h2>
+            <h2>简单例子55</h2>
             <div>
-                <a onClick={this.getClick.bind(this)} className="ant-btn">get</a>
-                <a onClick={this.postClick.bind(this)} className="ant-btn">post</a>
+                <a onClick={this.getClick.bind(this)}>get</a>&nbsp;&nbsp;
+                <a onClick={this.postClick.bind(this)}>post</a>
             </div>
             <p>
                 {this.state.text}

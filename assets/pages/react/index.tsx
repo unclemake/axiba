@@ -20,8 +20,8 @@ export default class Component extends React.Component<any, any> {
         return <section className="page=home">
             <h2>简单例子1</h2>
             <div>
-                <a onClick={this.btnClick.bind(this)} className="ant-btn">{state.btnText}:{state.btnNu}</a>
-                <a onClick={() => this.btnClick()} className="ant-btn">{state.btnText}:{state.btnNu}</a>
+                <a onClick={this.btnClick.bind(this)}>{state.btnText}:{state.btnNu}</a>&nbsp;&nbsp;
+                <a onClick={() => this.btnClick()}>{state.btnText}:{state.btnNu}</a>
             </div>
             <Component2 nu={10} />
         </section>

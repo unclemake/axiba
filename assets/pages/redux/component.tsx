@@ -3,7 +3,9 @@
 */
 import * as React from 'react';
 import { Dispatch } from 'redux';
-import { Input, Button } from 'antd';
+import Button from '../../components/button/index';
+import Input from '../../components/input/index';
+
 import { connect } from 'react-redux';
 import * as action from './action';
 import { State } from './model';
@@ -33,7 +35,7 @@ class App extends React.Component<AppProps, any> {
             <Button onClick={() => dispatch(action.addStr(this.state.str))} >添加</Button>
             <h3>列表</h3>
             <ul>
-                {state.list.map(value => <li>{value}</li>)}
+                {state.list.map(value => <li key={value} >{value}</li>)}
             </ul>
             <h3>样式</h3>
             <p className="css1">

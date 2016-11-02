@@ -1,6 +1,7 @@
 ﻿
-import axiba from '../src/compile';
+import compile from '../src/compile';
 import { run as server } from '../src/server';
+import * as axiba from '../src/index';
 import { describe, describeClass, its, run, it, itAdd, itClass } from 'axiba-unit-test';
 import { default as npmDep } from 'axiba-npm-dependencies';
 import * as gulp from 'gulp';
@@ -8,24 +9,26 @@ import * as fs from 'fs';
 // import '../src/server'
 
 
+// console.log(axiba.webDev.get());
+
 
 
 (async () => {
-  await axiba.makeMainFile();
-  await axiba.bulid();
+  await compile.makeMainFile();
+  await compile.bulid();
 
-  axiba.watch();
+  compile.watch();
   server();
 })();
 
 
 
 // (async () => {
-    // await axiba.packNodeDependencies(npmDep.dependenciesObjToArr({
+    // await compile.packNodeDependencies(npmDep.dependenciesObjToArr({
     //     "react": "^15.3.2"
     // }));
 
-//     await axiba.makeMainFile();
+//     await compile.makeMainFile();
 // })();
 
 // axiba.makeMainFile();

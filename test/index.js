@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const compile_1 = require('../src/compile');
 const server_1 = require('../src/server');
 // import '../src/server'
+// console.log(axiba.webDev.get());
 (() => __awaiter(this, void 0, void 0, function* () {
     yield compile_1.default.makeMainFile();
     yield compile_1.default.bulid();
@@ -17,10 +18,10 @@ const server_1 = require('../src/server');
     server_1.run();
 }))();
 // (async () => {
-// await axiba.packNodeDependencies(npmDep.dependenciesObjToArr({
+// await compile.packNodeDependencies(npmDep.dependenciesObjToArr({
 //     "react": "^15.3.2"
 // }));
-//     await axiba.makeMainFile();
+//     await compile.makeMainFile();
 // })();
 // axiba.makeMainFile();
 // describeClass('axiba', axiba, () => {

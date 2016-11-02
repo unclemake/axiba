@@ -1,5 +1,8 @@
+// 通用方法
+
+
 /**
-* 获取字符串长度 中文2个字
+* 获取字符串长度 中文 = 2 英文 = 1
 */
 export function getLength(value: string): number {
     return value.replace(/[^\x00-\xff]/g, "01").length / 2;
