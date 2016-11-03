@@ -159,7 +159,7 @@ export class Axiba {
 
             content += `\n\n seajs.config({ base: './${config.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
 
-            content += `let process = { env: { NODE_ENV: null } };`;
+            content += `var process = { env: { NODE_ENV: null } };`;
 
             content += nodefile.getString('babel-polyfill');
 

@@ -114,7 +114,7 @@ class Axiba {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
             var content = file.contents.toString();
             content += `\n\n seajs.config({ base: './${config_1.default.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
-            content += `let process = { env: { NODE_ENV: null } };`;
+            content += `var process = { env: { NODE_ENV: null } };`;
             content += nodefile_1.default.getString('babel-polyfill');
             content += index_1.get();
             file.contents = new Buffer(content);
