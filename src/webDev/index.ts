@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as ph from 'path';
-import nodeFile from 'axiba-npm-dependencies';
+import nodeFile from '../nodefile';
 
 let devPath = '__dev__';
 /**

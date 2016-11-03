@@ -1,11 +1,11 @@
 import gulpClass from './gulp';
 import config from './config';
+import nodefile from './nodefile';
 import * as server from './server';
 import { get as webDevGet } from './webDev/index';
 
 import * as gulp from 'gulp';
 import { default as dep, DependenciesModel } from 'axiba-dependencies';
-import { default as npmDep } from 'axiba-npm-dependencies';
 import * as through from 'through2';
 import * as ph from 'path';
 import * as fs from 'fs';
@@ -53,6 +53,9 @@ export interface FlushFunction {
 }
 
 
+
+
+
 /**
  * 啊洗吧
  */
@@ -98,7 +101,6 @@ export class Axiba {
      * 生成全部文件 生成依赖列表
      */
     async bulid() {
-
         await dep.src(`${config.assets}/**/*.*`);
         for (let key in this.loaderList) {
             let element = this.loaderList[key];
@@ -118,7 +120,7 @@ export class Axiba {
     * 生成框架文件
     */
     async makeMainFile() {
-        await this.packNodeDependencies(npmDep.dependenciesObjToArr({
+        await this.packNodeDependencies(nodefile.dependenciesObjToArr({
             "superagent": "^2.3.0",
             "react": "^15.3.2",
             "react-dom": "^15.3.2",
@@ -153,9 +155,12 @@ export class Axiba {
         return makeLoader((file, enc, callback) => {
             var content: string = file.contents.toString();
 
+            
             content += `\n\n seajs.config({ base: './${config.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
 
             content += `let process = { env: { NODE_ENV: null } };`;
+
+            content += nodefile.getString('babel-polyfill');
 
             content += webDevGet();
 
@@ -163,7 +168,6 @@ export class Axiba {
             callback(null, file);
         })
     }
-
 
 
     /**
@@ -174,23 +178,12 @@ export class Axiba {
     async packNodeDependencies(dependencies: {
         name: string,
         version: string,
-    }[] = npmDep.dependenciesObjToArr(json.dependencies)) {
+    }[] = nodefile.dependenciesObjToArr(json.dependencies)) {
 
         for (let key in dependencies) {
             let ele = dependencies[key];
             if (ele.name[0] !== '@') {
-                if (npmDep.haveMin(ele.name)) {
-                    await this.packNodeModules(ele.name);
-                } else {
-                    let depObj = await npmDep.get(ele.name);
-                    let depArr = await npmDep.getModulesDep(depObj);
-
-                    for (let key in depArr) {
-                        let element = depArr[key];
-                        await this.packNodeModules(element);
-                    }
-                }
-
+                await this.packNodeModules(ele.name);
             }
         }
 
@@ -212,7 +205,7 @@ export class Axiba {
         //             resolve();
         //         });
         // });
-        let stream = await npmDep.getFileStream(name);
+        let stream = await nodefile.getFileStream(name);
         this.dependenciesObj[name] = `node_modules/${name}/index.js`;
         return await new Promise((resolve) => {
             stream.pipe((() => {

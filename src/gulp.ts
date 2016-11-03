@@ -4,7 +4,6 @@ import * as ph from 'path';
 import * as fs from 'fs';
 import * as through from 'through2';
 import { default as dep, DependenciesModel } from 'axiba-dependencies';
-import { default as npmDep } from 'axiba-npm-dependencies';
 import { TransformFunction, FlushFunction, makeLoader, getFile } from 'axiba-gulp';
 import config from './config';
 
@@ -13,28 +12,7 @@ export class Gulp {
 
 
     alias: { [key: string]: string } = {}
-    /**
-    * 生成node模块
-    * @param  {} file
-    * @param  {} enc 
-    * @param  {} cb
-    */
-    bulidNodeModule() {
-        return makeLoader(async function (file, enc, callback) {
-            await dep.src(file.path);
-            let depArray = dep.getDependenciesArr(file.path);
-            depArray = depArray.filter(value => dep.isAlias(value));
-            for (let key in depArray) {
-                let element = depArray[key];
-                let filePathArray = await npmDep.get(element);
-                for (let key in filePathArray) {
-                    let element = filePathArray[key];
-                    this.push(await getFile(element));
-                }
-            }
-            callback(null, file);
-        })
-    }
+    
 
     /**
      * 添加js的alias

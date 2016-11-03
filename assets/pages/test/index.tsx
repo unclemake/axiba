@@ -1,6 +1,20 @@
 import * as React from 'react';
 
 
+
+
+let a = 'Capt. Janeway';
+a = 'd';
+
+
+async function gan() {
+    return 1;
+}
+
+
+gan().then(value => console.log(value));
+
+
 export default class Component extends React.Component<any, any> {
 
     state = {

@@ -1,7 +1,7 @@
 "use strict";
 const fs = require('fs');
 const ph = require('path');
-const axiba_npm_dependencies_1 = require('axiba-npm-dependencies');
+const nodefile_1 = require('../nodefile');
 let devPath = '__dev__';
 /**
    * 编译文件 添加
@@ -23,7 +23,7 @@ function get() {
     fileArray.forEach(value => {
         content += addDefine(getFile(value), `src/${value}.js`);
     });
-    let mF = axiba_npm_dependencies_1.default.getFileByName('socket.io-client');
+    let mF = nodefile_1.default.getFileByName('socket.io-client');
     content += addDefine(mF, 'socket.io-client', '');
     content += `seajs.use('${devPath}/src/webDev/dev.js')`;
     return content;

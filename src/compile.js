@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const gulp_1 = require('./gulp');
 const config_1 = require('./config');
+const nodefile_1 = require('./nodefile');
 const server = require('./server');
 const index_1 = require('./webDev/index');
 const gulp = require('gulp');
 const axiba_dependencies_1 = require('axiba-dependencies');
-const axiba_npm_dependencies_1 = require('axiba-npm-dependencies');
 const through = require('through2');
 const ph = require('path');
 const axiba_gulp_1 = require('axiba-gulp');
@@ -81,7 +81,7 @@ class Axiba {
     */
     makeMainFile() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.packNodeDependencies(axiba_npm_dependencies_1.default.dependenciesObjToArr({
+            yield this.packNodeDependencies(nodefile_1.default.dependenciesObjToArr({
                 "superagent": "^2.3.0",
                 "react": "^15.3.2",
                 "react-dom": "^15.3.2",
@@ -114,6 +114,7 @@ class Axiba {
             var content = file.contents.toString();
             content += `\n\n seajs.config({ base: './${config_1.default.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
             content += `let process = { env: { NODE_ENV: null } };`;
+            content += nodefile_1.default.getString('babel-polyfill');
             content += index_1.get();
             file.contents = new Buffer(content);
             callback(null, file);
@@ -124,22 +125,12 @@ class Axiba {
      * @param  {string} name
      * @param  {string} version?
      */
-    packNodeDependencies(dependencies = axiba_npm_dependencies_1.default.dependenciesObjToArr(json.dependencies)) {
+    packNodeDependencies(dependencies = nodefile_1.default.dependenciesObjToArr(json.dependencies)) {
         return __awaiter(this, void 0, void 0, function* () {
             for (let key in dependencies) {
                 let ele = dependencies[key];
                 if (ele.name[0] !== '@') {
-                    if (axiba_npm_dependencies_1.default.haveMin(ele.name)) {
-                        yield this.packNodeModules(ele.name);
-                    }
-                    else {
-                        let depObj = yield axiba_npm_dependencies_1.default.get(ele.name);
-                        let depArr = yield axiba_npm_dependencies_1.default.getModulesDep(depObj);
-                        for (let key in depArr) {
-                            let element = depArr[key];
-                            yield this.packNodeModules(element);
-                        }
-                    }
+                    yield this.packNodeModules(ele.name);
                 }
             }
         });
@@ -159,7 +150,7 @@ class Axiba {
             //             resolve();
             //         });
             // });
-            let stream = yield axiba_npm_dependencies_1.default.getFileStream(name);
+            let stream = yield nodefile_1.default.getFileStream(name);
             this.dependenciesObj[name] = `node_modules/${name}/index.js`;
             return yield new Promise((resolve) => {
                 stream.pipe((() => {
