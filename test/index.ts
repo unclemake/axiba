@@ -3,7 +3,6 @@ import compile from '../src/compile';
 import { run as server } from '../src/server';
 import * as axiba from '../src/index';
 import { describe, describeClass, its, run, it, itAdd, itClass } from 'axiba-unit-test';
-import { default as npmDep } from 'axiba-npm-dependencies';
 import * as gulp from 'gulp';
 import * as fs from 'fs';
 // import '../src/server'

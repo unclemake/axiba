@@ -1,8 +1,11 @@
 "use strict";
+const fs = require('fs');
 const express = require('express');
 const http = require('http');
 const socket = require('socket.io');
 const config_1 = require('./config');
+const open = require("open");
+var record = require('./record.json');
 exports.reload = () => { };
 function run() {
     var app = express();
@@ -20,7 +23,12 @@ function run() {
     // app.get(/.*[^(dev)]\.js$/, function (req, res) {
     //     res.redirect(req.url + '.dev.js');
     // });
-    // open('http://localhost:666/', 'chrome');
+    let day = new Date().getDay();
+    if (record.openTime != day) {
+        record.openTime = day;
+        fs.writeFileSync(`${__dirname}/record.json`, JSON.stringify(record));
+        open(`http://localhost:${config_1.default.webPort}/`, 'chrome');
+    }
     var server = http.createServer();
     var io = socket(server);
     io.on('connection', function (client) {

@@ -24,7 +24,7 @@ const gulpConcat = require('gulp-concat');
 const gulpMinifyCss = require('gulp-minify-css');
 const gulpLess = require('gulp-less');
 const gulpTypescript = require('gulp-typescript');
-const tsconfig = require('../tsconfig.json').compilerOptions;
+const tsconfig = require(process.cwd() + '/tsconfig.json').compilerOptions;
 const json = require(process.cwd() + '/package.json');
 const watch = require('gulp-watch');
 /**
@@ -63,6 +63,7 @@ class Axiba {
     bulid() {
         return __awaiter(this, void 0, void 0, function* () {
             yield axiba_dependencies_1.default.src(`${config_1.default.assets}/**/*.*`);
+            axiba_dependencies_1.default.createJsonFile();
             for (let key in this.loaderList) {
                 let element = this.loaderList[key];
                 let gulpStream = gulp.src(`${config_1.default.assets}/**/*${element.extname}`, {
@@ -174,22 +175,22 @@ class Axiba {
      * 监视
      */
     watch() {
-        watch(config_1.default.assets + '/**/*.*', (file) => {
+        watch(config_1.default.assets + '/**/*.*', (file) => __awaiter(this, void 0, void 0, function* () {
             if (this.loaderList.find(value => value.extname === ph.extname(file.path))) {
                 switch (file.event) {
                     case 'add':
                         // this.changed(event.path);
                         break;
                     case 'change':
-                        this.changed(file.path);
+                        yield this.changed(file.path);
                         break;
                     case 'delete':
-                        this.deleted(file.path);
+                        yield this.deleted(file.path);
                         break;
                 }
                 server.reload();
             }
-        });
+        }));
         process.on('uncaughtException', function (err) {
             console.log('出错咯' + err);
         });
@@ -210,15 +211,19 @@ class Axiba {
             let gulpStream = gulp.src(pathArr, {
                 base: config_1.default.assets
             }).pipe(axiba_dependencies_1.default.readWriteStream(true));
-            this.loader(gulpStream, ph.extname(path))
-                .pipe(through.obj((file, enc, callback) => {
-                callback(null, file);
-            }))
-                .pipe(gulp.dest(config_1.default.assetsBulid))
-                .on('error', () => {
-                {
-                    console.log('出错了');
-                }
+            return yield new Promise((resolve) => {
+                this.loader(gulpStream, ph.extname(path))
+                    .pipe(through.obj((file, enc, callback) => {
+                    callback(null, file);
+                }))
+                    .pipe(gulp.dest(config_1.default.assetsBulid))
+                    .on('error', () => {
+                    {
+                        console.log('出错了');
+                    }
+                }).on('finish', () => {
+                    resolve();
+                });
             });
         });
     }

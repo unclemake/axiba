@@ -20,7 +20,7 @@ const gulpConcat = require('gulp-concat');
 const gulpMinifyCss = require('gulp-minify-css');
 const gulpLess = require('gulp-less');
 const gulpTypescript = require('gulp-typescript');
-const tsconfig = require('../tsconfig.json').compilerOptions;
+const tsconfig = require(process.cwd() + '/tsconfig.json').compilerOptions;
 const json = require(process.cwd() + '/package.json');
 const watch = require('gulp-watch');
 
@@ -102,6 +102,7 @@ export class Axiba {
      */
     async bulid() {
         await dep.src(`${config.assets}/**/*.*`);
+        dep.createJsonFile();
         for (let key in this.loaderList) {
             let element = this.loaderList[key];
             let gulpStream = gulp.src(`${config.assets}/**/*${element.extname}`, {
@@ -155,7 +156,7 @@ export class Axiba {
         return makeLoader((file, enc, callback) => {
             var content: string = file.contents.toString();
 
-            
+
             content += `\n\n seajs.config({ base: './${config.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
 
             content += `let process = { env: { NODE_ENV: null } };`;
@@ -229,17 +230,17 @@ export class Axiba {
      * 监视
      */
     watch() {
-        watch(config.assets + '/**/*.*', (file) => {
+        watch(config.assets + '/**/*.*', async (file) => {
             if (this.loaderList.find(value => value.extname === ph.extname(file.path))) {
                 switch (file.event) {
                     case 'add':
                         // this.changed(event.path);
                         break;
                     case 'change':
-                        this.changed(file.path);
+                        await this.changed(file.path);
                         break;
                     case 'delete':
-                        this.deleted(file.path);
+                        await this.deleted(file.path);
                         break;
                 }
                 server.reload();
@@ -266,22 +267,25 @@ export class Axiba {
                 break;
         }
 
-
         // 扫描依赖
         let gulpStream = gulp.src(pathArr, {
             base: config.assets
         }).pipe(dep.readWriteStream(true));
 
-        this.loader(gulpStream, ph.extname(path))
-            .pipe(through.obj((file, enc, callback) => {
-                callback(null, file);
-            }))
-            .pipe(gulp.dest(config.assetsBulid))
-            .on('error', () => {
-                {
-                    console.log('出错了');
-                }
-            });
+        return await new Promise((resolve) => {
+            this.loader(gulpStream, ph.extname(path))
+                .pipe(through.obj((file, enc, callback) => {
+                    callback(null, file);
+                }))
+                .pipe(gulp.dest(config.assetsBulid))
+                .on('error', () => {
+                    {
+                        console.log('出错了');
+                    }
+                }).on('finish', () => {
+                    resolve();
+                });
+        });
     }
 
     /** 流插件 列表 */

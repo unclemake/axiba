@@ -5,6 +5,9 @@ import * as socket from 'socket.io';
 import config from './config';
 import open = require("open");
 
+var record = require('./record.json');
+
+
 export let reload = () => { };
 
 export function run() {
@@ -28,8 +31,12 @@ export function run() {
     // app.get(/.*[^(dev)]\.js$/, function (req, res) {
     //     res.redirect(req.url + '.dev.js');
     // });
-
-    // open('http://localhost:666/', 'chrome');
+    let day = new Date().getDay();
+    if (record.openTime != day) {
+        record.openTime = day;
+        fs.writeFileSync(`${__dirname}/record.json`, JSON.stringify(record));
+        open(`http://localhost:${config.webPort}/`, 'chrome');
+    }
 
     var server = http.createServer();
     var io = socket(server);
