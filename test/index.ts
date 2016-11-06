@@ -1,6 +1,5 @@
 ﻿
 import compile from '../src/compile';
-import { run as server } from '../src/server';
 import * as axiba from '../src/index';
 import { describe, describeClass, its, run, it, itAdd, itClass } from 'axiba-unit-test';
 import * as gulp from 'gulp';
@@ -11,13 +10,21 @@ import * as fs from 'fs';
 // console.log(axiba.webDev.get());
 
 
+// console.log(compile.getNodeArray(['motion/_zoom', 'motion/_slide', 'react']));
+
+
+
+
 
 (async () => {
-  await compile.makeMainFile();
-  await compile.bulid();
+  // await compile.makeMainFile();
+  // await compile.bulid();
 
-  compile.watch();
-  server();
+  // compile.watch();
+  // server();
+
+  await compile.scanDependence();
+  console.log(await compile.packNodeDependencies());
 })();
 
 

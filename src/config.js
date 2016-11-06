@@ -2,7 +2,8 @@
 let config = {
     assets: 'assets',
     assetsBulid: 'assetsBulid',
-    mainPath: 'index.js',
+    devBulid: true,
+    mainPath: 'index.html',
     mainModules: ['react'],
     //web访问端口
     webPort: 666,

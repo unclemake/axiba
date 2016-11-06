@@ -1,11 +1,10 @@
 import gulpClass from './gulp';
 import config from './config';
-import nodefile from './nodefile';
-import * as server from './server';
-import { get as webDevGet } from './webDev/index';
 
+import { getDevFileString, socket } from 'axiba-server';
 import * as gulp from 'gulp';
 import { default as dep, DependenciesModel } from 'axiba-dependencies';
+import nodeModule from 'axiba-npm-dependencies';
 import * as through from 'through2';
 import * as ph from 'path';
 import * as fs from 'fs';
@@ -53,9 +52,6 @@ export interface FlushFunction {
 }
 
 
-
-
-
 /**
  * 啊洗吧
  */
@@ -98,11 +94,9 @@ export class Axiba {
     }
 
     /**
-     * 生成全部文件 生成依赖列表
+     * 生成全部文件
      */
-    async bulid() {
-        await dep.src(`${config.assets}/**/*.*`);
-        dep.createJsonFile();
+    async build() {
         for (let key in this.loaderList) {
             let element = this.loaderList[key];
             let gulpStream = gulp.src(`${config.assets}/**/*${element.extname}`, {
@@ -117,57 +111,34 @@ export class Axiba {
         }
     }
 
-    /**
-    * 生成框架文件
-    */
-    async makeMainFile() {
-        await this.packNodeDependencies(nodefile.dependenciesObjToArr({
-            "superagent": "^2.3.0",
-            "react": "^15.3.2",
-            "react-dom": "^15.3.2",
-            "react-redux": "^4.4.5",
-            "react-router": "^3.0.0",
-            "redux": "^3.6.0",
-            "redux-actions": "^0.12.0",
-            "redux-thunk": "^2.1.0",
-            "antd": "^2.1.0"
-        }));
 
-        return await new Promise((resolve) => {
-            gulp.src(['node_modules/seajs/dist/sea.js', 'node_modules/seajs-css/dist/seajs-css.js'], {
-                base: './'
-            })
-                .pipe(gulpClass.nullLoader())
-                .pipe(gulpConcat(config.mainPath))
-                .pipe(this.makeMainFileConCat())
-                .pipe(gulp.dest(config.assets))
-                .on('finish', () => {
-                    resolve();
-                })
-        });
+    /**
+     * 扫描依赖
+     * 
+     * 
+     * @memberOf Axiba
+     */
+    async scanDependence() {
+        dep.dependenciesArray = [];
+        await dep.src(`${config.assets}/**/*.*`);
+        dep.createJsonFile();
     }
 
 
-
     /**
-     *  合并框架文件
+     * 生成框架文件
      */
-    private makeMainFileConCat() {
-        return makeLoader((file, enc, callback) => {
-            var content: string = file.contents.toString();
+    private async buildMainFile() {
+        var content: string = '';
+        content += nodeModule.getFileString('sea');
+        content += nodeModule.getFileString('seajs-css');
+        content += `\n\n seajs.config({ base: './${config.assetsBulid}');`;
+        content += nodeModule.getFileString('babel-polyfill');
+        content += await nodeModule.getPackFileString(config.mainModules);
+        //添加调试脚本
+        content += getDevFileString();
 
-
-            content += `\n\n seajs.config({ base: './${config.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)} });`;
-
-            content += `var process = { env: { NODE_ENV: null } };`;
-
-            content += nodefile.getString('babel-polyfill');
-
-            content += webDevGet();
-
-            file.contents = new Buffer(content);
-            callback(null, file);
-        })
+        return content;
     }
 
 
@@ -176,55 +147,74 @@ export class Axiba {
      * @param  {string} name
      * @param  {string} version?
      */
-    async packNodeDependencies(dependencies: {
-        name: string,
-        version: string,
-    }[] = nodefile.dependenciesObjToArr(json.dependencies)) {
-
-        for (let key in dependencies) {
-            let ele = dependencies[key];
-            if (ele.name[0] !== '@') {
-                await this.packNodeModules(ele.name);
-            }
-        }
-
-    }
-
-    //记录别名依赖用于 seajs配置写入
-    dependenciesObj: { [key: string]: string } = {}
-    /**
-     * 打包node模块
-     * @param  {string} name
-     * @param  {string} version?
-     */
-    async packNodeModules(name: string) {
-        // let stream = await npmDep.getAllFileStream(name);
-        // await new Promise((resolve) => {
-        //     stream.pipe(gulpClass.addDefine())
-        //         .pipe(gulp.dest(config.assetsBulid))
-        //         .on('finish', () => {
-        //             resolve();
-        //         });
-        // });
-        let stream = await nodefile.getFileStream(name);
-        this.dependenciesObj[name] = `node_modules/${name}/index.js`;
-        return await new Promise((resolve) => {
-            stream.pipe((() => {
-                if (name === "superagent") {
-                    return gulpUglify();
-                } else {
-                    return gulpClass.nullLoader();
+    async packNodeDependencies() {
+        let depSet = new Set();
+        dep.dependenciesArray.forEach(value => {
+            value.dep.forEach(path => {
+                if (path.indexOf(config.assets) !== 0 && dep.isAlias(path)) {
+                    depSet.add(path);
                 }
-            })())
-                .pipe(gulpClass.addDefine())
-                .pipe(gulpConcat(`node_modules/${name}/index.js`))
-                .pipe(gulp.dest(config.assetsBulid))
-                .on('finish', () => {
-                    resolve();
-                });
+            })
         });
 
+        let depArray = [...depSet];
+        let nodeArray: Array<Array<string>> = this.getNodeArray(depArray);
+
+        for (var key in nodeArray) {
+            var value = nodeArray[key];
+            let contents = await nodeModule.getPackFileString(value);
+            let alias = '';
+            if (value[0].indexOf('/') === -1) {
+                alias = value[0];
+            } else {
+                alias = value[0].match(/.+?(?=\/)/g)[0];
+            }
+
+            let path = ph.join(config.assetsBulid, 'node_modules', alias);
+            this.mkdirsSync(path);
+            fs.writeFileSync(ph.join(path, 'index.js'), contents);
+        }
+        return nodeArray;
     }
+
+
+    mkdirsSync(dirpath) {
+        if (!fs.existsSync(dirpath)) {
+            var pathtmp;
+            dirpath.split(ph.sep).forEach(function (dirname) {
+                if (pathtmp) {
+                    pathtmp = ph.join(pathtmp, dirname);
+                }
+                else {
+                    pathtmp = dirname;
+                }
+                if (!fs.existsSync(pathtmp)) {
+                    if (!fs.mkdirSync(pathtmp)) {
+                        return false;
+                    }
+                }
+            });
+        }
+        return true;
+    }
+    getNodeArray(depArray: string[]) {
+        let nodeArray: Array<Array<string>> = [];
+        depArray.forEach(path => {
+            if (path.indexOf('/') === -1) {
+                nodeArray.push([path])
+            } else {
+                let alias = path.match(/.+?(?=\/)/g)[0];
+                let nodeArrayGet = nodeArray.find(nodeArray => nodeArray[0].indexOf(alias) === 0);
+                if (nodeArrayGet) {
+                    nodeArrayGet.push(path);
+                } else {
+                    nodeArray.push([path]);
+                }
+            }
+        });
+        return nodeArray;
+    }
+
 
     /**
      * 监视
@@ -243,7 +233,7 @@ export class Axiba {
                         await this.deleted(file.path);
                         break;
                 }
-                server.reload();
+                socket.reload();
             }
         });
 
