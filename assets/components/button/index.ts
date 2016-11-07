@@ -1,3 +1,3 @@
-import '../antd/Button/style/index.css';
-import { Button } from 'antd';
+import '../antd/button/style/index.css';
+import * as Button from 'antd/lib/button/index';
 export default Button;

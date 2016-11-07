@@ -2,6 +2,7 @@ import gulpClass from './gulp';
 import config from './config';
 
 import { getDevFileString, socket } from 'axiba-server';
+import util from 'axiba-util';
 import * as gulp from 'gulp';
 import { default as dep, DependenciesModel } from 'axiba-dependencies';
 import nodeModule from 'axiba-npm-dependencies';
@@ -24,45 +25,19 @@ const json = require(process.cwd() + '/package.json');
 const watch = require('gulp-watch');
 
 
-interface Config {
-    // 项目静态文件开发目录
-    assets: string
-
-    // 项目静态文件生成目录
-    assetsBulid: string
-
-    //gulp 扫描文件glob数组
-    glob: string[]
-
-    //框架文件路径
-    mainPath: string
-
-    //框架文件包含模块
-    mainModules: string[]
-}
-
-
-export interface TransformFunction {
-    (file: gulpUtil.File, enc, callback: (a?: null, file?: gulpUtil.File) => void): void
-}
-
-
-export interface FlushFunction {
-    (cb: () => void): void
-}
-
-
 /**
  * 啊洗吧
+ * 
+ * @export
+ * @class Axiba
  */
 export class Axiba {
-
-    fileContentArray: {
-        path: string,
-        content: string,
-        callback: Function
-    }[] = [];
-
+    /**
+     * Creates an instance of Axiba.
+     * 
+     * 
+     * @memberOf Axiba
+     */
     constructor() {
 
         this.addGulpLoader('.less', [
@@ -76,7 +51,7 @@ export class Axiba {
 
         this.addGulpLoader(['.ts', '.tsx'], [
             () => gulpTypescript(tsconfig),
-            () => gulpClass.jsPathReplace(),
+            // () => gulpClass.jsPathReplace(),
             () => gulpClass.addDefine(),
             () => sourcemaps.init(),
             () => gulpBabel({ presets: ['es2015'] }),
@@ -95,6 +70,9 @@ export class Axiba {
 
     /**
      * 生成全部文件
+     * 
+     * 
+     * @memberOf Axiba
      */
     async build() {
         for (let key in this.loaderList) {
@@ -125,27 +103,39 @@ export class Axiba {
     }
 
 
+    //记录别名依赖用于 seajs配置写入
+    dependenciesObj: { [key: string]: string } = {}
     /**
      * 生成框架文件
+     * 
+     * @private
+     * @returns
+     * 
+     * @memberOf Axiba
      */
-    private async buildMainFile() {
+    async buildMainFile() {
         var content: string = '';
-        content += nodeModule.getFileString('sea');
-        content += nodeModule.getFileString('seajs-css');
-        content += `\n\n seajs.config({ base: './${config.assetsBulid}');`;
-        content += nodeModule.getFileString('babel-polyfill');
-        content += await nodeModule.getPackFileString(config.mainModules);
+        content += await nodeModule.getFileString('seajs');
+        content += await nodeModule.getFileString('seajs-css');
+        content += `\n\n seajs.config({ base: './${config.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)}});`;
+        content += await nodeModule.getFileString('babel-polyfill');
         //添加调试脚本
         content += getDevFileString();
+        let modules = await nodeModule.getPackFileString(config.mainModules);
+        content += modules;
 
+        this.mkdirsSync(config.assetsBulid);
+        fs.writeFileSync(ph.join(config.assetsBulid, config.mainJsPath), content);
         return content;
     }
 
 
     /**
      * 打包node所有依赖模块
-     * @param  {string} name
-     * @param  {string} version?
+     * 
+     * @returns
+     * 
+     * @memberOf Axiba
      */
     async packNodeDependencies() {
         let depSet = new Set();
@@ -157,27 +147,58 @@ export class Axiba {
             })
         });
 
-        let depArray = [...depSet];
-        let nodeArray: Array<Array<string>> = this.getNodeArray(depArray);
+        let depArray: string[] = [...depSet];
+        let depArrayH = depArray.filter(value => {
+            return config.mainModules.indexOf(value) === -1
+        });
+
+        let nodeArray: Array<Array<string>> = this.getNodeArray(depArrayH);
+        util.log('打包node模块：');
 
         for (var key in nodeArray) {
             var value = nodeArray[key];
-            let contents = await nodeModule.getPackFileString(value);
             let alias = '';
             if (value[0].indexOf('/') === -1) {
                 alias = value[0];
             } else {
                 alias = value[0].match(/.+?(?=\/)/g)[0];
             }
-
+            util.log(alias);
+            let externalsArray = depArray.filter(dep => value.indexOf(dep) === -1);
+            util.log(externalsArray);
+            let contents = await nodeModule.getPackFileString(value, externalsArray);
             let path = ph.join(config.assetsBulid, 'node_modules', alias);
             this.mkdirsSync(path);
             fs.writeFileSync(ph.join(path, 'index.js'), contents);
+            this.saveAlias(value, dep.clearPath(ph.join('node_modules', alias, 'index.js')));
         }
         return nodeArray;
     }
 
+    /**
+     * 保存Alias
+     * 
+     * @param {Array<string>} pathArray
+     * @param {string} path
+     * 
+     * @memberOf Axiba
+     */
+    saveAlias(pathArray: Array<string>, path: string) {
+        for (let key in pathArray) {
+            let element = pathArray[key];
+            this.dependenciesObj[element] = path;
+        }
+    }
 
+
+    /**
+     * 生成路径
+     * 
+     * @param {any} dirpath
+     * @returns
+     * 
+     * @memberOf Axiba
+     */
     mkdirsSync(dirpath) {
         if (!fs.existsSync(dirpath)) {
             var pathtmp;
@@ -197,6 +218,15 @@ export class Axiba {
         }
         return true;
     }
+
+    /**
+     * 根据依赖表获取所有node模块
+     * 
+     * @param {string[]} depArray
+     * @returns
+     * 
+     * @memberOf Axiba
+     */
     getNodeArray(depArray: string[]) {
         let nodeArray: Array<Array<string>> = [];
         depArray.forEach(path => {
@@ -217,7 +247,10 @@ export class Axiba {
 
 
     /**
-     * 监视
+     * 启动监视
+     * 
+     * 
+     * @memberOf Axiba
      */
     watch() {
         watch(config.assets + '/**/*.*', async (file) => {
@@ -242,10 +275,25 @@ export class Axiba {
         });
     }
 
+    /**
+     * 删除方法
+     * 
+     * @param {string} path
+     * 
+     * @memberOf Axiba
+     */
     deleted(path: string) {
 
     }
 
+    /**
+     * 改变方法
+     * 
+     * @param {string} path
+     * @returns
+     * 
+     * @memberOf Axiba
+     */
     async changed(path: string) {
         let extname = ph.extname(path).toLowerCase();
         let pathArr = [path];
@@ -278,16 +326,33 @@ export class Axiba {
         });
     }
 
-    /** 流插件 列表 */
+    /**
+     * 流插件 列表
+     * 
+     * 
+     * @memberOf Axiba
+     */
     loaderList: {
+        /**
+         * 后缀名
+         * 
+         * @type {string}
+         */
         extname: string,
+        /**
+         * 流处理列表
+         */
         loaderArray: (() => any)[]
     }[] = [];
 
     /**
      * 添加流插件
-     * @param  {string} extname
-     * @param  {(()=>any)[]} gulpLoader?
+     * 
+     * @param {(string | string[])} extname
+     * @param {(() => any)[]} [gulpLoader]
+     * @returns
+     * 
+     * @memberOf Axiba
      */
     addGulpLoader(extname: string | string[], gulpLoader?: (() => any)[]) {
 
@@ -310,13 +375,16 @@ export class Axiba {
         return this;
     }
 
-
     /**
      * 根据后缀遍历添加 gulp 插件编译
-     * @param  {NodeJS.ReadWriteStream} gulpStream
-     * @param  {string} extname
+     * 
+     * @param {NodeJS.ReadWriteStream} gulpStream
+     * @param {string} extname
+     * @returns
+     * 
+     * @memberOf Axiba
      */
-    loader(gulpStream: NodeJS.ReadWriteStream, extname: string) {
+    private loader(gulpStream: NodeJS.ReadWriteStream, extname: string) {
         this.loaderList.find(value => value.extname === extname)
             .loaderArray.forEach(value => {
                 gulpStream = gulpStream.pipe(value());

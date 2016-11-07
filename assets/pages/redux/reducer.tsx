@@ -13,15 +13,17 @@ const initialState: State = {
     list: ['选项1']
 };
 
-export const reducer = handleActions<State, any>({
-    [action.ADD_STR]: (state: State, action: Action<string>): State => {
-        state = Object.assign({}, state);
+export const reducer = handleActions<State, any>(
+    {
+        [action.ADD_STR]: (state: State, action: Action<string>): State => {
+            state = Object.assign({}, state);
 
-        state.list.push(action.payload)
-        
-        return state;
-    }
-}, initialState);
+            state.list.push(action.payload);
+
+            return state;
+        }
+    },
+    initialState);
 
 
 /**

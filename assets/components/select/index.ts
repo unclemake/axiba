@@ -1,3 +1,3 @@
 import '../antd/select/style/index.css';
-import { Select } from 'antd';
-export default Select;
+import * as Select from 'antd/lib/select/index';
+export = Select;

@@ -17,14 +17,16 @@ import * as fs from 'fs';
 
 
 (async () => {
-  // await compile.makeMainFile();
-  // await compile.bulid();
-
-  // compile.watch();
-  // server();
-
+  console.log(1);
   await compile.scanDependence();
-  console.log(await compile.packNodeDependencies());
+  console.log(2);
+  await compile.packNodeDependencies();
+  console.log(3);
+  await compile.buildMainFile();
+  console.log(4);
+  // await compile.build();
+  axiba.serverRun();
+  compile.watch();
 })();
 
 

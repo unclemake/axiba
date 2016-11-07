@@ -1,20 +1,5 @@
 import * as React from 'react';
 
-
-
-
-let a = 'Capt. Janeway';
-a = 'd';
-
-
-async function gan() {
-    return 1;
-}
-
-
-gan().then(value => console.log(value));
-
-
 export default class Component extends React.Component<any, any> {
 
     state = {
@@ -25,17 +10,17 @@ export default class Component extends React.Component<any, any> {
 
     btnClick() {
         this.setState({
-            text: "1",
+            text: '1',
             text2: 'text2'
         });
     }
 
     render() {
         const {state} = this;
-        return <section className="page=home">
+        return <section className='page-home'>
             <h2>简单例子1</h2>
             <div>
-                <a onClick={this.btnClick.bind(this)} className="ant-btn">点我</a>
+                <a onClick={this.btnClick.bind(this)} className='ant-btn'>点我</a>
             </div>
             <div>
                 {this.state.text}
@@ -50,9 +35,7 @@ class Component2 extends React.Component<{
     text2: string
 }, any> {
     render() {
-        console.log('render');
-        const {state} = this;
-        return <section className="page=home">
+        return <section className='page=home'>
             <h2>简单例子2</h2>
             <div>
                 {this.props.text2}

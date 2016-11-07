@@ -16,8 +16,6 @@ interface AppProps {
     dispatch: Dispatch<any>
 }
 
-
-
 class App extends React.Component<AppProps, any> {
     state = {
         str: ''
@@ -29,16 +27,16 @@ class App extends React.Component<AppProps, any> {
 
     render() {
         const { state, dispatch } = this.props;
-        return <section className="page-redux">
+        return <section className='page-redux'>
             <h2>redux</h2>
-            <Input placeholder="填写" value={this.state.str} onChange={this.change.bind(this)}></Input>
+            <Input placeholder='填写' value={this.state.str} onChange={this.change.bind(this)}></Input>
             <Button onClick={() => dispatch(action.addStr(this.state.str))} >添加</Button>
             <h3>列表</h3>
             <ul>
-                {state.list.map(value => <li key={value} >{value}</li>)}
+                {state.list.map((value, index) => <li key={index} >{value}</li>)}
             </ul>
             <h3>样式</h3>
-            <p className="css1">
+            <p className='css1'>
                 样式
             </p>
         </section >
@@ -46,6 +44,6 @@ class App extends React.Component<AppProps, any> {
 }
 
 
-//导出
+// 导出
 const mapStateToProps = state => state;
 export default connect(mapStateToProps)(App);

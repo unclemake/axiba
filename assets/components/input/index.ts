@@ -1,3 +1,3 @@
 import '../antd/input/style/index.css';
-import { Input } from 'antd';
-export default Input;
+import * as Input from 'antd/lib/input/index';
+export = Input;
