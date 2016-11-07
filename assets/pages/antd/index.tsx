@@ -8,11 +8,11 @@ export default class Component extends React.Component<any, void> {
         return <section className="page=home">
             <h2>我是内页</h2>
             <Button>Hello world!</Button>
-            <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
+            <Select size="large" defaultValue="lucy" style={{ width: 200 }} onChange={handleChange}>
                 <Option value="jack">Jack</Option>
                 <Option value="lucy">Lucy</Option>
                 <Option value="disabled" disabled>Disabled</Option>
-                <Option value="Yiminghe">yiminghe</Option>
+                <Option value="yiminghe">Yiminghe</Option>
             </Select>
         </section>
     }

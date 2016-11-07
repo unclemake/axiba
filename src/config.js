@@ -11,7 +11,13 @@ let config = {
     //模块文件的路径
     mainJsPath: 'index.js',
     //打包进模块文件的 node模块
-    mainModules: ['react', 'react-dom', 'react-router'],
+    mainModules: ['react',
+        'react-dom',
+        'react-router',
+        'antd/lib/button/index',
+        'antd/lib/input/index',
+        'antd/lib/select/index'
+    ],
     //web访问端口
     webPort: 666,
     //开发长连接端口

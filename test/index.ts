@@ -24,7 +24,7 @@ import * as fs from 'fs';
   console.log(3);
   await compile.buildMainFile();
   console.log(4);
-  // await compile.build();
+  await compile.build();
   axiba.serverRun();
   compile.watch();
 })();

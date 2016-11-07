@@ -147,7 +147,7 @@ class Axiba {
             });
             let depArray = [...depSet];
             let depArrayH = depArray.filter(value => {
-                return config_1.default.mainModules.indexOf(value) === -1;
+                return !config_1.default.mainModules.find(path => path.indexOf(value) === 0);
             });
             let nodeArray = this.getNodeArray(depArrayH);
             axiba_util_1.default.log('打包node模块：');

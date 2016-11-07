@@ -24,7 +24,6 @@ const tsconfig = require(process.cwd() + '/tsconfig.json').compilerOptions;
 const json = require(process.cwd() + '/package.json');
 const watch = require('gulp-watch');
 
-
 /**
  * 啊洗吧
  * 
@@ -39,7 +38,6 @@ export class Axiba {
      * @memberOf Axiba
      */
     constructor() {
-
         this.addGulpLoader('.less', [
             () => gulpClass.ignoreLess(),
             () => gulpLess(),
@@ -149,7 +147,7 @@ export class Axiba {
 
         let depArray: string[] = [...depSet];
         let depArrayH = depArray.filter(value => {
-            return config.mainModules.indexOf(value) === -1
+            return !config.mainModules.find(path => path.indexOf(value) === 0);
         });
 
         let nodeArray: Array<Array<string>> = this.getNodeArray(depArrayH);

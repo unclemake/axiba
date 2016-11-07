@@ -20,7 +20,7 @@ const axiba = require('../src/index');
     console.log(3);
     yield compile_1.default.buildMainFile();
     console.log(4);
-    // await compile.build();
+    yield compile_1.default.build();
     axiba.serverRun();
     compile_1.default.watch();
 }))();
