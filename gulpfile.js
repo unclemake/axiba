@@ -45,12 +45,18 @@ gulp.task('antd', function (cb) {
 
             content = content.replace(/import warning from 'warning';/g, `import * as warning from 'warning';`);
             content = content.replace(/null = null/g, `null`);
+
+            content = content.replace(/export default Button;/g, `export = Button;`);
+            content = content.replace(/export default api;/g, `export = api;`);
+
+            content = content.replace(/export interface/g, `interface`);
+
             file.contents = new Buffer(content);
             callback(null, file);
         })
     }
 
-    return gulp.src(['./assets/components/antd/**/*.tsx'], {
+    return gulp.src(['node_modules/antd/**/*.d.ts'], {
         base: './'
     })
         .pipe(antd())
@@ -58,25 +64,6 @@ gulp.task('antd', function (cb) {
 
 })
 
-
-gulp.task('antdAddLess', function () {
-
-    function antd() {
-        return through.obj((file, enc, callback) => {
-            var content = file.contents.toString();
-            content = `import './style/index.css';\n` + content;
-            file.contents = new Buffer(content);
-            callback(null, file);
-        })
-    }
-
-    return gulp.src(['./assets/components/antd/**/index.tsx'], {
-        base: './'
-    })
-        .pipe(antd())
-        .pipe(gulp.dest('./'));
-
-})
 
 gulp.task('antdless', function (cb) {
     function antd() {

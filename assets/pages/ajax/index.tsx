@@ -8,29 +8,17 @@ export default class Component extends React.Component<any, any> {
         text: ''
     }
 
-    async getAjax() {
-        let res = await get('assets/components/input/index.ts');
-        this.state.text = res.text;
-        this.setState(this.state);
-        console.log('get调用结束');
-    }
 
-    getClick() {
-        this.getAjax();
-        console.log('get');
-    }
-
-    postClick() {
-        this.postAjax().then(() => {
-            console.log('post');
-        });
-    }
-
-    postAjax() {
-        return post('assets/components/nav/index.tsx').then(res => {
-            this.state.text = res.text;
+    getAjax() {
+        get('assets/components/nav/index.tsx').then(res => {
+            this.state.text = res.data as string;
             this.setState(this.state);
-            console.log('post调用结束');
+            console.log('get调用结束1');
+        })
+        return get('assets/components/nav/index.tsx').then(res => {
+            this.state.text = res.data as string;
+            this.setState(this.state);
+            console.log('get调用结束');
         })
     }
 
@@ -38,8 +26,7 @@ export default class Component extends React.Component<any, any> {
         return <section className='page-home'>
             <h2>简单例子55</h2>
             <div>
-                <a onClick={this.getClick.bind(this)}>get</a>&nbsp;&nbsp;
-                <a onClick={this.postClick.bind(this)}>post</a>
+                <a onClick={this.getAjax.bind(this)}>get</a>&nbsp;&nbsp;
             </div>
             <p>
                 {this.state.text}

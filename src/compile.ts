@@ -117,9 +117,18 @@ export class Axiba {
         content += await nodeModule.getFileString('seajs-css');
         content += `\n\n seajs.config({ base: './${config.assetsBulid}', alias: ${JSON.stringify(this.dependenciesObj)}});`;
         content += await nodeModule.getFileString('babel-polyfill');
+
         //添加调试脚本
         content += getDevFileString();
-        let modules = await nodeModule.getPackFileString(config.mainModules);
+
+        //添加node模块
+        let depArray = this.getAssetsDependencies();
+        console.log('??' + depArray);
+        depArray = depArray.filter(value => {
+            return !!config.mainModules.find(path => value.indexOf(path) === 0);
+        });
+        console.log('??' + depArray);
+        let modules = await nodeModule.getPackFileString(depArray);
         content += modules;
 
         this.mkdirsSync(config.assetsBulid);
@@ -127,6 +136,18 @@ export class Axiba {
         return content;
     }
 
+    getAssetsDependencies() {
+        let depSet = new Set();
+        dep.dependenciesArray.forEach(value => {
+            value.dep.forEach(path => {
+                if (path.indexOf(config.assets) !== 0 && dep.isAlias(path)) {
+                    depSet.add(path);
+                }
+            })
+        });
+        let depArray: string[] = [...depSet];
+        return depArray;
+    }
 
     /**
      * 打包node所有依赖模块
@@ -136,18 +157,9 @@ export class Axiba {
      * @memberOf Axiba
      */
     async packNodeDependencies() {
-        let depSet = new Set();
-        dep.dependenciesArray.forEach(value => {
-            value.dep.forEach(path => {
-                if (path.indexOf(config.assets) !== 0 && dep.isAlias(path)) {
-                    depSet.add(path);
-                }
-            })
-        });
-
-        let depArray: string[] = [...depSet];
+        let depArray = this.getAssetsDependencies();
         let depArrayH = depArray.filter(value => {
-            return !config.mainModules.find(path => path.indexOf(value) === 0);
+            return !config.mainModules.find(path => value.indexOf(path) === 0);
         });
 
         let nodeArray: Array<Array<string>> = this.getNodeArray(depArrayH);

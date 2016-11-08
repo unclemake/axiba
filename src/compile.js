@@ -121,12 +121,31 @@ class Axiba {
             content += yield axiba_npm_dependencies_1.default.getFileString('babel-polyfill');
             //添加调试脚本
             content += axiba_server_1.getDevFileString();
-            let modules = yield axiba_npm_dependencies_1.default.getPackFileString(config_1.default.mainModules);
+            //添加node模块
+            let depArray = this.getAssetsDependencies();
+            console.log('??' + depArray);
+            depArray = depArray.filter(value => {
+                return !!config_1.default.mainModules.find(path => value.indexOf(path) === 0);
+            });
+            console.log('??' + depArray);
+            let modules = yield axiba_npm_dependencies_1.default.getPackFileString(depArray);
             content += modules;
             this.mkdirsSync(config_1.default.assetsBulid);
             fs.writeFileSync(ph.join(config_1.default.assetsBulid, config_1.default.mainJsPath), content);
             return content;
         });
+    }
+    getAssetsDependencies() {
+        let depSet = new Set();
+        axiba_dependencies_1.default.dependenciesArray.forEach(value => {
+            value.dep.forEach(path => {
+                if (path.indexOf(config_1.default.assets) !== 0 && axiba_dependencies_1.default.isAlias(path)) {
+                    depSet.add(path);
+                }
+            });
+        });
+        let depArray = [...depSet];
+        return depArray;
     }
     /**
      * 打包node所有依赖模块
@@ -137,17 +156,9 @@ class Axiba {
      */
     packNodeDependencies() {
         return __awaiter(this, void 0, void 0, function* () {
-            let depSet = new Set();
-            axiba_dependencies_1.default.dependenciesArray.forEach(value => {
-                value.dep.forEach(path => {
-                    if (path.indexOf(config_1.default.assets) !== 0 && axiba_dependencies_1.default.isAlias(path)) {
-                        depSet.add(path);
-                    }
-                });
-            });
-            let depArray = [...depSet];
+            let depArray = this.getAssetsDependencies();
             let depArrayH = depArray.filter(value => {
-                return !config_1.default.mainModules.find(path => path.indexOf(value) === 0);
+                return !config_1.default.mainModules.find(path => value.indexOf(path) === 0);
             });
             let nodeArray = this.getNodeArray(depArrayH);
             axiba_util_1.default.log('打包node模块：');
