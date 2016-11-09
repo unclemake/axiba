@@ -26,6 +26,7 @@ interface AjaxRecord {
     type: number,
     data: { [key: string]: any },
     ajaxType: string,
+    setTimeout?: any,
     responseDate?: AjaxData,
     response?: superagent.Response
 }
@@ -37,51 +38,77 @@ interface AjaxData {
 }
 
 
-interface ajaxFunction {
+interface AjaxFunction {
     (url: string, data?: { [key: string]: any }, type?: number, ajaxType?: string): Promise<AjaxData | never>
 }
 
 
-let typeFunctionArray: Array<ajaxFunction> = [
-    //同url同参数同类型 上一个完成时过 100ms 才能请求下一个
-    (url, data, type, ajaxType) => {
-        let ajaxRecord = ajaxRecordArray.find(value => {
-            console.log(new Date().getTime() - value.time.getTime());
-            return value.url === url &&
+interface TypeFunction {
+    (url: string, data?: { [key: string]: any }, type?: number, ajaxType?: string, ajaxRecord?: AjaxRecord): Promise<AjaxData | never>
+}
+
+let typeFunctionArray: Array<TypeFunction> = [
+    //同url同参数同类型 上一个完成时过 400ms 才能请求下一个
+    (url, data, type, ajaxType, ajaxRecord) => {
+        let ajaxRecordGet = ajaxRecordArray.find(value => {
+            return value != ajaxRecord &&
+                value.url === url &&
                 value.data === data &&
                 value.ajaxType === ajaxType &&
-                !!value.response &&
-                new Date().getTime() - value.time.getTime() < 100
+                 ajaxRecord.time.getTime() - value.time.getTime() < 400
         });
 
-        if (ajaxRecord) {
+        if (ajaxRecordGet) {
+            ajaxRecordArray = ajaxRecordArray.filter(value => value != ajaxRecord);
             //不返回
             return new Promise<AjaxData>(() => { });
         }
     },
     //缓存
-    (url, data, type, ajaxType) => {
+    (url, data, type, ajaxType, ajaxRecord) => {
         return new Promise<AjaxData>((reslove, reject) => {
-            var ajaxRecord = ajaxRecordArray.find(value => {
-                return value.url === url &&
+            var ajaxRecordGet = ajaxRecordArray.find(value => {
+                return value != ajaxRecord &&
+                    value.url === url &&
                     value.data === data &&
                     value.ajaxType === ajaxType
             });
-            if (ajaxRecord) {
-                if (ajaxRecord.responseDate) {
-                    return ajaxRecord.responseDate;
+            if (ajaxRecordGet) {
+                ajaxRecordArray = ajaxRecordArray.filter(value => value != ajaxRecord);
+                if (ajaxRecordGet.responseDate) {
+                    return reslove(ajaxRecordGet.responseDate);
                 } else {
-                    ajaxRecord.response.on('end', () => {
-                        reslove(ajaxRecord.responseDate);
+                    ajaxRecordGet.response.on('end', () => {
+                        reslove(ajaxRecordGet.responseDate);
                     });
                 }
             }
+            reslove();
+        });
+    },
+    //延迟提交 400ms
+    (url, data, type, ajaxType, ajaxRecord) => {
+        return new Promise<AjaxData>((reslove, reject) => {
+            let ajaxRecordGet = ajaxRecordArray.find(value => {
+                return value != ajaxRecord &&
+                    value.url === url &&
+                    value.data === data &&
+                    value.ajaxType === ajaxType &&
+                    ajaxRecord.time.getTime() - value.time.getTime() < 400
+            });
+            if (ajaxRecordGet) {
+                clearTimeout(ajaxRecordGet.setTimeout);
+            }
+            ajaxRecord.setTimeout = setTimeout(function () {
+                reslove();
+            }, 400);
+
         });
     }
 ]
 
 
-export let ajax: ajaxFunction = async (url, data, type = 0, ajaxType = 'get') => {
+export let ajax: AjaxFunction = async (url, data, type = 0, ajaxType = 'get') => {
     let ajaxRequest: superagent.SuperAgentRequest;
     let ajaxRecord: AjaxRecord = {
         url,
@@ -112,12 +139,12 @@ export let ajax: ajaxFunction = async (url, data, type = 0, ajaxType = 'get') =>
         ajaxRequest = ajaxRequest.send(data);
     }
 
-    let typeFunctionValue = typeFunctionArray[type](url, data, type, ajaxType);
+    ajaxRecordArray.unshift(ajaxRecord);
+    let typeFunctionValue = await typeFunctionArray[type](url, data, type, ajaxType, ajaxRecord);
     if (typeFunctionValue) {
         return typeFunctionValue;
     }
     //添加请求记录
-    ajaxRecordArray.unshift(ajaxRecord);
 
     let promiseFunction = (reslove, reject) => {
         //发送请求

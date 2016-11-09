@@ -9,24 +9,54 @@ export default class Component extends React.Component<any, any> {
     }
 
 
-    getAjax() {
+
+    async getAjax() {
+
+        let res = get('assets/components/nav/index.tsx').then(res => {
+            this.state.text = res.data as string;
+            this.setState(this.state);
+            console.log('调用第一次');
+        });
+        
         get('assets/components/nav/index.tsx').then(res => {
             this.state.text = res.data as string;
             this.setState(this.state);
-            console.log('get调用结束1');
-        })
-        return get('assets/components/nav/index.tsx').then(res => {
+            console.log('调用第二次');
+        });
+    }
+
+    async getAjax1() {
+        let res = await get('assets/components/nav/index.tsx', null, 1)
+        get('assets/components/nav/index.tsx', null, 1).then(res => {
             this.state.text = res.data as string;
             this.setState(this.state);
-            console.log('get调用结束');
-        })
+            console.log('调用第二次');
+        });
     }
+
+
+    async getAjax2() {
+        let res = get('assets/components/nav/index.tsx', null, 2).then(res => {
+            this.state.text = res.data as string;
+            this.setState(this.state);
+            console.log('调用第一次');
+        });
+
+        get('assets/components/nav/index.tsx', null, 2).then(res => {
+            this.state.text = res.data as string;
+            this.setState(this.state);
+            console.log('调用第二次');
+        });
+    }
+
 
     render() {
         return <section className='page-home'>
             <h2>简单例子55</h2>
             <div>
-                <a onClick={this.getAjax.bind(this)}>get</a>&nbsp;&nbsp;
+                <a onClick={this.getAjax.bind(this)}>get0</a>&nbsp;&nbsp;
+                <a onClick={this.getAjax1.bind(this)}>get1</a>&nbsp;&nbsp;
+                <a onClick={this.getAjax2.bind(this)}>get2</a>&nbsp;&nbsp;
             </div>
             <p>
                 {this.state.text}

@@ -74,7 +74,7 @@ export class Gulp {
     addDefine() {
         return makeLoader((file, enc, callback) => {
             var content: string = file.contents.toString();
-            content = `define("${dep.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {\n${content}\n});`;
+            content = `define("${dep.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {${content}\n});`;
             file.contents = new Buffer(content);
             return callback(null, file);
         })

@@ -1,3 +1,4 @@
 import '../antd/input/style/index.css';
-import * as Input from 'antd/lib/input/index';
-export default Input;
+import Input from 'antd/lib/input/Input';
+let input:typeof Input = require('antd/lib/input/index');
+export default input;

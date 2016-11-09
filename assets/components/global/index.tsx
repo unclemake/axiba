@@ -31,7 +31,6 @@ function async(text) {
 }
 
 
-
 class Main extends React.Component<ReactRouter.RouteComponentProps<void, void>, void> {
     render() {
         return <div className='h100'>

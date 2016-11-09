@@ -16,11 +16,11 @@ const axiba = require('../src/index');
     console.log(1);
     yield compile_1.default.scanDependence();
     console.log(2);
-    // await compile.packNodeDependencies();
+    yield compile_1.default.packNodeDependencies();
     console.log(3);
     yield compile_1.default.buildMainFile();
     console.log(4);
-    // await compile.build();
+    yield compile_1.default.build();
     axiba.serverRun();
     compile_1.default.watch();
 }))();
@@ -61,5 +61,4 @@ const axiba = require('../src/index');
 //   "gulp-less": "^3.1.0",
 //   "gulp-uglify": "^2.0.0"
 // }, 
-
 //# sourceMappingURL=index.js.map

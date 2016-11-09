@@ -46,10 +46,10 @@ gulp.task('antd', function (cb) {
             content = content.replace(/import warning from 'warning';/g, `import * as warning from 'warning';`);
             content = content.replace(/null = null/g, `null`);
 
-            content = content.replace(/export default Button;/g, `export = Button;`);
-            content = content.replace(/export default api;/g, `export = api;`);
-
+            content = content.replace(/export default /g, `export = `);
             content = content.replace(/export interface/g, `interface`);
+
+            content = content.replace(/import Input from \'\.\/Input\'/g, `import Input = require('./Input')`);
 
             file.contents = new Buffer(content);
             callback(null, file);

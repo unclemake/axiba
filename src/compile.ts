@@ -48,15 +48,13 @@ export class Axiba {
         ]);
 
         this.addGulpLoader(['.ts', '.tsx'], [
+            () => sourcemaps.init(),
             () => gulpTypescript(tsconfig),
             // () => gulpClass.jsPathReplace(),
             () => gulpClass.addDefine(),
-            () => sourcemaps.init(),
-            () => gulpBabel({ presets: ['es2015'] }),
+            // () => gulpBabel({ presets: ['es2015'] }),
             // () => gulpUglify({ mangle: false }),
-            () => sourcemaps.write('./', {
-                sourceRoot: '/' + config.assetsBulid
-            })
+            () => sourcemaps.write('../' + config.assets)
         ]);
 
         this.addGulpLoader(['.js'], [
@@ -122,13 +120,7 @@ export class Axiba {
         content += getDevFileString();
 
         //添加node模块
-        let depArray = this.getAssetsDependencies();
-        console.log('??' + depArray);
-        depArray = depArray.filter(value => {
-            return !!config.mainModules.find(path => value.indexOf(path) === 0);
-        });
-        console.log('??' + depArray);
-        let modules = await nodeModule.getPackFileString(depArray);
+        let modules = await nodeModule.getPackFileString(this.getMainNodeModules());
         content += modules;
 
         this.mkdirsSync(config.assetsBulid);
@@ -136,6 +128,31 @@ export class Axiba {
         return content;
     }
 
+
+    mainNodeModules: string[];
+    /**
+     * 获取所有main 需要打包的模块
+     * 
+     * @returns
+     * 
+     * @memberOf Axiba
+     */
+    getMainNodeModules() {
+        let depArray = this.getAssetsDependencies();
+        depArray = depArray.filter(value => {
+            return !!config.mainModules.find(path => value.indexOf(path) === 0);
+        });
+        this.mainNodeModules = depArray;
+        return depArray;
+    }
+
+    /**
+     * 获取依赖表所有node 模块的依赖
+     * 
+     * @returns
+     * 
+     * @memberOf Axiba
+     */
     getAssetsDependencies() {
         let depSet = new Set();
         dep.dependenciesArray.forEach(value => {
@@ -175,11 +192,11 @@ export class Axiba {
             }
             util.log(alias);
             let externalsArray = depArray.filter(dep => value.indexOf(dep) === -1);
-            util.log(externalsArray);
             let contents = await nodeModule.getPackFileString(value, externalsArray);
             let path = ph.join(config.assetsBulid, 'node_modules', alias);
             this.mkdirsSync(path);
             fs.writeFileSync(ph.join(path, 'index.js'), contents);
+
             this.saveAlias(value, dep.clearPath(ph.join('node_modules', alias, 'index.js')));
         }
         return nodeArray;
@@ -319,6 +336,14 @@ export class Axiba {
         let gulpStream = gulp.src(pathArr, {
             base: config.assets
         }).pipe(dep.readWriteStream(true));
+
+
+        // //生成全局文件
+        // let mainArr = Object.assign([], this.mainNodeModules);
+        // this.getMainNodeModules();
+        // if (mainArr.sort().toString() === this.mainNodeModules.sort().toString()) {
+        //     await this.buildMainFile();
+        // }
 
         return await new Promise((resolve) => {
             this.loader(gulpStream, ph.extname(path))
