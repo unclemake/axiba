@@ -1,97 +1,269 @@
 import * as React from 'react';
 import Input from '../input/index';
+import { addRule, getLength, messages, regExpArray, ruleDefault, ruleArray, replaceArray, RuleFunction, replaceDefault } from './rule';
 import Popover from '../popover/index';
-import InputNumber from '../input-number/index';
 import { InputProps } from 'antd/lib/input/Input';
 
 /**
-* 获取字符串长度 中文 = 2 英文 = 1
-*/
-export function getLength(value: string): number {
-    return value.replace(/[^\x00-\xff]/g, "01").length / 2;
-};
-
-let messages = {
-    required: "必填!"
-}
-
-
-let regExpArray = {
-    required:  /^\s*$/g,
-}
-
-
-interface RuleFunction {
-    (value, parameter): boolean
-};
-
-let ruleArray: { [key: string]: RuleFunction } = {
-    required: (value) => {
-        return value != "" && !regExpArray.required.test(value);
-    }
-}
-
-
-interface IValidateProps extends InputProps {
+ * 验证组件 属性
+ * 
+ * @interface IValidateProps
+ * @extends {InputProps}
+ */
+interface IValidateProps {
+    /**
+     * 必填
+     * 
+     * @type {boolean}
+     * @memberOf IValidateProps
+     */
     required?: boolean
-    min?: number,
+    /**
+     * 数值最小值
+     * 
+     * @type {number}
+     * @memberOf IValidateProps
+     */
+    min?: number
+    /**
+     * 数值最大值
+     * 
+     * @type {number}
+     * @memberOf IValidateProps
+     */
     max?: number
+    /**
+     * 字符串长度最小值
+     * 
+     * @type {number}
+     * @memberOf IValidateProps
+     */
+    minLength?: number
+    /**
+     * 字符串长度最大值
+     * 
+     * @type {number}
+     * @memberOf IValidateProps
+     */
+    maxLength?: number
+    /**
+     * 是否开启符号输入
+     * 
+     * @type {number}
+     * @memberOf IValidateProps
+     */
+    noSymbol?: boolean
+
+    /**
+    * 电话
+    * 
+    * @type {boolean}
+    * @memberOf IValidateProps
+    */
+    telephone?: boolean
+
+    placeholder?: string
+    value?: string
+
+    /**
+   * 自定义规则
+   * 
+   * @type {boolean}
+   * @memberOf IValidateState
+   */
+    [key: string]: any
 };
+/**
+ * 状态
+ * 
+ * @interface IValidateState
+ */
 interface IValidateState {
+    /**
+     * 验证信息
+     * 
+     * @type {string[]}
+     * @memberOf IValidateState
+     */
     msg: string[],
+    /**
+     * 验证结果
+     * 
+     * @type {boolean}
+     * @memberOf IValidateState
+     */
     validate: boolean
+
+
 };
-
-
+/**
+ * 验证类
+ * 
+ * @class Validate
+ * @extends {React.Component<IValidateProps, IValidateState>}
+ */
 class Validate extends React.Component<IValidateProps, IValidateState> {
 
+    /**
+     * 状态
+     *
+     * @memberOf Validate
+     */
     state = {
         msg: [],
-        validate: true
+        validate: true,
+        value: this.props.value
     }
 
-    validate(e) {
+    /**
+     * 验证事件
+     * 
+     * @private
+     * @param {any} e
+     * @returns
+     * 
+     * @memberOf Validate
+     */
+    private validate(e) {
         let value = e.target.value;
         let state = this.state;
         state.msg = [];
         state.validate = true;
+        //去除前后空格
+        state.value = replaceDefault(value);
 
         if (this.props.required) {
-            let validate = this.valueValidate('required', value);
-            state.validate = state.validate && validate;
-            validate || state.msg.push(messages['required']);
+            let validate = this.valueValidateSave('required', value);
             this.setState(this.state);
-            return;
+            this.hiddenPopover();
+            if (!validate) { return; }
+        } else {
+            let validate = this.valueValidate('required', value);
+            if (!validate) { return; }
+        }
+
+        for (let key in this.props) {
+            if (messages.hasOwnProperty(key)) {
+                state.value = this.valueReplace(key, value);
+                let validate = this.valueValidateSave(key, value);
+            }
         }
 
         this.setState(this.state);
+        this.hiddenPopover();
+    }
+
+    private hiddenST
+    /**
+     * 定时隐藏提示框
+     * 
+     * @private
+     * 
+     * @memberOf Validate
+     */
+    private hiddenPopover() {
+        clearTimeout(this.hiddenST);
+        this.hiddenST = setTimeout(() => {
+            this.state.validate = true;
+            this.setState(this.state);
+        }, 4500);
     }
 
 
-    msgRender() {
+    /**
+     * 输入值 替换
+     * 
+     * @private
+     * @param {any} key
+     * @param {any} value
+     * @returns
+     * 
+     * @memberOf Validate
+     */
+    private valueReplace(key, value) {
+        let replaceFunction = replaceArray[key];
+        if (replaceFunction) {
+            return replaceFunction(value);
+        } else {
+            return value;
+        }
+    }
+
+    /**
+     * 验证信息渲染
+     * 
+     * @returns
+     * 
+     * @memberOf Validate
+     */
+    private msgRender() {
         return <div>{
             this.state.msg.map((value, index) => <p key={index}>{value}</p>)
         }</div>;
     }
 
-    valueValidate(type: string, value) {
-        let parameter = this.props[type],
-            rule = ruleArray[type],
-            msg = messages[type];
-        return rule(value, parameter);
+    /**
+     * 验证
+     * 
+     * @param {string} type 验证类型
+     * @param {string} value 验证值
+     * @returns
+     * 
+     * @memberOf Validate
+     */
+    private valueValidate(type: string, value: string) {
+        let state = this.state,
+            parameter = this.props[type],
+            rule = ruleArray[type] || ruleDefault(type),
+            validate = rule(value, parameter);
+        return validate;
     }
 
+    /**
+     * 验证 --> 保存验证
+     * 
+     * @param {string} type
+     * @param {string} value
+     * @returns
+     * 
+     * @memberOf Validate
+     */
+    valueValidateSave(type: string, value: string) {
+        let state = this.state,
+            msg = messages[type],
+            parameter = this.props[type],
+            validate = this.valueValidate(type, value);
+        state.validate = state.validate && validate;
+        validate || state.msg.push(msg(value, parameter));
+        return validate;
+    }
 
+    private onChange(e) {
+        this.state.value = e.target.value;
+        this.setState(this.state);
+    }
+    /**
+     * 渲染
+     * 
+     * @returns {JSX.Element}
+     * 
+     * @memberOf Validate
+     */
     public render(): JSX.Element {
         let {props} = this;
         return (<Popover overlayClassName='ant-popover-warning' placement="topLeft" content={this.msgRender()} visible={!this.state.validate}>
             {
-                (props.max || props.min) ?
-                    <InputNumber min={props.min} max={props.max} defaultValue={3} onBlur={this.validate.bind(this)} /> :
-                    <Input {...this.props} onBlur={this.validate.bind(this)} />
+                <Input value={this.state.value}
+                    onChange={this.onChange.bind(this)}
+                    onBlur={this.validate.bind(this)} />
             }
         </Popover >);
     }
 }
 
+
+export { addRule, getLength };
 export default Validate;
+
+
+

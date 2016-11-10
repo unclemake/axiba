@@ -1,8 +1,10 @@
 import '../antd/notification/style/index.css';
-import * as Notification from 'antd/lib/notification/index';
-export default Notification;
+import { Notification, ArgsProps } from 'antd/lib/notification/index';
+let notification: typeof Notification = require('antd/lib/notification/index');
 
-export let success = Notification.success;
-export let info = Notification.info;
-export let error = Notification.error;
-export let warning = Notification.warning;
+export default notification;
+export let open: (args: ArgsProps) => void = notification.open;
+export let success: (args: ArgsProps) => void = notification.success;
+export let info: (args: ArgsProps) => void = notification.info;
+export let error: (args: ArgsProps) => void = notification.error;
+export let warning: (args: ArgsProps) => void = notification.warning;

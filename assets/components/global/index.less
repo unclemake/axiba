@@ -1,3 +1,31 @@
 @import "./_themes.less";
+@import "./_quick.less";
 @import "../antd/style/index.less";
+.page-loading-box {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    .@{ant-prefix}-progress {
+        display: block;
+        &-outer {
+            display: block;
+        }
+        &-inner {
+            display: block;
+            border-radius: 0px;
+        }
+        &-bg {
+            display: block;
+            border-radius: 0px;
+        }
+    }
+}
 
+#app {
+    .h-height;
+}
+
+.h100 {
+    .h-height;
+}

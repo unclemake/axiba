@@ -1,5 +1,5 @@
 import * as superagent from 'superagent';
-import { error as errorMsg } from '../Notification/index';
+import { error as errorMsg } from '../notification/index';
 
 // 添加后端访问路径等处理
 export function get(url: string, data?: { [key: string]: any }, type?: number) {
@@ -47,6 +47,9 @@ interface TypeFunction {
     (url: string, data?: { [key: string]: any }, type?: number, ajaxType?: string, ajaxRecord?: AjaxRecord): Promise<AjaxData | never>
 }
 
+
+let stTime = 400;
+
 let typeFunctionArray: Array<TypeFunction> = [
     //同url同参数同类型 上一个完成时过 400ms 才能请求下一个
     (url, data, type, ajaxType, ajaxRecord) => {
@@ -55,7 +58,7 @@ let typeFunctionArray: Array<TypeFunction> = [
                 value.url === url &&
                 value.data === data &&
                 value.ajaxType === ajaxType &&
-                 ajaxRecord.time.getTime() - value.time.getTime() < 400
+                ajaxRecord.time.getTime() - value.time.getTime() < 400
         });
 
         if (ajaxRecordGet) {
@@ -101,7 +104,7 @@ let typeFunctionArray: Array<TypeFunction> = [
             }
             ajaxRecord.setTimeout = setTimeout(function () {
                 reslove();
-            }, 400);
+            }, stTime);
 
         });
     }
