@@ -14,8 +14,6 @@ import * as fs from 'fs';
 
 
 
-
-
 (async () => {
   console.log(1);
   await compile.scanDependence();

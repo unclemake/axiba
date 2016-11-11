@@ -18,7 +18,7 @@ export default class Component extends React.Component<any, any> {
     render() {
         const {state} = this;
         return <section className='page-home'>
-            <h2>简单例子1</h2>
+            <h2>代码调试页面</h2>
             <div>
                 <a onClick={this.btnClick.bind(this)} className='ant-btn'>点我</a>
             </div>

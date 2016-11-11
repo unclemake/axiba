@@ -1,24 +1,50 @@
 @import "./_themes.less";
 @import "./_quick.less";
 @import "../antd/style/index.less";
-.page-loading-box {
+.loading-box {
     position: fixed;
     top: 0px;
     left: 0px;
     width: 100%;
-    .@{ant-prefix}-progress {
-        display: block;
-        &-outer {
-            display: block;
+    &-inner {
+        background-color: @primary-color;
+        width: 0px;
+        height: 3px;
+    }
+    &-loading {
+        .loading-box-inner {
+            animation: loading-box 1s;
         }
-        &-inner {
-            display: block;
-            border-radius: 0px;
+    }
+    &-complete {
+        .loading-box-inner {
+            animation: loading-box 0.5s;
+            animation-play-state: running;
         }
-        &-bg {
-            display: block;
-            border-radius: 0px;
-        }
+    }
+}
+
+@keyframes loading-box {
+    0% {
+        width: 0%;
+    }
+    50% {
+        width: 60%;
+        animation-play-state: paused;
+    }
+    100% {
+        width: 100%;
+        display: none;
+    }
+}
+
+@keyframes loading-complete {
+    0% {
+        width: 60%;
+    }
+    100% {
+        width: 100%;
+        display: none;
     }
 }
 

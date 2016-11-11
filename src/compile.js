@@ -61,7 +61,9 @@ class Axiba {
                 () => gulp_1.default.addDefine(),
             // () => gulpBabel({ presets: ['es2015'] }),
             // () => gulpUglify({ mangle: false }),
-                () => sourcemaps.write('../')
+                () => sourcemaps.write('./', {
+                sourceRoot: '/' + config_1.default.assets
+            })
         ]);
         this.addGulpLoader(['.js'], []);
         this.addGulpLoader(['.html', '.tpl'], []);

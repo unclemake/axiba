@@ -7,20 +7,30 @@ import Progress from '../progress/index';
 declare let require: any;
 
 
-
 class Main extends React.Component<ReactRouter.RouteComponentProps<void, void>, any> {
 
     state = {
-        loading: true,
+        loading: 0,
         page: <div></div>
     }
 
     asyncLoading() {
+        this.asyncRender = false;
+
         let props = this.props;
         // 自动解析
         let url = props.route.path === '*' ? '../../pages' + props.location.pathname + '/index' : '../' + props.route.path;
         console.log('加载：' + url);
+        this.state.loading = 0;
+        this.setState(this.state);
+
+        setTimeout(() => {
+            this.state.loading = 1;
+            this.setState(this.state);
+        }, 0);
+
         require.async(url, (mod) => {
+            this.state.loading = 2;
             if (mod) {
                 let Com = mod.default;
                 this.state.page = <Com />
@@ -28,18 +38,25 @@ class Main extends React.Component<ReactRouter.RouteComponentProps<void, void>, 
             } else {
                 require.async('../../pages/error/index.js', (mod) => {
                     let Com = mod.default;
-                    this.state.page = <Com />;
+                    this.state.page = <Com status={404} />;
                     this.setState(this.state);
                 })
             }
         })
     }
 
+
+    asyncRender = false;
     componentWillReceiveProps(nextProps) {
         let oldLocation = this.props.location;
         let location = nextProps.location;
-        
-        if (oldLocation.pathname != location.pathname || oldLocation.search !=  location.search) {
+        if (oldLocation.pathname != location.pathname || oldLocation.search != location.search) {
+            this.asyncRender = true;
+        }
+    }
+
+    componentDidUpdate() {
+        if (this.asyncRender) {
             this.asyncLoading();
         }
     }
@@ -48,10 +65,22 @@ class Main extends React.Component<ReactRouter.RouteComponentProps<void, void>, 
         this.asyncLoading();
     }
 
+    getLoadingClass() {
+        switch (this.state.loading) {
+            case 0:
+                return '';
+            case 1:
+                return 'loading-box-loading';
+            case 2:
+                return 'loading-box-complete';
+        }
+    }
+
     render() {
         return <div className='h100'>
             <Nav></Nav>
-            <div className="page-loading-box">
+            <div className={"loading-box " + this.getLoadingClass()}>
+                <div className="loading-box-inner"></div>
             </div>
             <main>
                 {this.state.page}

@@ -1,6 +1,7 @@
 import compile from './compile';
 import config from './config';
 import { run, config as axibaConfig } from 'axiba-server';
+import util from 'axiba-util';
 
 
 //导出配置
@@ -25,9 +26,15 @@ export function serverRun() {
  * 
  * @export
  */
-export function init() {
-    compile.makeMainFile();
-    compile.bulid();
+export async function init() {
+    util.log('项目文件依赖扫描');
+    await compile.scanDependence();
+    util.log('node依赖打包');
+    await compile.packNodeDependencies();
+    util.log('框架文件生成');
+    await compile.buildMainFile();
+    util.log('项目文件全部生成');
+    await compile.build();
 }
 
 /**
@@ -36,6 +43,7 @@ export function init() {
  * @export
  */
 export function watch() {
+    serverRun();
     compile.watch();
 }
 

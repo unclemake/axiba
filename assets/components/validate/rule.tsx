@@ -51,6 +51,12 @@ export let replaceArray = {
 
 
 
+/**
+ * 验证规则 类型
+ * 
+ * @export
+ * @interface RuleObj
+ */
 export interface RuleObj {
     key: string,
     messages: (value: string, parameter) => string,

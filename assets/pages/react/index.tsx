@@ -14,7 +14,8 @@ export default class Component extends React.Component<any, any> {
      */
     state = {
         btnNu: 1,
-        btnText: '点击我'
+        btnText: '点击我',
+        component2: 1
     };
 
 
@@ -30,6 +31,19 @@ export default class Component extends React.Component<any, any> {
 
 
     /**
+     * 改变 component2的props
+     * 
+     * 
+     * @memberOf Component
+     */
+    changeProps() {
+        this.setState({
+            component2: this.state.component2 + 1
+        });
+    }
+
+
+    /**
      * 渲染函数
      * @returns jsx
      * @memberOf Component
@@ -37,12 +51,16 @@ export default class Component extends React.Component<any, any> {
     render() {
         const {state} = this;
         return (<section className='page-home'>
-            <h2>简单例子1</h2>
+            <p>点击事件的2种绑定方式</p>
             <div>
                 <a onClick={this.btnClick.bind(this)}>{state.btnText}:{state.btnNu}</a>&nbsp;&nbsp;
-                <a onClick={() => this.btnClick()}>{state.btnText}:{state.btnNu}</a>
+                <a onClick={() => this.changeProps()}>修改Component2属性</a>
             </div>
-            <Component2 nu={10} type='text' />
+            <br />
+            <br />
+            <br />
+            <br />
+            <Component2 nu={this.state.component2} type='text' />
         </section>)
     }
 }
@@ -93,6 +111,59 @@ export class Component2 extends React.Component<Component2Props, Component2State
         });
     }
 
+
+    /**
+     * 接收到新的props或者state后，进行渲染之前调用，此时不允许更新props或state。
+     * 
+     * 
+     * @memberOf Component2
+     */
+    componentWillMount() {
+        console.log('componentWillMount');
+    }
+
+    /**
+     * 完成渲染新的props或者state后调用，此时可以访问到新的DOM元素。
+     * 
+     * 
+     * @memberOf Component2
+     */
+    componentDidMount() {
+        console.log('componentDidMount');
+    }
+
+
+    /**
+     * 组件接收到新的props时调用，并将其作为参数nextProps使用，此时可以更改组件props及state。
+     * 
+     * 
+     * @memberOf Component2
+     */
+    componentWillReceiveProps() {
+        console.log('componentWillReceiveProps');
+    }
+
+    /**
+     * 组件是否应当渲染新的props或state，返回false表示跳过后续的生命周期方法，通常不需要使用以避免出现bug。在出现应用的瓶颈时，可通过该方法进行适当的优化。
+     * 
+     * @returns
+     * 
+     * @memberOf Component2
+     */
+    shouldComponentUpdate() {
+        console.log('shouldComponentUpdate');
+        return true;
+    }
+    
+    /**
+     * 销毁&清理期
+     * 
+     * 
+     * @memberOf Component2
+     */
+    componentWillUnmount() { 
+        console.log('componentWillUnmount');
+    }
     /**
      * 渲染
      * @returns jsx
@@ -101,14 +172,16 @@ export class Component2 extends React.Component<Component2Props, Component2State
     render() {
         const {state} = this;
         return <section className='page=home'>
-            <h2>简单例子2</h2>
+            <p>组件的创建和调用  react 生命周期</p>
             <div>
                 <input type='text' />
-
                 <a onClick={this.btnClick.bind(this)} className='ant-btn'>
                     <i className='iconfont icon-home white'></i>
                     点击:{state.btnNu}</a>
             </div>
+            <p>
+                props['nu]: {this.props.nu}
+            </p>
         </section>;
     }
 }

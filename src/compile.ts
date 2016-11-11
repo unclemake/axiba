@@ -54,7 +54,9 @@ export class Axiba {
             () => gulpClass.addDefine(),
             // () => gulpBabel({ presets: ['es2015'] }),
             // () => gulpUglify({ mangle: false }),
-            () => sourcemaps.write('../' + config.assets)
+            () => sourcemaps.write('./', {
+                sourceRoot: '/' + config.assets
+            })
         ]);
 
         this.addGulpLoader(['.js'], [

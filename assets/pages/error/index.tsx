@@ -18,7 +18,7 @@ export default class Component extends React.Component<any, any> {
     render() {
         const {state} = this;
         return <section className="page=home">
-            <h2>未找到页面</h2>
+            <h2>错误:{this.props.status}</h2>
         </section>
     }
 }
