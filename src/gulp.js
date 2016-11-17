@@ -10,6 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const ph = require('path');
 const axiba_dependencies_1 = require('axiba-dependencies');
 const axiba_gulp_1 = require('axiba-gulp');
+const config_1 = require('./config');
+var applySourceMap = require('vinyl-sourcemaps-apply');
 class Gulp {
     constructor() {
         this.alias = {};
@@ -67,8 +69,10 @@ class Gulp {
     */
     addDefine() {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            let fi = file.sourceMap;
+            fi.mappings = ";" + fi.mappings;
             var content = file.contents.toString();
-            content = `define("${axiba_dependencies_1.default.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {${content}\n});`;
+            content = `define("${axiba_dependencies_1.default.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {\n${content}\n});`;
             file.contents = new Buffer(content);
             return callback(null, file);
         });
@@ -103,7 +107,7 @@ class Gulp {
                     let str = arguments[0];
                     //匹配的路径名
                     let matchStr = arguments[match];
-                    //替换后的名字
+                    //替换后的路径名
                     let url = matchStr;
                     str = str.replace(matchStr, self.aliasReplacePath(matchStr));
                     return str;
@@ -112,6 +116,8 @@ class Gulp {
             file.contents = new Buffer(content);
             return callback(null, file);
         });
+    }
+    md5Replace(url) {
     }
     /**
      * 根据路径获取别名
@@ -132,6 +138,25 @@ class Gulp {
             }
         }
         return path;
+    }
+    /**
+     * html根目录路径替换
+     *
+     * @returns
+     *
+     * @memberOf Gulp
+     */
+    htmlReplace() {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            var content = file.contents.toString();
+            content = this.htmlBaseReplace(content);
+            file.contents = new Buffer(content);
+            return callback(null, file);
+        });
+    }
+    htmlBaseReplace(content) {
+        content = content.replace(/\$\{base\}/g, config_1.default.bulidPath);
+        return content;
     }
 }
 exports.Gulp = Gulp;

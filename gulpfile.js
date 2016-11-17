@@ -25,7 +25,7 @@ gulp.task('build', function () {
             })
             .pipe(sourcemaps.init())
             .pipe(gulpTypescript(tsconfig))
-            .pipe(sourcemaps.write('./', { includeContent: false, sourceRoot: './' }))
+            .pipe(sourcemaps.write('./', { includeContent: false, sourceRoot: '../' }))
             .pipe(gulp.dest('./'));
     }
 });

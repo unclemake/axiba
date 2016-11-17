@@ -6,13 +6,13 @@ import * as through from 'through2';
 import { default as dep, DependenciesModel } from 'axiba-dependencies';
 import { TransformFunction, FlushFunction, makeLoader, getFile } from 'axiba-gulp';
 import config from './config';
-
+var applySourceMap = require('vinyl-sourcemaps-apply');
 
 export class Gulp {
 
 
     alias: { [key: string]: string } = {}
-    
+
 
     /**
      * 添加js的alias
@@ -73,8 +73,11 @@ export class Gulp {
     */
     addDefine() {
         return makeLoader((file, enc, callback) => {
+            let fi: any = (file as any).sourceMap;
+            fi.mappings = ";" + fi.mappings;
+           
             var content: string = file.contents.toString();
-            content = `define("${dep.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {${content}\n});`;
+            content = `define("${dep.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {\n${content}\n});`;
             file.contents = new Buffer(content);
             return callback(null, file);
         })
@@ -114,7 +117,7 @@ export class Gulp {
                     let str: string = arguments[0];
                     //匹配的路径名
                     let matchStr = arguments[match];
-                    //替换后的名字
+                    //替换后的路径名
                     let url: string = matchStr;
 
                     str = str.replace(matchStr, self.aliasReplacePath(matchStr));
@@ -128,6 +131,10 @@ export class Gulp {
         });
     }
 
+    
+    md5Replace(url) { 
+
+    }
 
     /**
      * 根据路径获取别名
@@ -149,6 +156,27 @@ export class Gulp {
         }
 
         return path;
+    }
+
+
+    /**
+     * html根目录路径替换
+     * 
+     * @returns
+     * 
+     * @memberOf Gulp
+     */
+    htmlReplace() {
+        return makeLoader((file, enc, callback) => {
+            var content: string = file.contents.toString();
+            content = this.htmlBaseReplace(content);
+            file.contents = new Buffer(content);
+            return callback(null, file);
+        });
+    }
+    htmlBaseReplace(content: string) {
+        content = content.replace(/\$\{base\}/g, config.bulidPath);
+        return content;
     }
 
 

@@ -2,9 +2,7 @@ let config = {
     //静态文件路径
     assets: 'assets',
     //生成路径
-    assetsBulid: 'assetsBulid',
-    //是否开启dev
-    devBulid: true,
+    bulidPath: 'assets-bulid',
     //默认启动页面
     mainPath: 'index.html',
     //模块文件的路径
@@ -22,4 +20,8 @@ let config = {
     //开发长连接端口
     devPort: 555
 };
+
+
+
+
 export default config;

@@ -15,16 +15,11 @@ import * as fs from 'fs';
 
 
 (async () => {
-  console.log(1);
-  await compile.scanDependence();
-  console.log(2);
-  await compile.packNodeDependencies();
-  console.log(3);
-  await compile.buildMainFile();
-  console.log(4);
-  await compile.build();
+  // axiba.openDev();
+
+  axiba.init();
+
   axiba.serverRun();
-  compile.watch();
 })();
 
 
