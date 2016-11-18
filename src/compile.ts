@@ -19,7 +19,6 @@ const watch = require('gulp-watch');
 export class Compile extends CompileDev {
 
     addLoader() {
-
    
         this.addGulpLoader('.less', [
             () => gulpClass.ignoreLess(),
@@ -40,11 +39,15 @@ export class Compile extends CompileDev {
         ]);
 
         this.addGulpLoader(['.js'], []);
+
         this.addGulpLoader(['.html', '.tpl'], [
             () => gulpClass.htmlReplace()
         ]);
+
         this.addGulpLoader(['.png', '.jpg', '.jpeg'], []);
+
         this.addGulpLoader(['.eot', '.svg', '.ttf', '.woff'], []);
+        
     }
 }
 

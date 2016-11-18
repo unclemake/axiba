@@ -16,10 +16,13 @@ import * as fs from 'fs';
 
 (async () => {
   // axiba.openDev();
+  compile.md5Build();
 
-  axiba.init();
 
-  axiba.serverRun();
+
+  // axiba.init();
+
+  // axiba.watch();
 })();
 
 

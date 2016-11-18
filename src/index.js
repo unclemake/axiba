@@ -26,7 +26,6 @@ function serverRun() {
     axiba_server_1.config.mainPath = config_1.default.bulidPath + '/' + config_1.default.mainPath;
     axiba_server_1.run();
 }
-exports.serverRun = serverRun;
 let bulidPath = config_1.default.bulidPath;
 let dev = false;
 function openDev() {

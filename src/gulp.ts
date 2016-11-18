@@ -75,7 +75,7 @@ export class Gulp {
         return makeLoader((file, enc, callback) => {
             let fi: any = (file as any).sourceMap;
             fi.mappings = ";" + fi.mappings;
-           
+
             var content: string = file.contents.toString();
             content = `define("${dep.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {\n${content}\n});`;
             file.contents = new Buffer(content);
@@ -117,12 +117,8 @@ export class Gulp {
                     let str: string = arguments[0];
                     //匹配的路径名
                     let matchStr = arguments[match];
-                    //替换后的路径名
-                    let url: string = matchStr;
 
-                    str = str.replace(matchStr, self.aliasReplacePath(matchStr));
-
-                    return str;
+                    return this.md5Replace(file, matchStr);
                 });
             });
 
@@ -131,9 +127,42 @@ export class Gulp {
         });
     }
 
-    
-    md5Replace(url) { 
 
+
+    /**
+     * ts相对路径计算
+     * 
+     * @param {any} path1
+     * @param {any} path2
+     * 
+     * @memberOf Gulp
+     */
+    pathJoin(filePath, path) {
+        let newPath = '';
+        let extname = ph.extname(filePath);
+        if (dep.isAlias(path)) {
+            newPath = path;
+        } else {
+            newPath = ph.join(filePath, path);
+        }
+
+        if (fs.existsSync(newPath)) {
+            return dep.clearPath(newPath);
+        } else if (fs.existsSync(newPath + extname)) {
+            return dep.clearPath(newPath);
+        } else {
+            return path;
+        }
+    }
+
+    async md5Replace(filePath, path) {
+        let newPath = this.pathJoin(filePath, path);
+        let depObject = dep.dependenciesArray.find(value => value.path === newPath);
+        if (depObject) {
+
+        } else {
+            return path;
+        }
     }
 
     /**

@@ -6,7 +6,7 @@ import * as React from 'react';
  * @class Component
  * @extends {React.Component<any, any>}
  */
-export default class Component extends React.Component<any, any> {
+export default class Component extends React.PureComponent<any, any> {
 
     /**
      * 状态   
@@ -92,7 +92,7 @@ type Component2State = {
  *     nu: number
  * }, any>}
  */
-export class Component2 extends React.Component<Component2Props, Component2State> {
+export class Component2 extends React.PureComponent<Component2Props, Component2State> {
     /**
      * 初始化状态
      * @memberOf Component2
@@ -150,20 +150,21 @@ export class Component2 extends React.Component<Component2Props, Component2State
      * 
      * @memberOf Component2
      */
-    shouldComponentUpdate() {
-        console.log('shouldComponentUpdate');
+    ReactCompositeComponent() {
+        console.log('ReactCompositeComponent');
         return true;
     }
-    
+
     /**
      * 销毁&清理期
      * 
      * 
      * @memberOf Component2
      */
-    componentWillUnmount() { 
+    componentWillUnmount() {
         console.log('componentWillUnmount');
     }
+
     /**
      * 渲染
      * @returns jsx

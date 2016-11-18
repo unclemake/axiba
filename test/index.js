@@ -7,14 +7,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const axiba = require('../src/index');
+const compile_1 = require('../src/compile');
 // import '../src/server'
 // console.log(axiba.webDev.get());
 // console.log(compile.getNodeArray(['motion/_zoom', 'motion/_slide', 'react']));
 (() => __awaiter(this, void 0, void 0, function* () {
     // axiba.openDev();
-    axiba.init();
-    axiba.serverRun();
+    compile_1.default.md5Build();
+    // axiba.init();
+    // axiba.watch();
 }))();
 // (async () => {
 // await compile.packNodeDependencies(npmDep.dependenciesObjToArr({

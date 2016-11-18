@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const ph = require('path');
+const fs = require('fs');
 const axiba_dependencies_1 = require('axiba-dependencies');
 const axiba_gulp_1 = require('axiba-gulp');
 const config_1 = require('./config');
@@ -107,17 +108,50 @@ class Gulp {
                     let str = arguments[0];
                     //匹配的路径名
                     let matchStr = arguments[match];
-                    //替换后的路径名
-                    let url = matchStr;
-                    str = str.replace(matchStr, self.aliasReplacePath(matchStr));
-                    return str;
+                    return this.md5Replace(file, matchStr);
                 });
             });
             file.contents = new Buffer(content);
             return callback(null, file);
         });
     }
-    md5Replace(url) {
+    /**
+     * ts相对路径计算
+     *
+     * @param {any} path1
+     * @param {any} path2
+     *
+     * @memberOf Gulp
+     */
+    pathJoin(filePath, path) {
+        let newPath = '';
+        let extname = ph.extname(filePath);
+        if (axiba_dependencies_1.default.isAlias(path)) {
+            newPath = path;
+        }
+        else {
+            newPath = ph.join(filePath, path);
+        }
+        if (fs.existsSync(newPath)) {
+            return axiba_dependencies_1.default.clearPath(newPath);
+        }
+        else if (fs.existsSync(newPath + extname)) {
+            return axiba_dependencies_1.default.clearPath(newPath);
+        }
+        else {
+            return path;
+        }
+    }
+    md5Replace(filePath, path) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let newPath = this.pathJoin(filePath, path);
+            let depObject = axiba_dependencies_1.default.dependenciesArray.find(value => value.path === newPath);
+            if (depObject) {
+            }
+            else {
+                return path;
+            }
+        });
     }
     /**
      * 根据路径获取别名

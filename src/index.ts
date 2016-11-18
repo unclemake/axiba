@@ -13,7 +13,7 @@ export { config };
  * 
  * @export
  */
-export function serverRun() {
+function serverRun() {
     //修改服务器配置
     axibaConfig.devPort = config.devPort;
     axibaConfig.webPort = config.webPort;
