@@ -42,17 +42,15 @@ gulp.task('antd', function (cb) {
             var content = file.contents.toString();
             content = content.replace(/import React from 'react';/g, `import * as React from 'react';`);
             content = content.replace(/import classNames from 'classnames';/g, `import * as classNames from 'classnames';`);
+
             content = content.replace(/import warning from 'warning';/g, `import * as warning from 'warning';`);
             content = content.replace(/null = null/g, `null`);
-
-            content = content.replace(/React.FormEventHandler/g, `React.FormEventHandler<any>`);
-
             file.contents = new Buffer(content);
             callback(null, file);
         })
     }
 
-    return gulp.src(['node_modules/antd/**/*.d.ts'], {
+    return gulp.src(['./assets/components/antd/**/*.tsx'], {
         base: './'
     })
         .pipe(antd())
@@ -60,6 +58,25 @@ gulp.task('antd', function (cb) {
 
 })
 
+
+gulp.task('antdAddLess', function () {
+
+    function antd() {
+        return through.obj((file, enc, callback) => {
+            var content = file.contents.toString();
+            content = `import './style/index.css';\n` + content;
+            file.contents = new Buffer(content);
+            callback(null, file);
+        })
+    }
+
+    return gulp.src(['./assets/components/antd/**/index.tsx'], {
+        base: './'
+    })
+        .pipe(antd())
+        .pipe(gulp.dest('./'));
+
+})
 
 gulp.task('antdless', function (cb) {
     function antd() {

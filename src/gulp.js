@@ -68,7 +68,7 @@ class Gulp {
     addDefine() {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
             var content = file.contents.toString();
-            content = `define("${axiba_dependencies_1.default.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {${content}\n});`;
+            content = `define("${axiba_dependencies_1.default.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {\n${content}\n});`;
             file.contents = new Buffer(content);
             return callback(null, file);
         });
@@ -137,4 +137,5 @@ class Gulp {
 exports.Gulp = Gulp;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = new Gulp();
+
 //# sourceMappingURL=gulp.js.map
