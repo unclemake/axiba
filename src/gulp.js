@@ -8,8 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const ph = require('path');
+const fs = require('fs');
 const axiba_dependencies_1 = require('axiba-dependencies');
 const axiba_gulp_1 = require('axiba-gulp');
+const config_1 = require('./config');
+var applySourceMap = require('vinyl-sourcemaps-apply');
 class Gulp {
     constructor() {
         this.alias = {};
@@ -67,6 +70,8 @@ class Gulp {
     */
     addDefine() {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            let fi = file.sourceMap;
+            fi.mappings = ";" + fi.mappings;
             var content = file.contents.toString();
             content = `define("${axiba_dependencies_1.default.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {\n${content}\n});`;
             file.contents = new Buffer(content);
@@ -103,14 +108,49 @@ class Gulp {
                     let str = arguments[0];
                     //匹配的路径名
                     let matchStr = arguments[match];
-                    //替换后的名字
-                    let url = matchStr;
-                    str = str.replace(matchStr, self.aliasReplacePath(matchStr));
-                    return str;
+                    return this.md5Replace(file, matchStr);
                 });
             });
             file.contents = new Buffer(content);
             return callback(null, file);
+        });
+    }
+    /**
+     * ts相对路径计算
+     *
+     * @param {any} path1
+     * @param {any} path2
+     *
+     * @memberOf Gulp
+     */
+    pathJoin(filePath, path) {
+        let newPath = '';
+        let extname = ph.extname(filePath);
+        if (axiba_dependencies_1.default.isAlias(path)) {
+            newPath = path;
+        }
+        else {
+            newPath = ph.join(filePath, path);
+        }
+        if (fs.existsSync(newPath)) {
+            return axiba_dependencies_1.default.clearPath(newPath);
+        }
+        else if (fs.existsSync(newPath + extname)) {
+            return axiba_dependencies_1.default.clearPath(newPath);
+        }
+        else {
+            return path;
+        }
+    }
+    md5Replace(filePath, path) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let newPath = this.pathJoin(filePath, path);
+            let depObject = axiba_dependencies_1.default.dependenciesArray.find(value => value.path === newPath);
+            if (depObject) {
+            }
+            else {
+                return path;
+            }
         });
     }
     /**
@@ -132,6 +172,25 @@ class Gulp {
             }
         }
         return path;
+    }
+    /**
+     * html根目录路径替换
+     *
+     * @returns
+     *
+     * @memberOf Gulp
+     */
+    htmlReplace() {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            var content = file.contents.toString();
+            content = this.htmlBaseReplace(content);
+            file.contents = new Buffer(content);
+            return callback(null, file);
+        });
+    }
+    htmlBaseReplace(content) {
+        content = content.replace(/\$\{base\}/g, config_1.default.bulidPath);
+        return content;
     }
 }
 exports.Gulp = Gulp;

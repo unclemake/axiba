@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 
-export default class Component extends React.Component<any, any> {
+export default class Component extends React.PureComponent<any, any> {
 
     state = {
         btnText: '点击我',

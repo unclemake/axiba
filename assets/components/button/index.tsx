@@ -14,7 +14,7 @@ export default class Component extends React.Component<ButtonProps, { loading: b
     onClick(e) {
         let onClickBack: any = this.props.onClick(e);
         let self = this;
-        if (onClickBack.then) {
+        if (onClickBack && onClickBack.then) {
             self.state.loading = true;
             self.setState(self.state);
 

@@ -10,7 +10,7 @@ import Button from '../../components/button/index';
  * @class Component
  * @extends {React.Component<any, any>}
  */
-export default class Component extends React.Component<any, any> {
+export default class Component extends React.PureComponent<any, any> {
 
     /**
      * 状态保存log

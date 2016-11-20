@@ -16,7 +16,7 @@ interface AppProps {
     dispatch: Dispatch<any>
 }
 
-class App extends React.Component<AppProps, any> {
+class App extends React.PureComponent<AppProps, any> {
     state = {
         str: ''
     }

@@ -15,7 +15,7 @@ addRule({
 })
 
 const Option = Select.Option;
-export default class Component extends React.Component<any, void> {
+export default class Component extends React.PureComponent<any, void> {
     render() {
         return <section className="page=home">
             <h2>插件</h2>

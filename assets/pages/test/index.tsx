@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export default class Component extends React.Component<any, any> {
+export default class Component extends React.PureComponent<any, any> {
 
     state = {
         text: '点击我',
@@ -31,7 +31,7 @@ export default class Component extends React.Component<any, any> {
 }
 
 
-class Component2 extends React.Component<{
+class Component2 extends React.PureComponent<{
     text2: string
 }, any> {
     render() {

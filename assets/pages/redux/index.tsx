@@ -15,7 +15,7 @@ const store: Store<any> = createStore(frootReducer, applyMiddleware(thunk));
 
 
 //渲染
-export default class App extends React.Component<void, void> {
+export default class App extends React.PureComponent<void, void> {
     render() {
         return <Provider store={store}>
             <Component />
