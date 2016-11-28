@@ -100,25 +100,111 @@ export class Gulp {
 
 
     /**
-    * alias 替换
-    */
-    jsPathReplace() {
+     * 文件名 替换 成 md5路径
+     * 
+     * @returns
+     * 
+     * @memberOf Gulp
+     */
+    changeExtnameMd5Loader() {
+        return makeLoader((file, enc, callback) => {
+            let path = file.path;
+            let depObject = dep.dependenciesArray.find(value => value.path === dep.clearPath(path));
+
+            let md5 = depObject.md5.match(/^.{8}/g)[0];
+            file.path = path.replace(/(\.[^\.]+$)/g, `-${md5}$1`);
+
+            callback(null, file);
+        });
+    }
+
+
+    /**
+       * 过滤忽略文件 文件名开始为_ 
+       */
+    md5IgnoreLess() {
+        return makeLoader((file, enc, callback) => {
+            let path = file.path;
+            path = path.replace(/-[^\-]{8}(\.[^\-]+$)/g, `$1`);
+            let md5 = file.path.match(/-[^\-]{8}(\.[^\-]+$)/g);
+
+            let depObject = dep.dependenciesArray.find(value =>
+                value.path === dep.clearPath(path));
+            if (!depObject) {
+                return callback();
+            }
+
+            if (!fs.existsSync(path) || !md5) {
+                callback(null, file);
+            } else {
+                callback();
+            }
+        });
+    }
+
+    /**
+     * 删除md5文件
+     * 
+     * @returns
+     * 
+     * @memberOf Gulp
+     */
+    delMd5FileLoader() {
+        return makeLoader((file, enc, callback) => {
+            let path = file.path;
+            path = path.replace(/(\.[^\.]+$)/g, `-????????$1`);
+            gulp.src(path).pipe(this.delFileLoader()).on('finish', () => {
+                callback(null, file);
+            });
+        });
+    }
+
+
+    /**
+     * 删除文件
+     * 
+     * @returns
+     * 
+     * @memberOf Gulp
+     */
+    delFileLoader() {
+        return makeLoader((file, enc, callback) => {
+            fs.unlinkSync(file.path);
+            callback();
+        });
+    }
+
+    /**
+     * 文件内 路径 md5 替换
+     * 
+     * @returns
+     * 
+     * @memberOf Gulp
+     */
+    jsPathReplaceLoader() {
         let self = this;
         return makeLoader((file, enc, callback) => {
             var content: string = file.contents.toString();
 
+            let depObject = dep.dependenciesArray.find(value =>
+                value.path === dep.clearPath(file.path));
+
+            content = content.replace(/(define\(".+)(\..+")/g, `$1-${depObject.md5.match(/^.{8}/g)[0]}$2`);
+
             let extname = ph.extname(file.path);
-            let depConfig = dep.config.find(value => value.extname === '.js');
+            let depConfig = dep.config.find(value => value.extname === extname);
             depConfig.parserRegExpList.forEach(value => {
                 let match = parseInt(value.match.split('$')[1]);
-                content = content.replace(value.regExp, function () {
 
+                content = content.replace(value.regExp, function () {
                     //匹配的全部
                     let str: string = arguments[0];
                     //匹配的路径名
                     let matchStr = arguments[match];
 
-                    return this.md5Replace(file, matchStr);
+                    str = str.replace(matchStr, self.md5Replace(file.path, matchStr));
+
+                    return str;
                 });
             });
 
@@ -143,23 +229,41 @@ export class Gulp {
         if (dep.isAlias(path)) {
             newPath = path;
         } else {
-            newPath = ph.join(filePath, path);
+            newPath = ph.join(ph.dirname(filePath), path);
         }
+
 
         if (fs.existsSync(newPath)) {
             return dep.clearPath(newPath);
         } else if (fs.existsSync(newPath + extname)) {
-            return dep.clearPath(newPath);
+            return dep.clearPath(newPath + extname);
         } else {
             return path;
         }
     }
 
-    async md5Replace(filePath, path) {
+    /**
+     * 根据文件路径 依赖路径  返回md5路径
+     * 
+     * @param {any} filePath 文件路径
+     * @param {any} path 依赖路径
+     * @returns
+     * 
+     * @memberOf Gulp
+     */
+    md5Replace(filePath, path) {
         let newPath = this.pathJoin(filePath, path);
         let depObject = dep.dependenciesArray.find(value => value.path === newPath);
-        if (depObject) {
 
+        if (depObject && depObject.md5) {
+            let basename = ph.basename(newPath);
+            let md5 = depObject.md5.match(/^.{8}/g)[0];
+
+            let md5Basename = basename.replace(/(\.[^\.]+$)/g, `-${md5}$1`);
+
+            console.log(path.replace(RegExp(`${ph.basename(path)}$`, 'g'), md5Basename));
+
+            return path.replace(RegExp(`${ph.basename(path)}$`, 'g'), md5Basename);
         } else {
             return path;
         }
@@ -211,3 +315,5 @@ export class Gulp {
 
 }
 export default new Gulp();
+
+

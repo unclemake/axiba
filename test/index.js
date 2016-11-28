@@ -8,14 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const compile_1 = require('../src/compile');
+const axiba = require('../src/index');
 // import '../src/server'
 // console.log(axiba.webDev.get());
 // console.log(compile.getNodeArray(['motion/_zoom', 'motion/_slide', 'react']));
 (() => __awaiter(this, void 0, void 0, function* () {
     // axiba.openDev();
+    yield axiba.init();
     compile_1.default.md5Build();
-    // axiba.init();
-    // axiba.watch();
+    axiba.watch();
 }))();
 // (async () => {
 // await compile.packNodeDependencies(npmDep.dependenciesObjToArr({
@@ -54,5 +55,4 @@ const compile_1 = require('../src/compile');
 //   "gulp-less": "^3.1.0",
 //   "gulp-uglify": "^2.0.0"
 // }, 
-
 //# sourceMappingURL=index.js.map

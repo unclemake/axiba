@@ -57,11 +57,6 @@ class Compile {
         this.addGulpLoader('.less', [
                 () => gulp_1.default.ignoreLess(),
                 () => gulpLess(),
-            // () => gulpClass.changeExtnameLoader('.less.js', /\.css/g),
-            // () => gulpMinifyCss(),
-            // () => gulpClass.cssToJs(),
-            // () => gulpClass.addDefine(),
-                () => gulp.dest(config_1.default.bulidPath)
         ]);
         this.addGulpLoader(['.ts', '.tsx'], [
                 () => sourcemaps.init(),
@@ -72,21 +67,15 @@ class Compile {
             // () => gulpUglify({ mangle: false }),
                 () => sourcemaps.write('./', {
                 sourceRoot: '/' + config_1.default.assets
-            }),
-                () => gulp.dest(config_1.default.bulidPath)
+            })
         ]);
         this.addGulpLoader(['.js'], [
                 () => gulp.dest(config_1.default.bulidPath)]);
         this.addGulpLoader(['.html', '.tpl'], [
                 () => gulp_1.default.htmlReplace(),
-                () => gulp.dest(config_1.default.bulidPath)
         ]);
-        this.addGulpLoader(['.png', '.jpg', '.jpeg'], [
-                () => gulp.dest(config_1.default.bulidPath)
-        ]);
-        this.addGulpLoader(['.eot', '.svg', '.ttf', '.woff'], [
-                () => gulp.dest(config_1.default.bulidPath)
-        ]);
+        this.addGulpLoader(['.png', '.jpg', '.jpeg'], []);
+        this.addGulpLoader(['.eot', '.svg', '.ttf', '.woff'], []);
     }
     /**
      * 生成全部文件
@@ -107,11 +96,6 @@ class Compile {
                         .on('finish', () => resolve());
                 });
             }
-        });
-    }
-    md5Build(path = `${config_1.default.bulidPath}/**/*.*`) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield axiba_dependencies_1.default.src(path);
         });
     }
     /**
@@ -361,6 +345,7 @@ class Compile {
                     .pipe(through.obj((file, enc, callback) => {
                     callback(null, file);
                 }))
+                    .pipe(gulp.dest(config_1.default.bulidPath))
                     .on('error', () => {
                     {
                         console.log('出错了');

@@ -52,7 +52,6 @@ export class Compile {
             // () => gulpMinifyCss(),
             // () => gulpClass.cssToJs(),
             // () => gulpClass.addDefine(),
-            () => gulp.dest(config.bulidPath)
         ]);
 
         this.addGulpLoader(['.ts', '.tsx'], [
@@ -64,21 +63,17 @@ export class Compile {
             // () => gulpUglify({ mangle: false }),
             () => sourcemaps.write('./', {
                 sourceRoot: '/' + config.assets
-            }),
-            () => gulp.dest(config.bulidPath)
+            })
         ]);
 
         this.addGulpLoader(['.js'], [
             () => gulp.dest(config.bulidPath)]);
         this.addGulpLoader(['.html', '.tpl'], [
             () => gulpClass.htmlReplace(),
-            () => gulp.dest(config.bulidPath)
         ]);
         this.addGulpLoader(['.png', '.jpg', '.jpeg'], [
-            () => gulp.dest(config.bulidPath)
         ]);
         this.addGulpLoader(['.eot', '.svg', '.ttf', '.woff'], [
-            () => gulp.dest(config.bulidPath)
         ]);
     }
 
@@ -102,13 +97,6 @@ export class Compile {
                     .on('finish', () => resolve());
             });
         }
-    }
-
-
-
-    async md5Build(path = `${config.bulidPath}/**/*.*`) {
-        await dep.src(path);
-
     }
 
 
@@ -380,6 +368,7 @@ export class Compile {
                 .pipe(through.obj((file, enc, callback) => {
                     callback(null, file);
                 }))
+                .pipe(gulp.dest(config.bulidPath))
                 .on('error', () => {
                     {
                         console.log('出错了');

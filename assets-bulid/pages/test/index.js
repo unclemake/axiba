@@ -1,4 +1,71 @@
 define("pages/test/index.js",function(require, exports, module) {
-"use strict";function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _possibleConstructorReturn(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function _inherits(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}var _createClass=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),React=require("react"),Component=function(e){function t(){_classCallCheck(this,t);var e=_possibleConstructorReturn(this,(t.__proto__||Object.getPrototypeOf(t)).apply(this,arguments));return e.state={text:"点击我",text2:"text2"},e}return _inherits(t,e),_createClass(t,[{key:"btnClick",value:function(){this.setState({text:"1",text2:"text2"})}},{key:"render",value:function(){var e=this.state;return React.createElement("section",{className:"page-home"},React.createElement("h2",null,"代码调试页面"),React.createElement("div",null,React.createElement("a",{onClick:this.btnClick.bind(this),className:"ant-btn"},"点我")),React.createElement("div",null,this.state.text),React.createElement(Component2,{text2:e.text2}))}}]),t}(React.PureComponent);Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=Component;var Component2=function(e){function t(){return _classCallCheck(this,t),_possibleConstructorReturn(this,(t.__proto__||Object.getPrototypeOf(t)).apply(this,arguments))}return _inherits(t,e),_createClass(t,[{key:"render",value:function(){return React.createElement("section",{className:"page=home"},React.createElement("h2",null,"简单例子2"),React.createElement("div",null,this.props.text2))}}]),t}(React.PureComponent);
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var React = require('react');
+
+var Component = function (_React$PureComponent) {
+    _inherits(Component, _React$PureComponent);
+
+    function Component() {
+        _classCallCheck(this, Component);
+
+        var _this = _possibleConstructorReturn(this, (Component.__proto__ || Object.getPrototypeOf(Component)).apply(this, arguments));
+
+        _this.state = {
+            text: '点击我',
+            text2: 'text2'
+        };
+        return _this;
+    }
+
+    _createClass(Component, [{
+        key: 'btnClick',
+        value: function btnClick() {
+            this.setState({
+                text: '1',
+                text2: 'text2'
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var state = this.state;
+
+            return React.createElement("section", { className: 'page-home' }, React.createElement("h2", null, "代码调试页面"), React.createElement("div", null, React.createElement("a", { onClick: this.btnClick.bind(this), className: 'ant-btn' }, "点我")), React.createElement("div", null, this.state.text), React.createElement(Component2, { text2: state.text2 }));
+        }
+    }]);
+
+    return Component;
+}(React.PureComponent);
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = Component;
+
+var Component2 = function (_React$PureComponent2) {
+    _inherits(Component2, _React$PureComponent2);
+
+    function Component2() {
+        _classCallCheck(this, Component2);
+
+        return _possibleConstructorReturn(this, (Component2.__proto__ || Object.getPrototypeOf(Component2)).apply(this, arguments));
+    }
+
+    _createClass(Component2, [{
+        key: 'render',
+        value: function render() {
+            return React.createElement("section", { className: 'page=home' }, React.createElement("h2", null, "简单例子2"), React.createElement("div", null, this.props.text2));
+        }
+    }]);
+
+    return Component2;
+}(React.PureComponent);
 });
 //# sourceMappingURL=index.js.map

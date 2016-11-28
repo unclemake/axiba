@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
+const gulp = require('gulp');
 const ph = require('path');
 const fs = require('fs');
 const axiba_dependencies_1 = require('axiba-dependencies');
@@ -93,14 +94,85 @@ class Gulp {
         });
     }
     /**
-    * alias 替换
-    */
-    jsPathReplace() {
+     * 文件名 替换 成 md5路径
+     *
+     * @returns
+     *
+     * @memberOf Gulp
+     */
+    changeExtnameMd5Loader() {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            let path = file.path;
+            let depObject = axiba_dependencies_1.default.dependenciesArray.find(value => value.path === axiba_dependencies_1.default.clearPath(path));
+            let md5 = depObject.md5.match(/^.{8}/g)[0];
+            file.path = path.replace(/(\.[^\.]+$)/g, `-${md5}$1`);
+            callback(null, file);
+        });
+    }
+    /**
+       * 过滤忽略文件 文件名开始为_
+       */
+    md5IgnoreLess() {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            let path = file.path;
+            path = path.replace(/-[^\-]{8}(\.[^\-]+$)/g, `$1`);
+            let md5 = file.path.match(/-[^\-]{8}(\.[^\-]+$)/g);
+            let depObject = axiba_dependencies_1.default.dependenciesArray.find(value => value.path === axiba_dependencies_1.default.clearPath(path));
+            if (!depObject) {
+                return callback();
+            }
+            if (!fs.existsSync(path) || !md5) {
+                callback(null, file);
+            }
+            else {
+                callback();
+            }
+        });
+    }
+    /**
+     * 删除md5文件
+     *
+     * @returns
+     *
+     * @memberOf Gulp
+     */
+    delMd5FileLoader() {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            let path = file.path;
+            path = path.replace(/(\.[^\.]+$)/g, `-????????$1`);
+            gulp.src(path).pipe(this.delFileLoader()).on('finish', () => {
+                callback(null, file);
+            });
+        });
+    }
+    /**
+     * 删除文件
+     *
+     * @returns
+     *
+     * @memberOf Gulp
+     */
+    delFileLoader() {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            fs.unlinkSync(file.path);
+            callback();
+        });
+    }
+    /**
+     * 文件内 路径 md5 替换
+     *
+     * @returns
+     *
+     * @memberOf Gulp
+     */
+    jsPathReplaceLoader() {
         let self = this;
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
             var content = file.contents.toString();
+            let depObject = axiba_dependencies_1.default.dependenciesArray.find(value => value.path === axiba_dependencies_1.default.clearPath(file.path));
+            content = content.replace(/(define\(".+)(\..+")/g, `$1-${depObject.md5.match(/^.{8}/g)[0]}$2`);
             let extname = ph.extname(file.path);
-            let depConfig = axiba_dependencies_1.default.config.find(value => value.extname === '.js');
+            let depConfig = axiba_dependencies_1.default.config.find(value => value.extname === extname);
             depConfig.parserRegExpList.forEach(value => {
                 let match = parseInt(value.match.split('$')[1]);
                 content = content.replace(value.regExp, function () {
@@ -108,7 +180,8 @@ class Gulp {
                     let str = arguments[0];
                     //匹配的路径名
                     let matchStr = arguments[match];
-                    return this.md5Replace(file, matchStr);
+                    str = str.replace(matchStr, self.md5Replace(file.path, matchStr));
+                    return str;
                 });
             });
             file.contents = new Buffer(content);
@@ -130,28 +203,40 @@ class Gulp {
             newPath = path;
         }
         else {
-            newPath = ph.join(filePath, path);
+            newPath = ph.join(ph.dirname(filePath), path);
         }
         if (fs.existsSync(newPath)) {
             return axiba_dependencies_1.default.clearPath(newPath);
         }
         else if (fs.existsSync(newPath + extname)) {
-            return axiba_dependencies_1.default.clearPath(newPath);
+            return axiba_dependencies_1.default.clearPath(newPath + extname);
         }
         else {
             return path;
         }
     }
+    /**
+     * 根据文件路径 依赖路径  返回md5路径
+     *
+     * @param {any} filePath 文件路径
+     * @param {any} path 依赖路径
+     * @returns
+     *
+     * @memberOf Gulp
+     */
     md5Replace(filePath, path) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let newPath = this.pathJoin(filePath, path);
-            let depObject = axiba_dependencies_1.default.dependenciesArray.find(value => value.path === newPath);
-            if (depObject) {
-            }
-            else {
-                return path;
-            }
-        });
+        let newPath = this.pathJoin(filePath, path);
+        let depObject = axiba_dependencies_1.default.dependenciesArray.find(value => value.path === newPath);
+        if (depObject && depObject.md5) {
+            let basename = ph.basename(newPath);
+            let md5 = depObject.md5.match(/^.{8}/g)[0];
+            let md5Basename = basename.replace(/(\.[^\.]+$)/g, `-${md5}$1`);
+            console.log(path.replace(RegExp(`${ph.basename(path)}$`, 'g'), md5Basename));
+            return path.replace(RegExp(`${ph.basename(path)}$`, 'g'), md5Basename);
+        }
+        else {
+            return path;
+        }
     }
     /**
      * 根据路径获取别名
@@ -196,5 +281,4 @@ class Gulp {
 exports.Gulp = Gulp;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = new Gulp();
-
 //# sourceMappingURL=gulp.js.map

@@ -19,6 +19,7 @@ let config = {
     webPort: 666,
     //开发长连接端口
     devPort: 555
+
 };
 
 
