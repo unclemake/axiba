@@ -18,11 +18,14 @@ interface AppProps {
 
 class App extends React.PureComponent<AppProps, any> {
     state = {
-        str: ''
+        str: '',
+        a: 1,
     }
     change(e) {
-        this.state.str = e.target.value;
-        this.setState(this.state);
+        // this.state.str = e.target.value;
+        this.setState({
+            str: e.target.value
+        });
     }
 
     render() {

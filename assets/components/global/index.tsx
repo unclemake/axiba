@@ -5,6 +5,7 @@ import Nav from '../nav/index';
 import Progress from '../progress/index';
 
 declare let require: any;
+declare let __md5Array: { path: string, md5: string }[];
 
 
 class Main extends React.Component<ReactRouter.RouteComponentProps<void, void>, any> {
@@ -19,7 +20,17 @@ class Main extends React.Component<ReactRouter.RouteComponentProps<void, void>, 
 
         let props = this.props;
         // 自动解析
-        let url = props.route.path === '*' ? '../../pages' + props.location.pathname + '/index' : '../' + props.route.path;
+        let url = props.route.path === '*' ?
+            'pages' + props.location.pathname + '/index.js' : 'pages/' + props.route.path + '/index.js';
+
+
+        if ((window as any).__md5Array) {
+            let md5obj = __md5Array.find(value => value.path === url);
+            if (md5obj) {
+                url = md5obj.md5;
+            }
+        }
+
         console.log('加载：' + url);
         this.state.loading = 0;
         this.setState(this.state);
@@ -106,6 +117,7 @@ export default class AppRouter extends React.Component<any, any> {
             <section className='h100'>
                 <Router history={hashHistory}>
                     <Redirect from='/' to='/react' />
+                    <Route path='dang' component={Main} />
                     <Route path='*' component={Main} />
                 </Router>
             </section>
@@ -117,3 +129,4 @@ ReactDOM.render(
     <AppRouter />,
     document.getElementById('app')
 );
+

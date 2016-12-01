@@ -3,46 +3,55 @@ import compileDev from './compileDev';
 import config from './config';
 import { run, config as axibaConfig } from 'axiba-server';
 import util from 'axiba-util';
+import { default as dep, DependenciesModel } from 'axiba-dependencies';
+
+// 退出时保存依赖信息
+process.on('exit', function (err) {
+    dep.createJsonFile();
+});
 
 
 //导出配置
 export { config };
 
+
+
+let isRun = false;
 /**
  * 启动服务器
  * 
  * @export
  */
-function serverRun() {
+function serverRun(dev = true) {
+    if (isRun) {
+        return;
+    }
+    isRun = true;
+
     //修改服务器配置
-    axibaConfig.devPort = config.devPort;
-    axibaConfig.webPort = config.webPort;
-    axibaConfig.mainPath = config.bulidPath + '/' + config.mainPath;
+    if (dev) {
+        axibaConfig.devPort = config.devWatchPort;
+        axibaConfig.mainPath = config.devBulidPath + '/' + config.mainPath;
+        axibaConfig.webPort = config.devWebPort;
+    } else {
+        axibaConfig.devPort = config.watchPort;
+        axibaConfig.mainPath = config.bulidPath + '/' + config.mainPath;
+        axibaConfig.webPort = config.webPort;
+    }
     run();
 }
 
 
-
-let bulidPath = config.bulidPath;
-let dev = false;
-export function openDev() {
-    dev = true;
-    config.bulidPath = 'dev-' + config.bulidPath;
-}
-
-export function closeDev() {
-    dev = false;
-    config.bulidPath = bulidPath;
-}
-
-
 /**
- * 初始化
- * 
+ * 生成所有文件
+ *
  * @export
  */
-export async function init() {
-    let com = dev ? compileDev : compile;
+export async function bulid(dev = true) {
+    if (dev) {
+        config.bulidPath = config.devBulidPath;
+    }
+    let com: any = dev ? compileDev : compile;
 
     util.log('项目文件依赖扫描');
     await com.scanDependence();
@@ -52,17 +61,21 @@ export async function init() {
     await com.buildMainFile();
     util.log('项目文件全部生成');
     await com.build();
+
+    if (!dev) {
+        await com.mainJsMd5Build();
+        com.md5Build();
+    }
 }
+
 
 /**
  * 监视
  * 
  * @export
  */
-export function watch() {
-    let com = dev ? compileDev : compile;
-    serverRun();
-    com.watch();
+export function watch(dev = true) {
+    serverRun(dev);
+    compile.watch();
 }
-
 

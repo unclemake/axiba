@@ -14,14 +14,18 @@ import * as fs from 'fs';
 
 
 
+
 (async () => {
   // axiba.openDev();
 
-  await axiba.init();
+  // await axiba.init();
+  axiba.config.devWatchPort = 668;
 
-  compile.md5Build();
-
+  await axiba.bulid();
   axiba.watch();
+
+  // await axiba.bulid(false);
+  // axiba.watch(false);
 })();
 
 

@@ -111,11 +111,26 @@ export class Gulp {
             let path = file.path;
             let depObject = dep.dependenciesArray.find(value => value.path === dep.clearPath(path));
 
-            let md5 = depObject.md5.match(/^.{8}/g)[0];
-            file.path = path.replace(/(\.[^\.]+$)/g, `-${md5}$1`);
-
+            if (depObject.path !== `${config.bulidPath}/${config.mainPath}`) {
+                let md5 = depObject.md5.match(/^.{8}/g)[0];
+                file.path = this.pathAddMd5(path, md5);
+            }
             callback(null, file);
         });
+    }
+
+    /**
+     * 给文件名添加md5
+     * 
+     * @param {string} path
+     * @param {string} md5
+     * @returns
+     * 
+     * @memberOf Gulp
+     */
+    pathAddMd5(path: string, md5: string) {
+        md5 = md5.match(/^.{8}/g)[0];
+        return path.replace(/(\.[^\.]+$)/g, `-${md5}$1`);
     }
 
 
@@ -189,6 +204,11 @@ export class Gulp {
             let depObject = dep.dependenciesArray.find(value =>
                 value.path === dep.clearPath(file.path));
 
+            let match = content.match(/(define\(".+)(\..+")/g);
+            if (match && match.length > 1) {
+                return callback(null, file);
+            }
+
             content = content.replace(/(define\(".+)(\..+")/g, `$1-${depObject.md5.match(/^.{8}/g)[0]}$2`);
 
             let extname = ph.extname(file.path);
@@ -260,8 +280,6 @@ export class Gulp {
             let md5 = depObject.md5.match(/^.{8}/g)[0];
 
             let md5Basename = basename.replace(/(\.[^\.]+$)/g, `-${md5}$1`);
-
-            console.log(path.replace(RegExp(`${ph.basename(path)}$`, 'g'), md5Basename));
 
             return path.replace(RegExp(`${ph.basename(path)}$`, 'g'), md5Basename);
         } else {
