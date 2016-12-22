@@ -7,7 +7,6 @@ import * as fs from 'fs';
 import * as ph from 'path';
 import nodeModule from 'axiba-npm-dependencies';
 
-const sourcemaps = require('gulp-sourcemaps');
 const gulpLess = require('gulp-less');
 const gulpBabel = require('gulp-babel');
 const gulpUglify = require('gulp-uglify');

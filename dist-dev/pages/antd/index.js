@@ -5,16 +5,18 @@ const index_1 = require('../../components/button/index');
 const index_2 = require('../../components/select/index');
 const index_3 = require('../../components/input/index');
 const index_4 = require('../../components/tree/index');
-const index_5 = require('../../components/date-picker/index');
-const index_6 = require('../../components/notification/index');
-const index_7 = require('../../components/validate/index');
+const index_5 = require('../../components/tabs/index');
+const index_6 = require('../../components/date-picker/index');
+const index_7 = require('../../components/notification/index');
+const index_8 = require('../../components/validate/index');
 let TreeNode = index_4.default.TreeNode;
-index_7.addRule({
+let TabPane = index_5.default.TabPane;
+const Option = index_2.default.Option;
+index_8.addRule({
     key: 'gan',
     messages: () => '必须 = 你好',
     rule: (value, parameter) => value === '你好',
 });
-const Option = index_2.default.Option;
 class Component extends React.PureComponent {
     render() {
         return React.createElement("section", {className: "page=home"}, 
@@ -35,17 +37,17 @@ class Component extends React.PureComponent {
                     React.createElement(index_3.default, null)), 
                 React.createElement("li", null, 
                     React.createElement("h3", null, "弹窗"), 
-                    React.createElement(index_1.default, {onClick: () => index_6.success({
+                    React.createElement(index_1.default, {onClick: () => index_7.success({
                         message: '你好',
                         description: 'success'
                     })}, "success"), 
-                    React.createElement(index_1.default, {onClick: () => index_6.error({
+                    React.createElement(index_1.default, {onClick: () => index_7.error({
                         message: '你好',
                         description: 'error'
                     })}, "error")), 
                 React.createElement("li", null, 
                     React.createElement("h3", null, "时间"), 
-                    React.createElement(index_5.default, null)), 
+                    React.createElement(index_6.default, null)), 
                 React.createElement("li", null, 
                     React.createElement("h3", null, "树"), 
                     React.createElement(index_4.default, {className: "myCls"}, 
@@ -57,22 +59,29 @@ class Component extends React.PureComponent {
                                 React.createElement(TreeNode, {title: React.createElement("span", {style: { color: '#08c' }}, "sss"), key: "0-0-1-0"})
                             ))
                     ))), 
+            React.createElement("h2", null, "tab"), 
+            React.createElement("div", null, 
+                React.createElement(index_5.default, {defaultActiveKey: "1"}, 
+                    React.createElement(TabPane, {tab: "Tab 1", key: "1"}, "Content of Tab Pane 1"), 
+                    React.createElement(TabPane, {tab: "Tab 2", key: "2"}, "Content of Tab Pane 2"), 
+                    React.createElement(TabPane, {tab: "Tab 3", key: "3"}, "Content of Tab Pane 3"))
+            ), 
             React.createElement("h2", null, "验证插件"), 
             React.createElement("div", null, 
                 React.createElement("h3", null, "字符串长度 大小=>10 =<20"), 
-                React.createElement(index_7.default, {required: true, min: 10, max: 20})), 
+                React.createElement(index_8.default, {required: true, min: 10, max: 20})), 
             React.createElement("div", null, 
                 React.createElement("h3", null, "字符串长度 最短10 最长12"), 
-                React.createElement(index_7.default, {required: true, minLength: 10, maxLength: 12})), 
+                React.createElement(index_8.default, {required: true, minLength: 10, maxLength: 12})), 
             React.createElement("div", null, 
                 React.createElement("h3", null, "只能输入英文和数字和中文"), 
-                React.createElement(index_7.default, {noSymbol: true})), 
+                React.createElement(index_8.default, {noSymbol: true})), 
             React.createElement("div", null, 
                 React.createElement("h3", null, "手机号码"), 
-                React.createElement(index_7.default, {telephone: true})), 
+                React.createElement(index_8.default, {telephone: true})), 
             React.createElement("div", null, 
                 React.createElement("h3", null, "自定义规则"), 
-                React.createElement(index_7.default, {gan: true}), 
+                React.createElement(index_8.default, {gan: true}), 
                 React.createElement("code", null, `addRule({
                         key: 'gan',
                         messages: () => '必须 = 你好',

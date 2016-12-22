@@ -15,7 +15,6 @@ const gulp = require('gulp');
 const fs = require('fs');
 const ph = require('path');
 const axiba_npm_dependencies_1 = require('axiba-npm-dependencies');
-const sourcemaps = require('gulp-sourcemaps');
 const gulpLess = require('gulp-less');
 const gulpBabel = require('gulp-babel');
 const gulpUglify = require('gulp-uglify');

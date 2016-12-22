@@ -50,6 +50,7 @@ class CompileDev {
          * @memberOf CompileDev
          */
         this.loaderList = [];
+        this.depNodeModules = [];
         this.addLoader();
     }
     /**
@@ -66,15 +67,14 @@ class CompileDev {
         });
     }
     /**
-     * 打包node所有依赖模块
+     * 打包node模块
      *
      * @returns
      *
      * @memberOf CompileDev
      */
-    packNodeDependencies() {
+    packNodeDependencies(depArray = this.getAssetsDependencies()) {
         return __awaiter(this, void 0, void 0, function* () {
-            let depArray = this.getAssetsDependencies();
             let depArrayH = depArray.filter(value => {
                 return !config_1.default.mainModules.find(path => value.indexOf(path) === 0);
             });
@@ -110,8 +110,10 @@ class CompileDev {
             content += yield axiba_npm_dependencies_1.default.getFileString('seajs-css');
             content += this.getSeajsConfigString();
             content += yield axiba_npm_dependencies_1.default.getFileString('babel-polyfill');
-            // 添加调试脚本
-            content += this.getDevFileString();
+            if (config_1.default.hotload) {
+                // 添加调试脚本
+                content += this.getDevFileString();
+            }
             // 添加node模块
             let modules = yield axiba_npm_dependencies_1.default.getPackFileString(this.getMainNodeModules(), [], true);
             content += modules;
@@ -161,7 +163,7 @@ class CompileDev {
                         yield this.deleted(file.path);
                         break;
                 }
-                axiba_server_1.socket.reload();
+                axiba_server_1.reload();
             }
         }));
         process.on('uncaughtException', function (err) {
@@ -181,13 +183,16 @@ class CompileDev {
     getAssetsDependencies() {
         let depSet = new Set();
         axiba_dependencies_1.default.dependenciesArray.forEach(value => {
-            value.dep.forEach(path => {
-                if (path.indexOf(config_1.default.assets) !== 0 && axiba_dependencies_1.default.isAlias(path)) {
-                    depSet.add(path);
-                }
-            });
+            if (value.path.indexOf(config_1.default.assets) === 0) {
+                value.dep.forEach(path => {
+                    if (path.indexOf(config_1.default.assets) !== 0 && axiba_dependencies_1.default.isAlias(path)) {
+                        depSet.add(path);
+                    }
+                });
+            }
         });
         let depArray = [...depSet];
+        this.depNodeModules = depArray;
         return depArray;
     }
     /**
@@ -291,7 +296,6 @@ class CompileDev {
         depArray = depArray.filter(value => {
             return !!config_1.default.mainModules.find(path => value.indexOf(path) === 0);
         });
-        this.mainNodeModules = depArray;
         return depArray;
     }
     /**
@@ -330,7 +334,7 @@ class CompileDev {
     addLoader() {
         this.addGulpLoader('.less', [
                 () => gulp_1.default.ignoreLess(),
-                () => gulpLess(),
+                () => gulpLess()
         ]);
         this.addGulpLoader(['.ts', '.tsx'], [
                 () => sourcemaps.init(),
@@ -421,12 +425,21 @@ class CompileDev {
             let gulpStream = gulp.src(pathArr, {
                 base: config_1.default.assets
             });
-            // //生成全局文件
-            // let mainArr = Object.assign([], this.mainNodeModules);
-            // this.getMainNodeModules();
-            // if (mainArr.sort().toString() === this.mainNodeModules.sort().toString()) {
-            //     await this.buildMainFile();
-            // }
+            // 检查是否有node模块写入了
+            let depSet = new Set();
+            depObj.dep.forEach(path => {
+                if (path.indexOf(config_1.default.assets) !== 0 && axiba_dependencies_1.default.isAlias(path)) {
+                    depSet.add(path);
+                }
+            });
+            let depArray = [...depSet];
+            depArray = depArray.filter(value => {
+                return !this.depNodeModules.find(name => name === value);
+            });
+            if (depArray.length > 0) {
+                yield this.buildMainFile();
+                yield this.packNodeDependencies();
+            }
             depObj.extend['bulidFile'] = [];
             return yield new Promise((resolve) => {
                 this.loader(gulpStream, ph.extname(path))

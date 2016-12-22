@@ -1,5 +1,5 @@
-import compile from './compile';
-import compileDev from './compileDev';
+import { default as compile, Compile } from './compile';
+import { default as compileDev } from './compileDev';
 import config from './config';
 import { run, config as axibaConfig } from 'axiba-server';
 import util from 'axiba-util';
@@ -28,13 +28,11 @@ function serverRun(dev = true) {
     }
     isRun = true;
 
-    //修改服务器配置
+    // 修改服务器配置
     if (dev) {
-        axibaConfig.devPort = config.devWatchPort;
         axibaConfig.mainPath = config.devBulidPath + '/' + config.mainPath;
         axibaConfig.webPort = config.devWebPort;
     } else {
-        axibaConfig.devPort = config.watchPort;
         axibaConfig.mainPath = config.bulidPath + '/' + config.mainPath;
         axibaConfig.webPort = config.webPort;
     }
@@ -51,7 +49,7 @@ export async function bulid(dev = true) {
     if (dev) {
         config.bulidPath = config.devBulidPath;
     }
-    let com: any = dev ? compileDev : compile;
+    let com: Compile = dev ? compileDev : compile as any;
 
     util.log('项目文件依赖扫描');
     await com.scanDependence();
@@ -75,7 +73,11 @@ export async function bulid(dev = true) {
  * @export
  */
 export function watch(dev = true) {
+    if (dev) {
+        config.bulidPath = config.devBulidPath;
+    }
+    let com: any = dev ? compileDev : compile;
     serverRun(dev);
-    compile.watch();
+    com.watch();
 }
 

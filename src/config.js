@@ -18,14 +18,12 @@ let config = {
         'antd',
         'superagent'
     ],
+    // 是否在页面注入热加载
+    hotload: false,
     // web访问端口
     devWebPort: 666,
-    // 开发长连接端口
-    devWatchPort: 555,
     // web访问端口
-    webPort: 667,
-    // 开发长连接端口
-    watchPort: 556
+    webPort: 667
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = config;

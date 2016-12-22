@@ -21,15 +21,14 @@ let config = {
     ],
 
 
-    // web访问端口
-    devWebPort: 666,
-    // 开发长连接端口
-    devWatchPort: 555,
+    // 是否在页面注入热加载
+    hotload: false,
 
     // web访问端口
-    webPort: 667,
-    // 开发长连接端口
-    watchPort: 556
+    devWebPort: 666,
+
+    // web访问端口
+    webPort: 667
 };
 
 

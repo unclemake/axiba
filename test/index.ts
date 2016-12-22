@@ -19,7 +19,7 @@ import * as fs from 'fs';
   // axiba.openDev();
 
   // await axiba.init();
-  axiba.config.devWatchPort = 668;
+  // axiba.config.devWatchPort = 668;
 
   await axiba.bulid();
   axiba.watch();

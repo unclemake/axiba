@@ -14,7 +14,7 @@ const axiba = require('../src/index');
 (() => __awaiter(this, void 0, void 0, function* () {
     // axiba.openDev();
     // await axiba.init();
-    axiba.config.devWatchPort = 668;
+    // axiba.config.devWatchPort = 668;
     yield axiba.bulid();
     axiba.watch();
     // await axiba.bulid(false);

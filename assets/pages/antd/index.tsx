@@ -3,18 +3,19 @@ import Button from '../../components/button/index';
 import Select from '../../components/select/index';
 import Input from '../../components/input/index';
 import Tree from '../../components/tree/index';
+import Tabs from '../../components/tabs/index';
 import DatePicker from '../../components/date-picker/index';
 import { error, success } from '../../components/notification/index';
 import { default as Validate, addRule } from '../../components/validate/index';
 let TreeNode = Tree.TreeNode;
-
+let TabPane = Tabs.TabPane;
+const Option = Select.Option;
 addRule({
     key: 'gan',
     messages: () => '必须 = 你好',
     rule: (value, parameter) => value === '你好',
 })
 
-const Option = Select.Option;
 export default class Component extends React.PureComponent<any, void> {
     render() {
         return <section className="page=home">
@@ -67,6 +68,14 @@ export default class Component extends React.PureComponent<any, void> {
                     </Tree>
                 </li>
             </ul>
+            <h2>tab</h2>
+            <div>
+                <Tabs defaultActiveKey="1" >
+                    <TabPane tab="Tab 1" key="1">Content of Tab Pane 1</TabPane>
+                    <TabPane tab="Tab 2" key="2">Content of Tab Pane 2</TabPane>
+                    <TabPane tab="Tab 3" key="3">Content of Tab Pane 3</TabPane>
+                </Tabs>
+            </div>
             <h2>验证插件</h2>
             <div>
                 <h3>字符串长度 大小=&gt;10 =&lt;20</h3>

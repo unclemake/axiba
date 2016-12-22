@@ -30,14 +30,12 @@ function serverRun(dev = true) {
         return;
     }
     isRun = true;
-    //修改服务器配置
+    // 修改服务器配置
     if (dev) {
-        axiba_server_1.config.devPort = config_1.default.devWatchPort;
         axiba_server_1.config.mainPath = config_1.default.devBulidPath + '/' + config_1.default.mainPath;
         axiba_server_1.config.webPort = config_1.default.devWebPort;
     }
     else {
-        axiba_server_1.config.devPort = config_1.default.watchPort;
         axiba_server_1.config.mainPath = config_1.default.bulidPath + '/' + config_1.default.mainPath;
         axiba_server_1.config.webPort = config_1.default.webPort;
     }
@@ -75,8 +73,12 @@ exports.bulid = bulid;
  * @export
  */
 function watch(dev = true) {
+    if (dev) {
+        config_1.default.bulidPath = config_1.default.devBulidPath;
+    }
+    let com = dev ? compileDev_1.default : compile_1.default;
     serverRun(dev);
-    compile_1.default.watch();
+    com.watch();
 }
 exports.watch = watch;
 //# sourceMappingURL=index.js.map
