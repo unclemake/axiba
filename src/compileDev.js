@@ -422,6 +422,7 @@ class CompileDev {
                     pathArr = pathArr.concat(depObj.beDep);
                     break;
             }
+            axiba_util_1.default.log(`开始编译:${pathArr}`);
             let gulpStream = gulp.src(pathArr, {
                 base: config_1.default.assets
             });
@@ -456,6 +457,7 @@ class CompileDev {
                         console.log('出错了');
                     }
                 }).on('finish', () => {
+                    axiba_util_1.default.log(`编译结束`);
                     resolve();
                 });
             });

@@ -19,7 +19,7 @@ let config = {
         'superagent'
     ],
     // 是否在页面注入热加载
-    hotload: false,
+    hotload: true,
     // web访问端口
     devWebPort: 666,
     // web访问端口

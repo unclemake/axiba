@@ -19,7 +19,7 @@ index_8.addRule({
 });
 class Component extends React.PureComponent {
     render() {
-        return React.createElement("section", {className: "page=home"}, 
+        return React.createElement("section", {className: 'page=home'}, 
             React.createElement("h2", null, "插件"), 
             React.createElement("ul", null, 
                 React.createElement("li", null, 
@@ -27,11 +27,11 @@ class Component extends React.PureComponent {
                     React.createElement(index_1.default, null, "Hello world!")), 
                 React.createElement("li", null, 
                     React.createElement("h3", null, "下拉框"), 
-                    React.createElement(index_2.default, {size: "large", defaultValue: "lucy", style: { width: 200 }, onChange: handleChange}, 
-                        React.createElement(Option, {value: "jack"}, "Jack"), 
-                        React.createElement(Option, {value: "lucy"}, "Lucy"), 
-                        React.createElement(Option, {value: "disabled", disabled: true}, "Disabled"), 
-                        React.createElement(Option, {value: "yiminghe"}, "Yiminghe"))), 
+                    React.createElement(index_2.default, {size: 'large', defaultValue: 'lucy', style: { width: 200 }, onChange: handleChange}, 
+                        React.createElement(Option, {value: 'jack'}, "Jack"), 
+                        React.createElement(Option, {value: 'lucy'}, "Lucy"), 
+                        React.createElement(Option, {value: 'disabled', disabled: true}, "Disabled"), 
+                        React.createElement(Option, {value: 'yiminghe'}, "Yiminghe"))), 
                 React.createElement("li", null, 
                     React.createElement("h3", null, "输入框"), 
                     React.createElement(index_3.default, null)), 
@@ -50,21 +50,21 @@ class Component extends React.PureComponent {
                     React.createElement(index_6.default, null)), 
                 React.createElement("li", null, 
                     React.createElement("h3", null, "树"), 
-                    React.createElement(index_4.default, {className: "myCls"}, 
-                        React.createElement(TreeNode, {title: "parent 1", key: "0-0"}, 
-                            React.createElement(TreeNode, {title: "parent 1-0", key: "0-0-0", disabled: true}, 
-                                React.createElement(TreeNode, {title: "leaf", key: "0-0-0-0", disableCheckbox: true}), 
-                                React.createElement(TreeNode, {title: "leaf", key: "0-0-0-1"})), 
-                            React.createElement(TreeNode, {title: "parent 1-1", key: "0-0-1"}, 
-                                React.createElement(TreeNode, {title: React.createElement("span", {style: { color: '#08c' }}, "sss"), key: "0-0-1-0"})
+                    React.createElement(index_4.default, {className: 'myCls'}, 
+                        React.createElement(TreeNode, {title: 'parent 1', key: '0-0'}, 
+                            React.createElement(TreeNode, {title: 'parent 1-0', key: '0-0-0', disabled: true}, 
+                                React.createElement(TreeNode, {title: 'leaf', key: '0-0-0-0', disableCheckbox: true}), 
+                                React.createElement(TreeNode, {title: 'leaf', key: '0-0-0-1'})), 
+                            React.createElement(TreeNode, {title: 'parent 1-1', key: '0-0-1'}, 
+                                React.createElement(TreeNode, {title: React.createElement("span", {style: { color: '#08c' }}, "sss"), key: '0-0-1-0'})
                             ))
                     ))), 
             React.createElement("h2", null, "tab"), 
             React.createElement("div", null, 
-                React.createElement(index_5.default, {defaultActiveKey: "1"}, 
-                    React.createElement(TabPane, {tab: "Tab 1", key: "1"}, "Content of Tab Pane 1"), 
-                    React.createElement(TabPane, {tab: "Tab 2", key: "2"}, "Content of Tab Pane 2"), 
-                    React.createElement(TabPane, {tab: "Tab 3", key: "3"}, "Content of Tab Pane 3"))
+                React.createElement(index_5.default, {defaultActiveKey: '1'}, 
+                    React.createElement(TabPane, {tab: 'Tab 1', key: '1'}, "Content of Tab Pane 1"), 
+                    React.createElement(TabPane, {tab: 'Tab 2', key: '2'}, "Content of Tab Pane 2"), 
+                    React.createElement(TabPane, {tab: 'Tab 3', key: '3'}, "Content of Tab Pane 3"))
             ), 
             React.createElement("h2", null, "验证插件"), 
             React.createElement("div", null, 

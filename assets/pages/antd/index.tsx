@@ -18,7 +18,7 @@ addRule({
 
 export default class Component extends React.PureComponent<any, void> {
     render() {
-        return <section className="page=home">
+        return <section className='page=home'>
             <h2>插件</h2>
             <ul>
                 <li>
@@ -27,11 +27,11 @@ export default class Component extends React.PureComponent<any, void> {
                 </li>
                 <li>
                     <h3>下拉框</h3>
-                    <Select size="large" defaultValue="lucy" style={{ width: 200 }} onChange={handleChange}>
-                        <Option value="jack">Jack</Option>
-                        <Option value="lucy">Lucy</Option>
-                        <Option value="disabled" disabled>Disabled</Option>
-                        <Option value="yiminghe">Yiminghe</Option>
+                    <Select size='large' defaultValue='lucy' style={{ width: 200 }} onChange={handleChange}>
+                        <Option value='jack'>Jack</Option>
+                        <Option value='lucy'>Lucy</Option>
+                        <Option value='disabled' disabled>Disabled</Option>
+                        <Option value='yiminghe'>Yiminghe</Option>
                     </Select>
                 </li>
                 <li>
@@ -55,14 +55,14 @@ export default class Component extends React.PureComponent<any, void> {
                 </li>
                 <li>
                     <h3>树</h3>
-                    <Tree className="myCls">
-                        <TreeNode title="parent 1" key="0-0">
-                            <TreeNode title="parent 1-0" key="0-0-0" disabled>
-                                <TreeNode title="leaf" key="0-0-0-0" disableCheckbox />
-                                <TreeNode title="leaf" key="0-0-0-1" />
+                    <Tree className='myCls'>
+                        <TreeNode title='parent 1' key='0-0'>
+                            <TreeNode title='parent 1-0' key='0-0-0' disabled>
+                                <TreeNode title='leaf' key='0-0-0-0' disableCheckbox />
+                                <TreeNode title='leaf' key='0-0-0-1' />
                             </TreeNode>
-                            <TreeNode title="parent 1-1" key="0-0-1">
-                                <TreeNode title={<span style={{ color: '#08c' }}>sss</span>} key="0-0-1-0" />
+                            <TreeNode title='parent 1-1' key='0-0-1'>
+                                <TreeNode title={<span style={{ color: '#08c' }}>sss</span>} key='0-0-1-0' />
                             </TreeNode>
                         </TreeNode>
                     </Tree>
@@ -70,10 +70,10 @@ export default class Component extends React.PureComponent<any, void> {
             </ul>
             <h2>tab</h2>
             <div>
-                <Tabs defaultActiveKey="1" >
-                    <TabPane tab="Tab 1" key="1">Content of Tab Pane 1</TabPane>
-                    <TabPane tab="Tab 2" key="2">Content of Tab Pane 2</TabPane>
-                    <TabPane tab="Tab 3" key="3">Content of Tab Pane 3</TabPane>
+                <Tabs defaultActiveKey='1' >
+                    <TabPane tab='Tab 1' key='1'>Content of Tab Pane 1</TabPane>
+                    <TabPane tab='Tab 2' key='2'>Content of Tab Pane 2</TabPane>
+                    <TabPane tab='Tab 3' key='3'>Content of Tab Pane 3</TabPane>
                 </Tabs>
             </div>
             <h2>验证插件</h2>

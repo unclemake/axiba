@@ -47,7 +47,7 @@ class Component extends React.PureComponent {
     render() {
         const { state } = this;
         return (React.createElement("section", {className: 'page-home'}, 
-            React.createElement("p", null, "点击事件的2种绑定方式"), 
+            React.createElement("p", null, "点击事件的2种绑定方式23"), 
             React.createElement("div", null, 
                 React.createElement("a", {onClick: this.btnClick.bind(this)}, 
                     state.btnText, 
@@ -147,7 +147,7 @@ class Component2 extends React.PureComponent {
     render() {
         const { state } = this;
         return React.createElement("section", {className: 'page=home'}, 
-            React.createElement("p", null, "组件的创建和调用  react 生命周期"), 
+            React.createElement("p", null, "组件的创建和调用  react 生命周期22"), 
             React.createElement("div", null, 
                 React.createElement("input", {type: 'text'}), 
                 React.createElement("a", {onClick: this.btnClick.bind(this), className: 'ant-btn'}, 

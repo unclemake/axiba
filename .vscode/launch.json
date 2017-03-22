@@ -19,7 +19,9 @@
             },
             "console": "internalConsole",
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}"
+            "outFiles": [
+                "${workspaceRoot}"
+            ]
         },
         {
             "name": "启动2",
@@ -39,7 +41,9 @@
             },
             "console": "internalConsole",
             "sourceMaps": false,
-            "outDir": "${workspaceRoot}"
+            "outFiles": [
+                "${workspaceRoot}"
+            ]
         }
     ]
 }

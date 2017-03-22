@@ -471,7 +471,7 @@ export class CompileDev {
                 pathArr = pathArr.concat(depObj.beDep);
                 break;
         }
-
+        util.log(`开始编译:${pathArr}`);
         let gulpStream = gulp.src(pathArr, {
             base: config.assets
         });
@@ -510,6 +510,7 @@ export class CompileDev {
                         console.log('出错了');
                     }
                 }).on('finish', () => {
+                    util.log(`编译结束`);
                     resolve();
                 });
         });
