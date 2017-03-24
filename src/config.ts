@@ -1,17 +1,72 @@
-let config = {
-    // 静态文件路径
+
+/**
+ * 程序配置
+ * 
+ * @interface Config
+ */
+export interface Config {
+    /**
+     * 项目文件目录
+     * 
+     * @type {string}
+     * @memberOf Config
+     */
+    assets: string
+
+    /**
+     * 输出文件目录
+     * 
+     * @type {string}
+     * @memberOf Config
+     */
+    output: string
+
+    /**
+     * 框架文件目录
+     * 
+     * @type {string}
+     * @memberOf Config
+     */
+    main: string
+
+    /**
+     * html入口
+     * 
+     * @type {string}
+     * @memberOf Config
+     */
+    mainHtml: string
+
+    /**
+     * 打包进框架文件的 node模块
+     * 
+     * @type {string[]}
+     * @memberOf Config
+     */
+    mainModules: string[]
+
+    /**
+     * 是否在页面注入热加载
+     * 
+     * @type {boolean}
+     * @memberOf Config
+     */
+    hotload: boolean
+
+    /**
+     * 调试接口
+     * 
+     * @type {boolean}
+     * @memberOf Config
+     */
+    devPort: number
+}
+
+let config: Config = {
     assets: 'assets',
-
-    // 生成路径
-    bulidPath: 'dist',
-    // dev生成路径
-    devBulidPath: 'dist-dev',
-
-    // 默认启动页面
-    mainPath: 'index.html',
-    // 模块文件的路径
-    mainJsPath: 'index.js',
-    // 打包进模块文件的 node模块
+    output: 'dist',
+    main: 'index.js',
+    mainHtml: 'index.html',
     mainModules: [
         'react',
         'react-dom',
@@ -19,18 +74,9 @@ let config = {
         'antd',
         'superagent'
     ],
-
-
-    // 是否在页面注入热加载
     hotload: true,
-
-    // web访问端口
-    devWebPort: 666,
-
-    // web访问端口
-    webPort: 667
+    devPort: 8080
 };
-
 
 
 

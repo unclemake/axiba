@@ -7,78 +7,52 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const compile_1 = require('./compile');
-const compileDev_1 = require('./compileDev');
 const config_1 = require('./config');
-exports.config = config_1.default;
 const axiba_server_1 = require('axiba-server');
-const axiba_util_1 = require('axiba-util');
-const axiba_dependencies_1 = require('axiba-dependencies');
+const compile_1 = require('./compile');
+const main_file_1 = require('./main-file');
 // 退出时保存依赖信息
 process.on('exit', function (err) {
-    axiba_dependencies_1.default.createJsonFile();
+    // dep.createJsonFile();
 });
-//导出配置
-let isRun = false;
+let CompileNew = new compile_1.default();
+/**
+ * 项目初始化
+ *
+ * @export
+ */
+function init() {
+    return __awaiter(this, void 0, void 0, function* () {
+        main_file_1.default.buildMainFile();
+        yield CompileNew.build();
+        console.log('运行完毕');
+    });
+}
+exports.init = init;
+/**
+ * 监视
+ *
+ * @export
+ */
+function watch() { }
+exports.watch = watch;
+/**
+ * 配置
+ *
+ * @export
+ */
+exports.config = config_1.default;
 /**
  * 启动服务器
  *
  * @export
  */
 function serverRun(dev = true) {
-    if (isRun) {
-        return;
-    }
-    isRun = true;
     // 修改服务器配置
-    if (dev) {
-        axiba_server_1.config.mainPath = config_1.default.devBulidPath + '/' + config_1.default.mainPath;
-        axiba_server_1.config.webPort = config_1.default.devWebPort;
-    }
-    else {
-        axiba_server_1.config.mainPath = config_1.default.bulidPath + '/' + config_1.default.mainPath;
-        axiba_server_1.config.webPort = config_1.default.webPort;
-    }
+    axiba_server_1.config.mainPath = exports.config.output + '/' + exports.config.mainHtml;
+    axiba_server_1.config.webPort = exports.config.devPort;
     axiba_server_1.run();
 }
-/**
- * 生成所有文件
- *
- * @export
- */
-function bulid(dev = true) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (dev) {
-            config_1.default.bulidPath = config_1.default.devBulidPath;
-        }
-        let com = dev ? compileDev_1.default : compile_1.default;
-        axiba_util_1.default.log('项目文件依赖扫描');
-        yield com.scanDependence();
-        axiba_util_1.default.log('node依赖打包');
-        yield com.packNodeDependencies();
-        axiba_util_1.default.log('框架文件生成');
-        yield com.buildMainFile();
-        axiba_util_1.default.log('项目文件全部生成');
-        yield com.build();
-        if (!dev) {
-            yield com.mainJsMd5Build();
-            com.md5Build();
-        }
-    });
-}
-exports.bulid = bulid;
-/**
- * 监视
- *
- * @export
- */
-function watch(dev = true) {
-    if (dev) {
-        config_1.default.bulidPath = config_1.default.devBulidPath;
-    }
-    let com = dev ? compileDev_1.default : compile_1.default;
-    serverRun(dev);
-    com.watch();
-}
-exports.watch = watch;
+exports.serverRun = serverRun;
+
 //# sourceMappingURL=index.js.map

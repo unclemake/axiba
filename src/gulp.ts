@@ -1,4 +1,4 @@
-﻿import * as gulpUtil from 'gulp-util';
+import * as gulpUtil from 'gulp-util';
 import * as gulp from 'gulp';
 import * as ph from 'path';
 import * as fs from 'fs';
@@ -58,6 +58,7 @@ export class Gulp {
     * @param  {} enc
     * @param  {} cb
     */
+
     cssToJs() {
         return makeLoader((file, enc, callback) => {
             var content: string = file.contents.toString();
@@ -69,7 +70,26 @@ export class Gulp {
 
 
     /**
-    * 编译文件 添加
+     * 添加原始filePath
+     * 
+     * @returns
+     * 
+     * @memberOf Gulp
+     */
+    addFilePath() {
+        return makeLoader((file, enc, callback) => {
+            file.filePath = file.path;
+
+            var content: string = file.contents.toString();
+            content = `// <record value="${file.path}" />\n${content}`;
+            file.contents = new Buffer(content);
+            return callback(null, file);
+        })
+    }
+
+
+    /**
+    * 编译文件 添加define头
     */
     addDefine() {
         return makeLoader((file, enc, callback) => {
@@ -77,7 +97,14 @@ export class Gulp {
             fi.mappings = ";" + fi.mappings;
 
             var content: string = file.contents.toString();
-            content = `define("${dep.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {\n${content}\n});`;
+            let ph = dep.clearPath(file.path);
+            let depObject = dep.getDependencies(file as any);
+            let depString = '[]';
+            console.log(depObject);
+            if (depObject) {
+                depString = JSON.stringify(depObject.dependent);
+            }
+            content = `define("${ph.replace('assets/', '')}",function(require, exports, module) {\n${content}\n},${depString});`;
             file.contents = new Buffer(content);
             return callback(null, file);
         })
@@ -111,7 +138,7 @@ export class Gulp {
             let path = file.path;
             let depObject = dep.dependenciesArray.find(value => value.path === dep.clearPath(path));
 
-            if (depObject.path !== `${config.bulidPath}/${config.mainPath}`) {
+            if (depObject.path !== `${config.output}/${config.main}`) {
                 let md5 = depObject.md5.match(/^.{8}/g)[0];
                 file.path = this.pathAddMd5(path, md5);
             }
@@ -325,8 +352,9 @@ export class Gulp {
             return callback(null, file);
         });
     }
+
     htmlBaseReplace(content: string) {
-        content = content.replace(/\$\{base\}/g, config.bulidPath);
+        content = content.replace(/\$\{base\}/g, config.output);
         return content;
     }
 

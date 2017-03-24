@@ -5,6 +5,7 @@
     "rules": {
         "semicolon": [
             false
-        ]
+        ],
+        "align": [true,  "statements"]
     }
 }

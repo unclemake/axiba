@@ -1,69 +1,27 @@
-import { default as compile, Compile } from './compile';
-import { default as compileDev } from './compileDev';
-import config from './config';
+﻿import importConfig, { Config } from './config';
 import { run, config as axibaConfig } from 'axiba-server';
-import util from 'axiba-util';
-import { default as dep, DependenciesModel } from 'axiba-dependencies';
+import Compile from './compile';
+import MainFile from './main-file';
+
+
 
 // 退出时保存依赖信息
 process.on('exit', function (err) {
-    dep.createJsonFile();
+    // dep.createJsonFile();
 });
 
 
-//导出配置
-export { config };
 
-
-
-let isRun = false;
+let CompileNew = new Compile();
 /**
- * 启动服务器
+ * 项目初始化
  * 
  * @export
  */
-function serverRun(dev = true) {
-    if (isRun) {
-        return;
-    }
-    isRun = true;
-
-    // 修改服务器配置
-    if (dev) {
-        axibaConfig.mainPath = config.devBulidPath + '/' + config.mainPath;
-        axibaConfig.webPort = config.devWebPort;
-    } else {
-        axibaConfig.mainPath = config.bulidPath + '/' + config.mainPath;
-        axibaConfig.webPort = config.webPort;
-    }
-    run();
-}
-
-
-/**
- * 生成所有文件
- *
- * @export
- */
-export async function bulid(dev = true) {
-    if (dev) {
-        config.bulidPath = config.devBulidPath;
-    }
-    let com: Compile = dev ? compileDev : compile as any;
-
-    util.log('项目文件依赖扫描');
-    await com.scanDependence();
-    util.log('node依赖打包');
-    await com.packNodeDependencies();
-    util.log('框架文件生成');
-    await com.buildMainFile();
-    util.log('项目文件全部生成');
-    await com.build();
-
-    if (!dev) {
-        await com.mainJsMd5Build();
-        com.md5Build();
-    }
+export async function init() {
+    MainFile.buildMainFile();
+    await CompileNew.build();
+    console.log('运行完毕');
 }
 
 
@@ -72,12 +30,30 @@ export async function bulid(dev = true) {
  * 
  * @export
  */
-export function watch(dev = true) {
-    if (dev) {
-        config.bulidPath = config.devBulidPath;
-    }
-    let com: any = dev ? compileDev : compile;
-    serverRun(dev);
-    com.watch();
+export function watch() { }
+
+/**
+ * 配置
+ * 
+ * @export
+ */
+export let config = importConfig;
+
+
+/**
+ * 启动服务器
+ * 
+ * @export
+ */
+export function serverRun(dev = true) {
+    // 修改服务器配置
+    axibaConfig.mainPath = config.output + '/' + config.mainHtml;
+    axibaConfig.webPort = config.devPort;
+    run();
 }
+
+
+
+
+
 

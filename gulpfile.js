@@ -2,11 +2,10 @@ var gulp = require('gulp');
 var gulpTypescript = require('gulp-typescript');
 var jsdoc = require("gulp-jsdoc3");
 const sourcemaps = require('gulp-sourcemaps');;
-const through = require('through2');;
-const ph = require('path');;
-const fs = require('fs');;
+var webpack = require('gulp-webpack');
+var typedoc = require("gulp-typedoc");
 
-gulp.task('build', function () {
+gulp.task('default', function () {
 
     return gulp.watch(['src/**/*.?(tsx|ts)', 'test/**/*.?(tsx|ts)'], function (event) {
         console.log(event.path);
@@ -30,111 +29,17 @@ gulp.task('build', function () {
     }
 });
 
-gulp.task('jsdoc', function (cb) {
-    return gulp.src(['README.md', './src/**/*.js'], { read: false })
-        .pipe(jsdoc());
-})
+gulp.task("docs", function () {
+    return gulp
+        .src(["./src/**/*.ts"])
+        .pipe(typedoc({
+            // TypeScript options (see typescript docs) 
+            module: "commonjs",
+            target: "es6",
+            includeDeclarations: true,
 
-
-gulp.task('antd', function (cb) {
-    function antd() {
-        return through.obj((file, enc, callback) => {
-            var content = file.contents.toString();
-            content = content.replace(/import React from 'react';/g, `import * as React from 'react';`);
-            content = content.replace(/import classNames from 'classnames';/g, `import * as classNames from 'classnames';`);
-
-            content = content.replace(/import warning from 'warning';/g, `import * as warning from 'warning';`);
-            content = content.replace(/null = null/g, `null`);
-            file.contents = new Buffer(content);
-            callback(null, file);
-        })
-    }
-
-    return gulp.src(['./assets/components/antd/**/*.tsx'], {
-        base: './'
-    })
-        .pipe(antd())
-        .pipe(gulp.dest('./'));
-
-})
-
-
-gulp.task('antdAddLess', function () {
-
-    function antd() {
-        return through.obj((file, enc, callback) => {
-            var content = file.contents.toString();
-            content = `import './style/index.css';\n` + content;
-            file.contents = new Buffer(content);
-            callback(null, file);
-        })
-    }
-
-    return gulp.src(['./assets/components/antd/**/index.tsx'], {
-        base: './'
-    })
-        .pipe(antd())
-        .pipe(gulp.dest('./'));
-
-})
-
-gulp.task('antdless', function (cb) {
-    function antd() {
-        return through.obj((file, enc, callback) => {
-            var content = file.contents.toString();
-            let extname = ph.extname(file.path);
-            let dirname = ph.dirname(file.path);
-            let basename = ph.basename(file.path);
-
-            content = content.replace(/@import +['"](.+?)['"]/g, (str, $1) => {
-                let extname = ph.extname($1);
-                let dirname = ph.dirname($1);
-                let basename = ph.basename($1);
-                if (basename === 'index.less' || basename === 'index') {
-                    return str;
-                } else {
-                    basename = '_' + basename;
-                    return `@import "${dirname}/${basename}"`;
-                }
-            });
-
-            if (basename !== 'index.less') {
-                fs.unlinkSync(file.path);
-                file.path = `${dirname}/_${basename}`;
-            }
-
-            file.contents = new Buffer(content);
-            callback(null, file);
-        })
-    }
-
-    return gulp.src(['./assets/components/antd/**/*.less'], {
-        base: './'
-    })
-        .pipe(antd())
-        .pipe(gulp.dest('./'));
-
-})
-
-
-
-gulp.task('antddel', function (cb) {
-    function antd() {
-        return through.obj((file, enc, callback) => {
-            let extname = ph.extname(file.path);
-            if (extname != '.less') {
-                fs.unlinkSync(file.path);
-            }
-            callback(null);
-        })
-    }
-
-    return gulp.src(['./assets/components/antd/**/*.*'], {
-        base: './'
-    })
-        .pipe(antd())
-        .pipe(gulp.dest('./dddd'));
-
-})
-
-
+            // Output options (see typedoc docs) 
+            out: "./docs",
+        }))
+        ;
+});

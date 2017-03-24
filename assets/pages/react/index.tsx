@@ -51,7 +51,7 @@ export default class Component extends React.PureComponent<any, any> {
     render() {
         const {state} = this;
         return (<section className='page-home'>
-            <p>点击事件的2种绑定方式23</p>
+            <p>点击事件的2种绑定方式</p>
             <div>
                 <a onClick={this.btnClick.bind(this)}>{state.btnText}:{state.btnNu}</a>&nbsp;&nbsp;
                 <a onClick={() => this.changeProps()}>修改Component2属性</a>
@@ -173,7 +173,7 @@ export class Component2 extends React.PureComponent<Component2Props, Component2S
     render() {
         const {state} = this;
         return <section className='page=home'>
-            <p>组件的创建和调用  react 生命周期22</p>
+            <p>组件的创建和调用  react 生命周期</p>
             <div>
                 <input type='text' />
                 <a onClick={this.btnClick.bind(this)} className='ant-btn'>

@@ -1,1 +1,0 @@
-exports.___0 = require('motion/_fade');exports.___1 = require('motion/_move');exports.___2 = require('motion/_other');exports.___3 = require('motion/_slide');exports.___4 = require('motion/_swing');exports.___5 = require('motion/_zoom');

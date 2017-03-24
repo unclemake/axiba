@@ -67,14 +67,37 @@ class Gulp {
         });
     }
     /**
-    * 编译文件 添加
+     * 添加原始filePath
+     *
+     * @returns
+     *
+     * @memberOf Gulp
+     */
+    addFilePath() {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            file.filePath = file.path;
+            var content = file.contents.toString();
+            content = `// <record value="${file.path}" />\n${content}`;
+            file.contents = new Buffer(content);
+            return callback(null, file);
+        });
+    }
+    /**
+    * 编译文件 添加define头
     */
     addDefine() {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
             let fi = file.sourceMap;
             fi.mappings = ";" + fi.mappings;
             var content = file.contents.toString();
-            content = `define("${axiba_dependencies_1.default.clearPath(file.path).replace('assets/', '')}",function(require, exports, module) {\n${content}\n});`;
+            let ph = axiba_dependencies_1.default.clearPath(file.path);
+            let depObject = axiba_dependencies_1.default.getDependencies(file);
+            let depString = '[]';
+            console.log(depObject);
+            if (depObject) {
+                depString = JSON.stringify(depObject.dependent);
+            }
+            content = `define("${ph.replace('assets/', '')}",function(require, exports, module) {\n${content}\n},${depString});`;
             file.contents = new Buffer(content);
             return callback(null, file);
         });
@@ -104,7 +127,7 @@ class Gulp {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
             let path = file.path;
             let depObject = axiba_dependencies_1.default.dependenciesArray.find(value => value.path === axiba_dependencies_1.default.clearPath(path));
-            if (depObject.path !== `${config_1.default.bulidPath}/${config_1.default.mainPath}`) {
+            if (depObject.path !== `${config_1.default.output}/${config_1.default.main}`) {
                 let md5 = depObject.md5.match(/^.{8}/g)[0];
                 file.path = this.pathAddMd5(path, md5);
             }
@@ -292,11 +315,12 @@ class Gulp {
         });
     }
     htmlBaseReplace(content) {
-        content = content.replace(/\$\{base\}/g, config_1.default.bulidPath);
+        content = content.replace(/\$\{base\}/g, config_1.default.output);
         return content;
     }
 }
 exports.Gulp = Gulp;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = new Gulp();
+
 //# sourceMappingURL=gulp.js.map

@@ -20,8 +20,7 @@ class Main extends React.Component<ReactRouter.RouteComponentProps<void, void>, 
 
         let props = this.props;
         // 自动解析
-        let url = props.route.path === '*' ?
-            'pages' + props.location.pathname + '/index.js' : 'pages/' + props.route.path + '/index.js';
+        let url = props.route.path === '*' ? 'pages' + props.location.pathname + '/index.js' : 'pages/' + props.route.path + '/index.js';
 
 
         if ((window as any).__md5Array) {
