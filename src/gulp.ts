@@ -7,11 +7,22 @@ import { default as dep, DependenciesModel } from 'axiba-dependencies';
 import { TransformFunction, FlushFunction, makeLoader, getFile } from 'axiba-gulp';
 import config from './config';
 var applySourceMap = require('vinyl-sourcemaps-apply');
+var gulpConcat = require('gulp-concat');
+import { getDevFileString, reload } from 'axiba-server';
 
 export class Gulp {
 
 
     alias: { [key: string]: string } = {}
+
+
+    reload() {
+        return makeLoader(async function (file, enc, callback) {
+            let ph = dep.clearPath(file.path);
+            reload(ph.replace(config.assets + '/', ''));
+            callback(null, file);
+        })
+    }
 
 
     /**
@@ -22,9 +33,30 @@ export class Gulp {
     addAlias(alias: string, path: string) {
         return makeLoader(async function (file, enc, callback) {
             var content: string = file.contents.toString();
-            content += `\n define("${alias}", function (require, exports, module) {var exp = require('${path}');module.exports = exp;});`;
+            content += `\n define("${alias}",[], function (require, exports, module) {var exp = require('${path}');module.exports = exp;});`;
             file.contents = new Buffer(content);
             callback(null, file);
+        })
+    }
+
+    /**
+     * 合并
+     * 
+     * 
+     * @memberOf Gulp
+     */
+    merge() {
+        return makeLoader(async (file, enc, callback) => {
+            let gulpPath = dep.clearPath(ph.dirname(file.path));
+            let name = ph.basename(file.path);
+            console.log(gulpPath);
+            gulp.src(gulpPath + '/**/*.js', {
+                base: '/'
+            }).pipe(gulpConcat(file.path))
+                .pipe(gulp.dest(config.output))
+                .on('finish', () => {
+                    callback(null, file);
+                });
         })
     }
 
@@ -94,17 +126,18 @@ export class Gulp {
     addDefine() {
         return makeLoader((file, enc, callback) => {
             let fi: any = (file as any).sourceMap;
-            fi.mappings = ";" + fi.mappings;
+            if (fi) {
+                fi.mappings = ";" + fi.mappings;
+            }
 
             var content: string = file.contents.toString();
             let ph = dep.clearPath(file.path);
             let depObject = dep.getDependencies(file as any);
             let depString = '[]';
-            console.log(depObject);
             if (depObject) {
                 depString = JSON.stringify(depObject.dependent);
             }
-            content = `define("${ph.replace('assets/', '')}",function(require, exports, module) {\n${content}\n},${depString});`;
+            content = `define("${ph.replace(config.assets + '/', '')}",${depString},function(require, exports, module) {\n${content}\n});`;
             file.contents = new Buffer(content);
             return callback(null, file);
         })
@@ -227,18 +260,25 @@ export class Gulp {
         let self = this;
         return makeLoader((file, enc, callback) => {
             var content: string = file.contents.toString();
+            let extname = ph.extname(file.path);
 
-            let depObject = dep.dependenciesArray.find(value =>
-                value.path === dep.clearPath(file.path));
+            if (extname === '.js') {
+                let depObject = dep.dependenciesArray.find(value =>
+                    value.path === dep.clearPath(file.path));
+                let match = content.match(/(define\("[^"]+)(\.js")/g);
+                if (match && match.length > 1) {
+                    return callback(null, file);
+                }
+                content = content.replace(/(define\("[^"]+)(\.js")/g, `$1-${depObject.md5.match(/^.{8}/g)[0]}$2`);
 
-            let match = content.match(/(define\(".+)(\..+")/g);
-            if (match && match.length > 1) {
-                return callback(null, file);
+                let defineArr = content.match(/\[.*?\]/g)[0];
+                let arrObject: string[] = JSON.parse(defineArr);
+                arrObject = arrObject.map(value => {
+                    return self.md5Replace(file.path, value);
+                })
+                content = content.replace(/\[.*?\]/, JSON.stringify(arrObject));
             }
 
-            content = content.replace(/(define\(".+)(\..+")/g, `$1-${depObject.md5.match(/^.{8}/g)[0]}$2`);
-
-            let extname = ph.extname(file.path);
             let depConfig = dep.config.find(value => value.extname === extname);
             depConfig.parserRegExpList.forEach(value => {
                 let match = parseInt(value.match.split('$')[1]);
@@ -249,7 +289,7 @@ export class Gulp {
                     //匹配的路径名
                     let matchStr = arguments[match];
 
-                    str = str.replace(matchStr, self.md5Replace(file.path, matchStr));
+                    str = str.replace(new RegExp(matchStr, 'g'), self.md5Replace(file.path, matchStr));
 
                     return str;
                 });
@@ -259,6 +299,7 @@ export class Gulp {
             return callback(null, file);
         });
     }
+
 
 
 

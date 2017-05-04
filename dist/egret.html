@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <!--编码-->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!--手机的缩放-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <!--360浏览器使用急速模式-->
+    <meta name="renderer" content="webkit">
+    <!--使用最高版本ie或者Chrome内核渲染-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <!--号码不被显示为拨号链接-->
+    <meta name="format-detection" content="telephone=no">
+    <!--为搜索引擎提供的关键字列表-->
+    <meta name="keywords" content="关键字,qikexiu">
+    <!--为搜索引擎提供的简介-->
+    <meta name="description" content="为搜索引擎提供的简介">
+    <title></title>
+
+    <!--框架-->
+    <script egret="lib" src="./components/egret/egret.min.js"></script>
+    <script egret="lib" src="./components/egret/egret.web.min.js"></script>
+    <script egret="lib" src="./components/egret/tween/tween.min.js"></script>
+    <script>
+        Object['defineProperty'] = () => { };
+        function define(url, arr, fun) {
+            fun(1, 2, {});
+        }
+    </script>
+    <script egret="lib" src="./test/egret.js"></script>
+</head>
+
+<body>
+    <div style="width:900px; height:960px" class="egret-player" data-entry-class="Main" data-orientation="auto" data-scale-mode="showAll"
+        data-frame-rate="60" data-content-width="900" data-content-height="960" data-show-paint-rect="false" data-multi-fingered="2"
+        data-show-log="false" data-show-fps="true" data-log-filter="" data-show-fps-style="bgAlpha:0.9,x:500">
+    </div>
+    <script>
+        egret.runEgret({ renderMode: "webgl" });
+    </script>
+
+</body>
+
+</html>

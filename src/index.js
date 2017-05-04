@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -23,18 +22,31 @@ let CompileNew = new compile_1.default();
  */
 function init() {
     return __awaiter(this, void 0, void 0, function* () {
-        main_file_1.default.buildMainFile();
         yield CompileNew.build();
+        main_file_1.default.buildMainFile();
+        // CompileNew.merge();
         console.log('运行完毕');
     });
 }
 exports.init = init;
+let ReleaseNew = new compile_1.Release();
+function release() {
+    return __awaiter(this, void 0, void 0, function* () {
+        main_file_1.default.buildMainFileMin();
+        yield ReleaseNew.build();
+        yield ReleaseNew.md5Build();
+        console.log('运行完毕');
+    });
+}
+exports.release = release;
 /**
  * 监视
  *
  * @export
  */
-function watch() { }
+function watch() {
+    CompileNew.watch();
+}
 exports.watch = watch;
 /**
  * 配置
@@ -54,5 +66,4 @@ function serverRun(dev = true) {
     axiba_server_1.run();
 }
 exports.serverRun = serverRun;
-
 //# sourceMappingURL=index.js.map

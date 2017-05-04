@@ -21,14 +21,19 @@
 
 	<!--框架-->
 	<script src="${base}/index.js"></script>
-	<link href="${base}/components/global/index.css" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="${base}/components/global/index.css" />
 </head>
 
 <body>
 	<section id="app"></section>
 	<script>
-        seajs.use('components/global/index.js');
-    </script>
+		axibaModular.setConfig({
+			root: '/${base}/',
+			paths: {
+				'paths': './paths'
+			}
+		}).run('components/global/index.js');
+	</script>
 </body>
 
 </html>

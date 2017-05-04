@@ -6,6 +6,8 @@
     "noImplicitAny": false,
     "removeComments": false,
     "sourceMap": true,
+    "isolatedModules": true,
+    "noImplicitUseStrict": true,
     "jsx": "react",
     "baseUrl": ".",
     "paths": {

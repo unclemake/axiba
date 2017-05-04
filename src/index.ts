@@ -1,6 +1,6 @@
 ﻿import importConfig, { Config } from './config';
 import { run, config as axibaConfig } from 'axiba-server';
-import Compile from './compile';
+import Compile, { Release } from './compile';
 import MainFile from './main-file';
 
 
@@ -19,8 +19,19 @@ let CompileNew = new Compile();
  * @export
  */
 export async function init() {
-    MainFile.buildMainFile();
     await CompileNew.build();
+    MainFile.buildMainFile();
+    // CompileNew.merge();
+    console.log('运行完毕');
+}
+
+
+let ReleaseNew = new Release();
+export async function release() {
+    MainFile.buildMainFileMin();
+
+    await ReleaseNew.build();
+    await ReleaseNew.md5Build();
     console.log('运行完毕');
 }
 
@@ -30,7 +41,9 @@ export async function init() {
  * 
  * @export
  */
-export function watch() { }
+export function watch() {
+    CompileNew.watch();
+}
 
 /**
  * 配置

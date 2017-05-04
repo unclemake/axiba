@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -10,8 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const config_1 = require('./config');
 const axiba_npm_dependencies_1 = require('axiba-npm-dependencies');
 const axiba_dependencies_1 = require('axiba-dependencies');
+const axiba_server_1 = require('axiba-server');
 const fs = require('fs');
 const path = require('path');
+const UglifyJS = require("uglify-js");
 /**
  * 框架生成类
  *
@@ -54,7 +55,7 @@ class MainFile {
     getMainNodeModules() {
         let depArray = this.getAssetsDependencies();
         depArray = depArray.filter(value => {
-            return !!config_1.default.mainModules.find(path => value.indexOf(path) === 0);
+            return !config_1.default.mainModules.find(path => value === path);
         });
         return depArray;
     }
@@ -69,9 +70,40 @@ class MainFile {
         return __awaiter(this, void 0, void 0, function* () {
             let content = '';
             content += yield axiba_npm_dependencies_1.default.getFileString('axiba-modular');
+            content += yield axiba_npm_dependencies_1.default.getFileString('babel-polyfill');
+            content = content.replace(/^"use strict";/g, '');
+            if (config_1.default.debug) {
+                // 添加调试脚本
+                content += axiba_server_1.getDevFileString();
+            }
             // 添加node模块
             let modules = yield axiba_npm_dependencies_1.default.getPackFileString(this.getMainNodeModules());
             content += modules;
+            config_1.default.mainFile.forEach(value => {
+                content += fs.readFileSync(path.join(config_1.default.assets, value), 'utf-8');
+            });
+            this.mkdirsSync(config_1.default.output);
+            fs.writeFileSync(path.join(config_1.default.output, config_1.default.main), content);
+            return content;
+        });
+    }
+    /**
+     * 生成min框架
+     *
+     * @returns
+     *
+     * @memberOf MainFile
+     */
+    buildMainFileMin() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let content = '';
+            content += yield axiba_npm_dependencies_1.default.getFileString('axiba-modular');
+            content += yield axiba_npm_dependencies_1.default.getFileString('babel-polyfill');
+            content = content.replace(/^"use strict";/g, '');
+            // 添加node模块
+            let modules = yield axiba_npm_dependencies_1.default.getPackFileString(this.getMainNodeModules());
+            content += modules;
+            content = UglifyJS.minify(content, { fromString: true }).code;
             this.mkdirsSync(config_1.default.output);
             fs.writeFileSync(path.join(config_1.default.output, config_1.default.main), content);
             return content;
@@ -107,5 +139,4 @@ class MainFile {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = new MainFile();
-
 //# sourceMappingURL=main-file.js.map

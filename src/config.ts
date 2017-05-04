@@ -46,12 +46,20 @@ export interface Config {
     mainModules: string[]
 
     /**
-     * 是否在页面注入热加载
+     * 打包进框架文件的 项目文件
+     * 
+     * @type {string[]}
+     * @memberOf Config
+     */
+    mainFile: string[]
+
+    /**
+     * 开始devbug
      * 
      * @type {boolean}
      * @memberOf Config
      */
-    hotload: boolean
+    debug: boolean
 
     /**
      * 调试接口
@@ -60,21 +68,25 @@ export interface Config {
      * @memberOf Config
      */
     devPort: number
+
+    /**
+     * 合并
+     * 
+     * @type {string}
+     * @memberOf Config
+     */
+    merge: string | string[]
 }
 
 let config: Config = {
+    merge: '',
     assets: 'assets',
     output: 'dist',
     main: 'index.js',
     mainHtml: 'index.html',
-    mainModules: [
-        'react',
-        'react-dom',
-        'react-router',
-        'antd',
-        'superagent'
-    ],
-    hotload: true,
+    mainModules: [],
+    mainFile: [],
+    debug: true,
     devPort: 8080
 };
 

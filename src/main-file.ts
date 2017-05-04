@@ -2,9 +2,11 @@ import config from './config';
 
 import nodeModule from 'axiba-npm-dependencies';
 import dep from 'axiba-dependencies';
+import { getDevFileString, reload } from 'axiba-server';
 
 import * as fs from 'fs';
 import * as path from 'path';
+const UglifyJS = require("uglify-js");
 
 /**
  * 框架生成类
@@ -48,7 +50,7 @@ class MainFile {
     protected getMainNodeModules() {
         let depArray = this.getAssetsDependencies();
         depArray = depArray.filter(value => {
-            return !!config.mainModules.find(path => value.indexOf(path) === 0);
+            return !config.mainModules.find(path => value === path);
         });
         return depArray;
     }
@@ -63,11 +65,44 @@ class MainFile {
     async buildMainFile() {
         let content: string = '';
         content += await nodeModule.getFileString('axiba-modular');
+        content += await nodeModule.getFileString('babel-polyfill');
+        content = content.replace(/^"use strict";/g, '');
+
+        if (config.debug) {
+            // 添加调试脚本
+            content += getDevFileString();
+        }
 
         // 添加node模块
         let modules = await nodeModule.getPackFileString(this.getMainNodeModules());
         content += modules;
 
+        config.mainFile.forEach(value => {
+            content += fs.readFileSync(path.join(config.assets, value), 'utf-8');
+        })
+
+        this.mkdirsSync(config.output);
+        fs.writeFileSync(path.join(config.output, config.main), content);
+        return content;
+    }
+
+    /**
+     * 生成min框架
+     * 
+     * @returns
+     * 
+     * @memberOf MainFile
+     */
+    async buildMainFileMin() {
+        let content: string = '';
+        content += await nodeModule.getFileString('axiba-modular');
+        content += await nodeModule.getFileString('babel-polyfill');
+        content = content.replace(/^"use strict";/g, '');
+
+        // 添加node模块
+        let modules = await nodeModule.getPackFileString(this.getMainNodeModules());
+        content += modules;
+        content = UglifyJS.minify(content, { fromString: true }).code
         this.mkdirsSync(config.output);
         fs.writeFileSync(path.join(config.output, config.main), content);
         return content;
