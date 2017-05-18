@@ -17,10 +17,13 @@ axiba.config.mainFile = [
     'components/egret/eui/eui.min.js',
     'components/egret/tween/tween.min.js'
 ];
-axiba.config.merge = 'dist/pages/*/index.js';
+axiba.config.merge = 'dist/pages/*/index-????????.js';
+axiba.config.paths = {
+    '@components': 'components'
+};
 (() => __awaiter(this, void 0, void 0, function* () {
-    // await axiba.release();
-    yield axiba.init();
+    yield axiba.release();
+    // await axiba.init();
     yield axiba.serverRun();
     axiba.watch();
 }))();

@@ -56,7 +56,7 @@ class MainFile {
         let depArray = this.getAssetsDependencies();
         depArray = depArray.filter(value => {
             return !config_1.default.mainModules.find(path => value === path);
-        });
+        }).filter(value => value.indexOf('@') !== 0);
         return depArray;
     }
     /**
@@ -72,10 +72,8 @@ class MainFile {
             content += yield axiba_npm_dependencies_1.default.getFileString('axiba-modular');
             content += yield axiba_npm_dependencies_1.default.getFileString('babel-polyfill');
             content = content.replace(/^"use strict";/g, '');
-            if (config_1.default.debug) {
-                // 添加调试脚本
-                content += axiba_server_1.getDevFileString();
-            }
+            // 添加调试脚本
+            content += axiba_server_1.getDevFileString();
             // 添加node模块
             let modules = yield axiba_npm_dependencies_1.default.getPackFileString(this.getMainNodeModules());
             content += modules;

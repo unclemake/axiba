@@ -51,7 +51,7 @@ class MainFile {
         let depArray = this.getAssetsDependencies();
         depArray = depArray.filter(value => {
             return !config.mainModules.find(path => value === path);
-        });
+        }).filter(value => value.indexOf('@') !== 0);
         return depArray;
     }
 
@@ -67,11 +67,8 @@ class MainFile {
         content += await nodeModule.getFileString('axiba-modular');
         content += await nodeModule.getFileString('babel-polyfill');
         content = content.replace(/^"use strict";/g, '');
-
-        if (config.debug) {
-            // 添加调试脚本
-            content += getDevFileString();
-        }
+        // 添加调试脚本
+        content += getDevFileString();
 
         // 添加node模块
         let modules = await nodeModule.getPackFileString(this.getMainNodeModules());

@@ -6,7 +6,6 @@ let config = {
     mainHtml: 'index.html',
     mainModules: [],
     mainFile: [],
-    debug: true,
     devPort: 8080
 };
 Object.defineProperty(exports, "__esModule", { value: true });

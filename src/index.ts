@@ -21,7 +21,6 @@ let CompileNew = new Compile();
 export async function init() {
     await CompileNew.build();
     MainFile.buildMainFile();
-    // CompileNew.merge();
     console.log('运行完毕');
 }
 
@@ -32,6 +31,7 @@ export async function release() {
 
     await ReleaseNew.build();
     await ReleaseNew.md5Build();
+    await ReleaseNew.merge();
     console.log('运行完毕');
 }
 

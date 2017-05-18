@@ -24,7 +24,6 @@ function init() {
     return __awaiter(this, void 0, void 0, function* () {
         yield CompileNew.build();
         main_file_1.default.buildMainFile();
-        // CompileNew.merge();
         console.log('运行完毕');
     });
 }
@@ -35,6 +34,7 @@ function release() {
         main_file_1.default.buildMainFileMin();
         yield ReleaseNew.build();
         yield ReleaseNew.md5Build();
+        yield ReleaseNew.merge();
         console.log('运行完毕');
     });
 }
