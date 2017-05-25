@@ -14,6 +14,13 @@ interface IPageState {
 };
 
 
+/**
+ * 
+ * 子组件
+ * @export
+ * @class Page
+ * @extends {React.Component<any, any>}
+ */
 @autobind
 export default class Page extends React.Component<any, any> {
 
@@ -22,8 +29,7 @@ export default class Page extends React.Component<any, any> {
 
         const { data } = props;
         return (<div>
-           test
-           test
+           组件Test
         </div>);
     }
 }

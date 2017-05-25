@@ -5,6 +5,7 @@ import {
     Route,
     Link,
     Redirect,
+    Switch,
     RouteComponentProps
 } from 'react-router-dom';
 
@@ -12,10 +13,11 @@ import Nav from '../nav/index';
 import { Provider, connect } from 'react-redux';
 import { Store, createStore, Dispatch, combineReducers } from 'redux';
 import { autobind } from 'core-decorators';
+import { Spin } from '../antd/index';
 
 declare let require: any;
 
-// 保存数据
+// 缓存页面数据
 let saveState = {};
 // acitons 列表
 let acitonsList: { [key: string]: any } = {};
@@ -36,9 +38,18 @@ interface IRequireEnsureState { };
 class RequireEnsure extends React.Component<IRequireEnsureProps, IRequireEnsureState> {
     state = {
         page: <div></div>,
+        loading: true
     }
 
     async requireEnsure(url) {
+        // <debug>
+        // 此行会在发布中删除
+        console.log(url);
+        // </debug>
+
+        this.state.loading = true;
+        this.setState(this.state);
+
         let path = this.props.router.match.path;
         let obj = await require.ensure(url);
         // 获取页面
@@ -53,21 +64,34 @@ class RequireEnsure extends React.Component<IRequireEnsureProps, IRequireEnsureS
                 data: state[path]
             })
         };
+
         // 提取data
         let App = connect(mapStateToProps)(Page) as typeof Page;
         this.state.page = <Provider store={store}>
             <App router={this.props.router} store={store} />
         </Provider>;
+        this.state.loading = false;
         this.setState(this.state);
     }
 
     public render(): JSX.Element {
         let { props, state } = this;
-
-        return state.page;
+        return state.loading ? <div style={{ textAlign: 'center', paddingTop: '100px' }}><Spin /></div> : state.page;
     }
 
+    /**
+     * 重加载
+     * 
+     * @param {any} url
+     * @returns
+     * 
+     * @memberOf RequireEnsure
+     */
     async reload(url) {
+        if (url === 'dist/index.js') {
+            window.location.reload();
+            return;
+        }
         let bl = await window['axibaModular'].reload(url);
         if (bl) {
             if (url !== this.props.url) {
@@ -77,6 +101,14 @@ class RequireEnsure extends React.Component<IRequireEnsureProps, IRequireEnsureS
         }
     }
 
+    componentWillUpdate(nextProps) {
+        if (nextProps.url !== this.props.url) {
+            // 渲染完毕再改变 不然this.props.router.match.path值不对
+            setTimeout(() => {
+                this.requireEnsure(nextProps.url);
+            }, 0);
+        }
+    }
     componentDidMount() {
         this.requireEnsure(this.props.url);
         window['__reload'] = this.reload;
@@ -87,9 +119,7 @@ class RequireEnsure extends React.Component<IRequireEnsureProps, IRequireEnsureS
 export default class AppRouter extends React.Component<any, any> {
 
     requireEnsure(url) {
-        return (props: RouteComponentProps<any>) => {
-            return <RequireEnsure url={url} router={props} />
-        }
+        return (props: RouteComponentProps<any>) => <RequireEnsure url={url} router={props} />
     }
 
     render() {
@@ -98,9 +128,12 @@ export default class AppRouter extends React.Component<any, any> {
             <Router>
                 <section className='h100'>
                     <Nav />
-                    <Redirect from='/' to='/react' />
-                    <Route path="/react" render={requireEnsure('pages/react/index.js')} />
-                    <Route path="/test" render={requireEnsure('pages/test/index.js')} />
+                    <Switch>
+                        <Route exact path="/" render={requireEnsure('pages/react/index.js')} />
+                        <Route path="/test" render={requireEnsure('pages/test/index.js')} />
+                        <Route path="/antd" render={requireEnsure('pages/antd/index.js')} />
+                        <Route render={requireEnsure('pages/error/index.js')} />
+                    </Switch>
                 </section>
             </Router>
         )

@@ -14,6 +14,7 @@
     "isolatedModules": true,
     "noImplicitUseStrict": true,
     "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
     "jsx": "react",
     "baseUrl": ".",
     "paths": {

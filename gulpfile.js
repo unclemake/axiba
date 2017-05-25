@@ -1,8 +1,6 @@
 var gulp = require('gulp');
 var gulpTypescript = require('gulp-typescript');
-var jsdoc = require("gulp-jsdoc3");
 const sourcemaps = require('gulp-sourcemaps');;
-var webpack = require('gulp-webpack');
 var typedoc = require("gulp-typedoc");
 
 gulp.task('default', function () {

@@ -1,7 +1,7 @@
 import config from './config';
 
 import nodeModule from 'axiba-npm-dependencies';
-import dep from 'axiba-dependencies';
+import dep, { DependenciesModel } from 'axiba-dependencies';
 import { getDevFileString, reload } from 'axiba-server';
 
 import * as fs from 'fs';
@@ -37,6 +37,20 @@ class MainFile {
         let depArray: string[] = [...depSet];
         this.depNodeModules = depArray;
         return depArray;
+    }
+
+
+    async  addDep(DepModel: DependenciesModel) {
+        let bl = false;
+        DepModel.dep.forEach(path => {
+            if (path.indexOf(config.assets) !== 0 && dep.isAlias(path) && this.depNodeModules.indexOf(path) === -1) {
+                bl = true;
+            }
+        })
+        if (bl) {
+            await this.buildMainFile();
+            reload(config.output + '/' + config.main);
+        }
     }
 
     /**

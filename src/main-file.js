@@ -1,17 +1,18 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const config_1 = require('./config');
-const axiba_npm_dependencies_1 = require('axiba-npm-dependencies');
-const axiba_dependencies_1 = require('axiba-dependencies');
-const axiba_server_1 = require('axiba-server');
-const fs = require('fs');
-const path = require('path');
+Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("./config");
+const axiba_npm_dependencies_1 = require("axiba-npm-dependencies");
+const axiba_dependencies_1 = require("axiba-dependencies");
+const axiba_server_1 = require("axiba-server");
+const fs = require("fs");
+const path = require("path");
 const UglifyJS = require("uglify-js");
 /**
  * 框架生成类
@@ -43,6 +44,20 @@ class MainFile {
         let depArray = [...depSet];
         this.depNodeModules = depArray;
         return depArray;
+    }
+    addDep(DepModel) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let bl = false;
+            DepModel.dep.forEach(path => {
+                if (path.indexOf(config_1.default.assets) !== 0 && axiba_dependencies_1.default.isAlias(path) && this.depNodeModules.indexOf(path) === -1) {
+                    bl = true;
+                }
+            });
+            if (bl) {
+                yield this.buildMainFile();
+                axiba_server_1.reload(config_1.default.output + '/' + config_1.default.main);
+            }
+        });
     }
     /**
      * 获取所有main 需要打包的模块
@@ -135,6 +150,5 @@ class MainFile {
         return true;
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = new MainFile();
 //# sourceMappingURL=main-file.js.map

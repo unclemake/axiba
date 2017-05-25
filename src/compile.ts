@@ -1,5 +1,6 @@
 import gulpClass from './gulp';
 import config from './config';
+import mainFile from './main-file';
 
 import * as gulp from 'gulp';
 import nodeModule from 'axiba-npm-dependencies';
@@ -16,15 +17,10 @@ const gulpLess = require('gulp-less');
 const gulpTypescript = require('gulp-typescript');
 const tsconfig = require(process.cwd() + '/tsconfig.json').compilerOptions;
 const watch = require('gulp-watch');
-const gulpBabel = require('gulp-babel');
 const gulpUglify = require('gulp-uglify');
 const gulpCleanCss = require('gulp-clean-css');
 const rimraf = require('rimraf');
-
-
-
-
-
+const gulpBabel = require('gulp-babel');
 
 /**
  * 编译文件
@@ -57,6 +53,8 @@ export default class Compile {
         this.loaderInit();
     }
 
+    reload = true;
+
     /**
      * 生成全部文件
      * 
@@ -64,6 +62,8 @@ export default class Compile {
      * @memberOf CompileDev
      */
     async build() {
+        this.reload = false;
+
         await this.rimraf(config.output);
         // 生成依赖表
         await dep.src(`${config.assets}/**/*.*`);
@@ -77,7 +77,11 @@ export default class Compile {
             return this.compileDest(gulpStream, value.extname);
         })
 
-        return await Promise.all(promiseAll);
+        let pr = await Promise.all(promiseAll);
+
+        this.reload = true;
+        return pr;
+
     }
 
     /**
@@ -134,13 +138,31 @@ export default class Compile {
                     util.error('编译出错');
                 })
                 .on('finish', () => {
-                    // reload 放后面会导致bug 不运行 迷一样的gulp
-                    gulpClass.reloadList.forEach(value => {
-                        reload(value);
-                    });
+                    if (this.reload) {
+                        // reload 放后面会导致bug 不运行 迷一样的gulp
+                        gulpClass.reloadList.forEach(value => {
+                            this.reloaRun(value);
+                        });
+                    }
                     resolve();
                 })
         });
+    }
+
+    /**
+     * 重加载
+     * 
+     * @param {string} url
+     * 
+     * @memberOf Compile
+     */
+    reloaRun(url: string) {
+        let extname = path.extname(url);
+
+        if (extname === '.js' || extname === '.css') {
+            util.log('重加载：' + url);
+            reload(url);
+        }
     }
 
 
@@ -287,6 +309,12 @@ export default class Compile {
             case '.less':
                 // 获取less 被依赖列表 编译被依赖
                 pathArr = pathArr.concat(depObj.beDep);
+                break;
+            case '.ts':
+                mainFile.addDep(depObj);
+                break;
+            case '.tsx':
+                mainFile.addDep(depObj);
                 break;
         }
         let gulpStream = gulp.src(pathArr, {
