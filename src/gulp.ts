@@ -8,18 +8,19 @@ import { TransformFunction, FlushFunction, makeLoader, getFile } from 'axiba-gul
 import config from './config';
 var applySourceMap = require('vinyl-sourcemaps-apply');
 var gulpConcat = require('gulp-concat');
+var UglifyJS = require("uglify-js");
 import { getDevFileString, reload } from 'axiba-server';
 
 export class Gulp {
 
-
     alias: { [key: string]: string } = {}
 
 
+    reloadList = [];
     reload() {
-        return makeLoader(async function (file, enc, callback) {
+        return makeLoader(async (file, enc, callback) => {
             let ph = dep.clearPath(file.path);
-            reload(ph.replace(config.assets + '/', ''));
+            this.reloadList.push(ph.replace(config.assets + '/', ''));
             callback(null, file);
         })
     }
@@ -49,8 +50,7 @@ export class Gulp {
         return makeLoader(async (file, enc, callback) => {
             let gulpPath = dep.clearPath(ph.dirname(file.path));
             let name = ph.basename(file.path);
-            console.log(gulpPath);
-            gulp.src(gulpPath + '/**/*.js', {
+            gulp.src(gulpPath + '/**/*-????????.js', {
                 base: '/'
             }).pipe(gulpConcat(file.path))
                 .pipe(gulp.dest(config.output))
@@ -90,7 +90,6 @@ export class Gulp {
     * @param  {} enc
     * @param  {} cb
     */
-
     cssToJs() {
         return makeLoader((file, enc, callback) => {
             var content: string = file.contents.toString();
@@ -143,6 +142,22 @@ export class Gulp {
         })
     }
 
+    /**
+     * 删除delDebug
+     * 
+     * @returns
+     * 
+     * @memberOf Gulp
+     */
+    delDebug() {
+        return makeLoader((file, enc, callback) => {
+            var content: string = file.contents.toString();
+            content = content.replace(/\/\/ +<debug>[\s\S]*?(\/\/ +<\/debug>)/g, '');
+            file.contents = new Buffer(content);
+            return callback(null, file);
+        })
+    }
+
 
     /**
     * 过滤忽略文件 文件名开始为_ 
@@ -171,10 +186,11 @@ export class Gulp {
             let path = file.path;
             let depObject = dep.dependenciesArray.find(value => value.path === dep.clearPath(path));
 
-            if (depObject.path !== `${config.output}/${config.main}`) {
+            if (depObject.path !== `${config.output}/${config.mainHtml}`) {
                 let md5 = depObject.md5.match(/^.{8}/g)[0];
                 file.path = this.pathAddMd5(path, md5);
             }
+
             callback(null, file);
         });
     }
@@ -265,11 +281,11 @@ export class Gulp {
             if (extname === '.js') {
                 let depObject = dep.dependenciesArray.find(value =>
                     value.path === dep.clearPath(file.path));
-                let match = content.match(/(define\("[^"]+)(\.js")/g);
-                if (match && match.length > 1) {
+                let match = content.match(/^(define\("[^"]+)(\.js")/g);
+                if (!match) {
                     return callback(null, file);
                 }
-                content = content.replace(/(define\("[^"]+)(\.js")/g, `$1-${depObject.md5.match(/^.{8}/g)[0]}$2`);
+                content = content.replace(/^(define\("[^"]+)(\.js")/g, `$1-${depObject.md5.match(/^.{8}/g)[0]}$2`);
 
                 let defineArr = content.match(/\[.*?\]/g)[0];
                 let arrObject: string[] = JSON.parse(defineArr);
@@ -295,31 +311,95 @@ export class Gulp {
                 });
             });
 
+
+
+            if (extname === '.js') {
+                [{
+                    regExp: /requireEnsure\(["'](.+?)['"]/g,
+                    match: '$1'
+                }, {
+                    regExp: /require.ensure\(["'](.+?)['"]/g,
+                    match: '$1'
+                }].forEach(value => {
+                    let match = parseInt(value.match.split('$')[1]);
+
+                    content = content.replace(value.regExp, function () {
+                        //匹配的全部
+                        let str: string = arguments[0];
+                        //匹配的路径名
+                        let matchStr = arguments[match];
+
+                        str = str.replace(new RegExp(matchStr, 'g'), self.md5Replace(file.path, matchStr));
+
+                        return str;
+                    });
+                });
+
+                content = UglifyJS.minify(content, { fromString: true }).code;
+            }
+
+
+            if (extname === '.html') {
+                [{
+                    regExp: /run\(["'](.+?)['"]/g,
+                    match: '$1'
+                }].forEach(value => {
+                    let match = parseInt(value.match.split('$')[1]);
+
+                    content = content.replace(value.regExp, function () {
+                        //匹配的全部
+                        let str: string = arguments[0];
+                        //匹配的路径名
+                        let matchStr = arguments[match];
+
+                        str = str.replace(new RegExp(matchStr, 'g'), self.md5Replace(file.path, matchStr));
+
+                        return str;
+                    });
+                });
+            }
+
             file.contents = new Buffer(content);
             return callback(null, file);
         });
     }
 
-
+    /**
+     * 是否别名开始
+     * 
+     * @param {string} path
+     * 
+     * @memberOf Gulp
+     */
+    isAliasStart(path: string) {
+        return !!path[0].match(/^[^\/\.]/g);
+    }
 
 
     /**
-     * ts相对路径计算
+     * js相对路径计算
      * 
      * @param {any} path1
      * @param {any} path2
      * 
      * @memberOf Gulp
      */
-    pathJoin(filePath, path) {
+    pathJoin(filePath, path: string) {
         let newPath = '';
         let extname = ph.extname(filePath);
-        if (dep.isAlias(path)) {
-            newPath = path;
+        if (this.isAliasStart(path)) {
+            if (path[0] === '@') {
+                for (var key in config.paths) {
+                    if (config.paths.hasOwnProperty(key)) {
+                        var element = config.paths[key];
+                        path = path.replace(key, element);
+                    }
+                }
+            }
+            newPath = ph.join(config.output, path);
         } else {
             newPath = ph.join(ph.dirname(filePath), path);
         }
-
 
         if (fs.existsSync(newPath)) {
             return dep.clearPath(newPath);
@@ -394,9 +474,17 @@ export class Gulp {
         });
     }
 
+
     htmlBaseReplace(content: string) {
         content = content.replace(/\$\{base\}/g, config.output);
         return content;
+    }
+
+    test() {
+        return makeLoader((file, enc, callback) => {
+            console.log(file.path);
+            return callback(null, file);
+        });
     }
 
 

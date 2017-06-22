@@ -8,22 +8,27 @@ import * as axiba from '../src/index'
 axiba.config.mainModules = [];
 
 axiba.config.mainFile = [
-    'components/egret/egret.min.js',
-    'components/egret/egret.web.min.js',
-    'components/egret/res/res.min.js',
-    'components/egret/particle/particle.min.js',
-    'components/egret/eui/eui.min.js',
-    'components/egret/tween/tween.min.js'
+    // 'components/egret/egret.min.js',
+    // 'components/egret/egret.web.min.js',
+    // 'components/egret/res/res.min.js',
+    // 'components/egret/particle/particle.min.js',
+    // 'components/egret/eui/eui.min.js',
+    // 'components/egret/tween/tween.min.js'
 ];
-axiba.config.merge = 'dist/pages/*/index.js';
+
+axiba.config.merge = 'dist/pages/*/index-????????.js';
+
+axiba.config.paths = {
+    '@components': 'components'
+};
+
 
 (async () => {
 
 
     // await axiba.release();
-
-
     await axiba.init();
+
     await axiba.serverRun();
     axiba.watch();
 })()

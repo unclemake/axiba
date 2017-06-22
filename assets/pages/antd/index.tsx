@@ -1,24 +1,31 @@
 import * as React from 'react';
-
+import { Button,message } from '@components/antd/index';
+import { autobind } from 'core-decorators';
 
 
 let state = {
     text: 0
 }
 
+
 /**
- * react页面默认default 加载组件
+ * 
+ * antd
+ * @export
  * @class Component
  * @extends {React.Component<any, any>}
  */
+@autobind
 export default class Component extends React.Component<any, any> {
 
-    state = state;
-
+    /**
+     * 点击事件
+     * 
+     * 
+     * @memberOf Component
+     */
     onClick() {
-        this.state.text++;
-        // 每次setState 会创建一个新的state 所以闭包的state 不会在切换页面时保存值
-        this.setState(this.state);
+       message.info('This is a normal message');
     }
 
     /**
@@ -28,10 +35,7 @@ export default class Component extends React.Component<any, any> {
      */
     render() {
         return (<section className='page-home'>
-            <p>
-                点击次数:{this.state.text}
-            </p>
-            <a onClick={this.onClick.bind(this)}>点击</a>
+            <Button onClick={this.onClick}>点击</Button>
         </section>)
     }
 }

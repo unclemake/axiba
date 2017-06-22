@@ -1,5 +1,6 @@
 import gulpClass from './gulp';
 import config from './config';
+import mainFile from './main-file';
 
 import * as gulp from 'gulp';
 import nodeModule from 'axiba-npm-dependencies';
@@ -16,9 +17,10 @@ const gulpLess = require('gulp-less');
 const gulpTypescript = require('gulp-typescript');
 const tsconfig = require(process.cwd() + '/tsconfig.json').compilerOptions;
 const watch = require('gulp-watch');
-const gulpBabel = require('gulp-babel');
 const gulpUglify = require('gulp-uglify');
 const gulpCleanCss = require('gulp-clean-css');
+const rimraf = require('rimraf');
+const gulpBabel = require('gulp-babel');
 
 /**
  * 编译文件
@@ -51,6 +53,8 @@ export default class Compile {
         this.loaderInit();
     }
 
+    reload = true;
+
     /**
      * 生成全部文件
      * 
@@ -58,6 +62,9 @@ export default class Compile {
      * @memberOf CompileDev
      */
     async build() {
+        this.reload = false;
+
+        await this.rimraf(config.output);
         // 生成依赖表
         await dep.src(`${config.assets}/**/*.*`);
         dep.createJsonFile();
@@ -70,7 +77,27 @@ export default class Compile {
             return this.compileDest(gulpStream, value.extname);
         })
 
-        return await Promise.all(promiseAll);
+        let pr = await Promise.all(promiseAll);
+
+        this.reload = true;
+        return pr;
+
+    }
+
+    /**
+     * 删除文件夹
+     * 
+     * @param {any} path
+     * @returns
+     * 
+     * @memberOf Compile
+     */
+    rimraf(path) {
+        return new Promise((resolve, reject) => {
+            rimraf(path, [], () => {
+                resolve()
+            })
+        })
     }
 
     /**
@@ -103,6 +130,7 @@ export default class Compile {
      */
     protected async compileDest(gulpStream: NodeJS.ReadWriteStream, extname: string) {
         return new Promise((resolve, reject) => {
+            gulpClass.reloadList = [];
             this.loader(gulpStream, extname)
                 .pipe(gulpClass.reload())
                 .pipe(gulp.dest(config.output))
@@ -110,10 +138,31 @@ export default class Compile {
                     util.error('编译出错');
                 })
                 .on('finish', () => {
-                    // util.log(`编译结束`);
+                    if (this.reload) {
+                        // reload 放后面会导致bug 不运行 迷一样的gulp
+                        gulpClass.reloadList.forEach(value => {
+                            this.reloaRun(value);
+                        });
+                    }
                     resolve();
-                });
+                })
         });
+    }
+
+    /**
+     * 重加载
+     * 
+     * @param {string} url
+     * 
+     * @memberOf Compile
+     */
+    reloaRun(url: string) {
+        let extname = path.extname(url);
+
+        if (extname === '.js' || extname === '.css') {
+            util.log('重加载：' + url);
+            reload(url);
+        }
     }
 
 
@@ -142,7 +191,8 @@ export default class Compile {
             // () => gulpClass.jsPathReplace(),
             () => gulpClass.addDefine(),
             // () => gulpBabel({ presets: ['es2015'] }),
-            // () => gulpUglify({ mangle: false }),
+            // () => gulpClass.test(),
+            // () => gulpUglify(),
             () => sourcemaps.write('./', {
                 sourceRoot: '/' + config.assets
             })
@@ -260,6 +310,12 @@ export default class Compile {
                 // 获取less 被依赖列表 编译被依赖
                 pathArr = pathArr.concat(depObj.beDep);
                 break;
+            case '.ts':
+                mainFile.addDep(depObj);
+                break;
+            case '.tsx':
+                mainFile.addDep(depObj);
+                break;
         }
         let gulpStream = gulp.src(pathArr, {
             base: config.assets
@@ -268,8 +324,6 @@ export default class Compile {
 
         return pathArr;
     }
-
-
 }
 
 export class Release extends Compile {
@@ -281,11 +335,15 @@ export class Release extends Compile {
      * @memberOf Compile
      */
     async merge() {
-        return gulp
-            .src(config.merge, {
+        return new Promise((resolve, reject) => {
+            gulp.src(config.merge, {
                 base: config.assets
             })
-            .pipe(gulpClass.merge())
+                .pipe(gulpClass.merge())
+                .on('finish', () => {
+                    resolve()
+                });
+        })
     }
 
     /**
@@ -306,13 +364,12 @@ export class Release extends Compile {
         this.addGulpLoader(['.ts', '.tsx'], [
             () => gulpTypescript(tsconfig),
             () => gulpBabel({ presets: ['es2015'] }),
-            () => gulpClass.addDefine(),
-            // () => gulpUglify()
+            () => gulpClass.delDebug(),
+            () => gulpClass.addDefine()
         ]);
 
         this.addGulpLoader(['.js'], [
-            // () => gulpBabel({ presets: ['es2015'] }),
-            () => gulpUglify()
+            // () => gulpUglify()
         ]);
 
         this.addGulpLoader(['.html', '.tpl'], [
@@ -325,7 +382,6 @@ export class Release extends Compile {
     }
 
 
-
     /**
     * md5文件生成
     * 
@@ -334,54 +390,32 @@ export class Release extends Compile {
     * 
     * @memberOf Compile
     */
-    async md5Build(path = `${config.output}/**/*.*`) {
-        await dep.src(path);
-        dep.createJsonFile();
+    md5Build(path = `${config.output}/**/*.*`) {
+        return new Promise(async (resolve, reject) => {
+            await dep.src(path);
+            dep.createJsonFile();
 
-        let gulpStream = gulp.src(`${config.output}/**/*.*`, {
-            base: config.output
-        }).pipe(gulpClass.md5IgnoreLess())
-            .pipe(gulpClass.jsPathReplaceLoader())
-            .pipe(gulpClass.delMd5FileLoader())
-            .pipe(gulpClass.changeExtnameMd5Loader())
-            .pipe(gulp.dest(config.output))
-
-        return gulpStream;
+            // let gulpStream = gulp.src(`${config.output}/**/*.*`, {
+            let gulpStream = gulp.src(path, {
+                base: config.output
+            }).pipe(gulpClass.md5IgnoreLess())
+                .pipe(gulpClass.jsPathReplaceLoader())
+                .pipe(gulpClass.delMd5FileLoader())
+                .pipe(gulpClass.changeExtnameMd5Loader())
+                .pipe(gulp.dest(config.output))
+                .on('finish', () => {
+                    resolve();
+                });
+        });
     }
 
-    /**
-    * mainJs 文件md5生成和添加 别名md5 页面md5名
-    * 
-    * 
-    * @memberOf Compile
-    */
     async mainJsMd5Build() {
-        let md5Array = [];
-        dep.dependenciesArray.forEach(value => {
-            if (value.path.indexOf(config.output + '/pages/') === 0) {
-                let path = value.path.replace(config.output + '/', '');
-                md5Array.push({
-                    path: path,
-                    md5: gulpClass.pathAddMd5(path, value.md5)
-                })
-            }
-        });
-        let indexJsStr = fs.readFileSync(config.output + '/' + config.main).toString();
-        indexJsStr += `
-            var __md5Array = ${JSON.stringify(md5Array)};
-        `;
-        // indexJsStr += this.getSeajsConfigStringMd5();
-
-
-        fs.writeFileSync(config.output + '/' + config.main, indexJsStr);
-
         await new Promise((resolve) => {
             gulp.src(config.output + '/' + config.main, { base: './' })
                 .pipe(gulpUglify()).pipe(gulp.dest('./'))
                 .on('finish', () => resolve());
         });
     }
-
 }
 
 

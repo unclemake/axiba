@@ -1,6 +1,11 @@
 {
   "compilerOptions": {
     "target": "es6",
+    "lib": [
+      "es6",
+      "es2015.promise",
+      "dom"
+    ],
     "module": "commonjs",
     "watch": false,
     "noImplicitAny": false,
@@ -8,11 +13,13 @@
     "sourceMap": true,
     "isolatedModules": true,
     "noImplicitUseStrict": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
     "jsx": "react",
     "baseUrl": ".",
     "paths": {
-      "gan/*": [
-        "src/*"
+      "@components/*": [
+        "assets/components/*"
       ]
     }
   }

@@ -54,14 +54,6 @@ export interface Config {
     mainFile: string[]
 
     /**
-     * 开始devbug
-     * 
-     * @type {boolean}
-     * @memberOf Config
-     */
-    debug: boolean
-
-    /**
      * 调试接口
      * 
      * @type {boolean}
@@ -76,6 +68,19 @@ export interface Config {
      * @memberOf Config
      */
     merge: string | string[]
+
+
+    /**
+     * 路径替换
+     * 
+     * @type {{
+     *         [key: string]: string
+     *     }}
+     * @memberOf Config
+     */
+    paths?: {
+        [key: string]: string
+    }
 }
 
 let config: Config = {
@@ -86,7 +91,6 @@ let config: Config = {
     mainHtml: 'index.html',
     mainModules: [],
     mainFile: [],
-    debug: true,
     devPort: 8080
 };
 

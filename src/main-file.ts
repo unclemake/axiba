@@ -1,7 +1,7 @@
 import config from './config';
 
 import nodeModule from 'axiba-npm-dependencies';
-import dep from 'axiba-dependencies';
+import dep, { DependenciesModel } from 'axiba-dependencies';
 import { getDevFileString, reload } from 'axiba-server';
 
 import * as fs from 'fs';
@@ -39,6 +39,20 @@ class MainFile {
         return depArray;
     }
 
+
+    async  addDep(DepModel: DependenciesModel) {
+        let bl = false;
+        DepModel.dep.forEach(path => {
+            if (path.indexOf(config.assets) !== 0 && dep.isAlias(path) && this.depNodeModules.indexOf(path) === -1) {
+                bl = true;
+            }
+        })
+        if (bl) {
+            await this.buildMainFile();
+            reload(config.output + '/' + config.main);
+        }
+    }
+
     /**
      * 获取所有main 需要打包的模块
      * 
@@ -51,7 +65,7 @@ class MainFile {
         let depArray = this.getAssetsDependencies();
         depArray = depArray.filter(value => {
             return !config.mainModules.find(path => value === path);
-        });
+        }).filter(value => value.indexOf('@') !== 0);
         return depArray;
     }
 
@@ -67,11 +81,8 @@ class MainFile {
         content += await nodeModule.getFileString('axiba-modular');
         content += await nodeModule.getFileString('babel-polyfill');
         content = content.replace(/^"use strict";/g, '');
-
-        if (config.debug) {
-            // 添加调试脚本
-            content += getDevFileString();
-        }
+        // 添加调试脚本
+        content += getDevFileString();
 
         // 添加node模块
         let modules = await nodeModule.getPackFileString(this.getMainNodeModules());

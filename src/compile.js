@@ -1,26 +1,30 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const gulp_1 = require('./gulp');
-const config_1 = require('./config');
-const gulp = require('gulp');
-const axiba_dependencies_1 = require('axiba-dependencies');
-const axiba_util_1 = require('axiba-util');
-const fs = require('fs');
-const path = require('path');
+Object.defineProperty(exports, "__esModule", { value: true });
+const gulp_1 = require("./gulp");
+const config_1 = require("./config");
+const main_file_1 = require("./main-file");
+const gulp = require("gulp");
+const axiba_dependencies_1 = require("axiba-dependencies");
+const axiba_util_1 = require("axiba-util");
+const axiba_server_1 = require("axiba-server");
+const fs = require("fs");
+const path = require("path");
 const sourcemaps = require('gulp-sourcemaps');
 const gulpLess = require('gulp-less');
 const gulpTypescript = require('gulp-typescript');
 const tsconfig = require(process.cwd() + '/tsconfig.json').compilerOptions;
 const watch = require('gulp-watch');
-const gulpBabel = require('gulp-babel');
 const gulpUglify = require('gulp-uglify');
 const gulpCleanCss = require('gulp-clean-css');
+const rimraf = require('rimraf');
+const gulpBabel = require('gulp-babel');
 /**
  * 编译文件
  *
@@ -36,6 +40,7 @@ class Compile {
          * @memberOf Compile
          */
         this.loaderList = [];
+        this.reload = true;
         this.loaderInit();
     }
     /**
@@ -46,6 +51,8 @@ class Compile {
      */
     build() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.reload = false;
+            yield this.rimraf(config_1.default.output);
             // 生成依赖表
             yield axiba_dependencies_1.default.src(`${config_1.default.assets}/**/*.*`);
             axiba_dependencies_1.default.createJsonFile();
@@ -55,7 +62,24 @@ class Compile {
                 });
                 return this.compileDest(gulpStream, value.extname);
             });
-            return yield Promise.all(promiseAll);
+            let pr = yield Promise.all(promiseAll);
+            this.reload = true;
+            return pr;
+        });
+    }
+    /**
+     * 删除文件夹
+     *
+     * @param {any} path
+     * @returns
+     *
+     * @memberOf Compile
+     */
+    rimraf(path) {
+        return new Promise((resolve, reject) => {
+            rimraf(path, [], () => {
+                resolve();
+            });
         });
     }
     /**
@@ -87,6 +111,7 @@ class Compile {
     compileDest(gulpStream, extname) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
+                gulp_1.default.reloadList = [];
                 this.loader(gulpStream, extname)
                     .pipe(gulp_1.default.reload())
                     .pipe(gulp.dest(config_1.default.output))
@@ -94,11 +119,30 @@ class Compile {
                     axiba_util_1.default.error('编译出错');
                 })
                     .on('finish', () => {
-                    // util.log(`编译结束`);
+                    if (this.reload) {
+                        // reload 放后面会导致bug 不运行 迷一样的gulp
+                        gulp_1.default.reloadList.forEach(value => {
+                            this.reloaRun(value);
+                        });
+                    }
                     resolve();
                 });
             });
         });
+    }
+    /**
+     * 重加载
+     *
+     * @param {string} url
+     *
+     * @memberOf Compile
+     */
+    reloaRun(url) {
+        let extname = path.extname(url);
+        if (extname === '.js' || extname === '.css') {
+            axiba_util_1.default.log('重加载：' + url);
+            axiba_server_1.reload(url);
+        }
     }
     /**
      * 文件处理流初始化
@@ -110,24 +154,29 @@ class Compile {
     loaderInit() {
         return __awaiter(this, void 0, void 0, function* () {
             this.addGulpLoader('.less', [
-                    () => gulp_1.default.ignoreLess(),
-                    () => gulpLess()
+                () => gulp_1.default.ignoreLess(),
+                () => gulpLess()
+                // () => gulpClass.changeExtnameLoader('.less.js', /\.css/g),
+                // () => gulpMinifyCss(),
+                // () => gulpClass.cssToJs(),
+                // () => gulpClass.addDefine(),
             ]);
             this.addGulpLoader(['.ts', '.tsx'], [
                 // () => gulpClass.addFilePath(),
-                    () => sourcemaps.init(),
-                    () => gulpTypescript(tsconfig),
+                () => sourcemaps.init(),
+                () => gulpTypescript(tsconfig),
                 // () => gulpClass.jsPathReplace(),
-                    () => gulp_1.default.addDefine(),
+                () => gulp_1.default.addDefine(),
                 // () => gulpBabel({ presets: ['es2015'] }),
-                // () => gulpUglify({ mangle: false }),
-                    () => sourcemaps.write('./', {
+                // () => gulpClass.test(),
+                // () => gulpUglify(),
+                () => sourcemaps.write('./', {
                     sourceRoot: '/' + config_1.default.assets
                 })
             ]);
             this.addGulpLoader(['.js'], []);
             this.addGulpLoader(['.html', '.tpl'], [
-                    () => gulp_1.default.htmlReplace(),
+                () => gulp_1.default.htmlReplace(),
             ]);
             this.addGulpLoader(['.png', '.jpg', '.jpeg'], []);
             this.addGulpLoader(['.eot', '.svg', '.ttf', '.woff', '.json'], []);
@@ -224,6 +273,12 @@ class Compile {
                     // 获取less 被依赖列表 编译被依赖
                     pathArr = pathArr.concat(depObj.beDep);
                     break;
+                case '.ts':
+                    main_file_1.default.addDep(depObj);
+                    break;
+                case '.tsx':
+                    main_file_1.default.addDep(depObj);
+                    break;
             }
             let gulpStream = gulp.src(pathArr, {
                 base: config_1.default.assets
@@ -233,7 +288,6 @@ class Compile {
         });
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Compile;
 class Release extends Compile {
     /**
@@ -244,11 +298,15 @@ class Release extends Compile {
      */
     merge() {
         return __awaiter(this, void 0, void 0, function* () {
-            return gulp
-                .src(config_1.default.merge, {
-                base: config_1.default.assets
-            })
-                .pipe(gulp_1.default.merge());
+            return new Promise((resolve, reject) => {
+                gulp.src(config_1.default.merge, {
+                    base: config_1.default.assets
+                })
+                    .pipe(gulp_1.default.merge())
+                    .on('finish', () => {
+                    resolve();
+                });
+            });
         });
     }
     /**
@@ -261,21 +319,19 @@ class Release extends Compile {
     loaderInit() {
         return __awaiter(this, void 0, void 0, function* () {
             this.addGulpLoader('.less', [
-                    () => gulp_1.default.ignoreLess(),
-                    () => gulpLess(),
-                    () => gulpCleanCss()
+                () => gulp_1.default.ignoreLess(),
+                () => gulpLess(),
+                () => gulpCleanCss()
             ]);
             this.addGulpLoader(['.ts', '.tsx'], [
-                    () => gulpTypescript(tsconfig),
-                    () => gulpBabel({ presets: ['es2015'] }),
-                    () => gulp_1.default.addDefine(),
+                () => gulpTypescript(tsconfig),
+                () => gulpBabel({ presets: ['es2015'] }),
+                () => gulp_1.default.delDebug(),
+                () => gulp_1.default.addDefine()
             ]);
-            this.addGulpLoader(['.js'], [
-                // () => gulpBabel({ presets: ['es2015'] }),
-                    () => gulpUglify()
-            ]);
+            this.addGulpLoader(['.js'], []);
             this.addGulpLoader(['.html', '.tpl'], [
-                    () => gulp_1.default.htmlReplace(),
+                () => gulp_1.default.htmlReplace(),
             ]);
             this.addGulpLoader(['.png', '.jpg', '.jpeg'], []);
             this.addGulpLoader(['.eot', '.svg', '.ttf', '.woff'], []);
@@ -290,43 +346,24 @@ class Release extends Compile {
     * @memberOf Compile
     */
     md5Build(path = `${config_1.default.output}/**/*.*`) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             yield axiba_dependencies_1.default.src(path);
             axiba_dependencies_1.default.createJsonFile();
-            let gulpStream = gulp.src(`${config_1.default.output}/**/*.*`, {
+            // let gulpStream = gulp.src(`${config.output}/**/*.*`, {
+            let gulpStream = gulp.src(path, {
                 base: config_1.default.output
             }).pipe(gulp_1.default.md5IgnoreLess())
                 .pipe(gulp_1.default.jsPathReplaceLoader())
                 .pipe(gulp_1.default.delMd5FileLoader())
                 .pipe(gulp_1.default.changeExtnameMd5Loader())
-                .pipe(gulp.dest(config_1.default.output));
-            return gulpStream;
-        });
+                .pipe(gulp.dest(config_1.default.output))
+                .on('finish', () => {
+                resolve();
+            });
+        }));
     }
-    /**
-    * mainJs 文件md5生成和添加 别名md5 页面md5名
-    *
-    *
-    * @memberOf Compile
-    */
     mainJsMd5Build() {
         return __awaiter(this, void 0, void 0, function* () {
-            let md5Array = [];
-            axiba_dependencies_1.default.dependenciesArray.forEach(value => {
-                if (value.path.indexOf(config_1.default.output + '/pages/') === 0) {
-                    let path = value.path.replace(config_1.default.output + '/', '');
-                    md5Array.push({
-                        path: path,
-                        md5: gulp_1.default.pathAddMd5(path, value.md5)
-                    });
-                }
-            });
-            let indexJsStr = fs.readFileSync(config_1.default.output + '/' + config_1.default.main).toString();
-            indexJsStr += `
-            var __md5Array = ${JSON.stringify(md5Array)};
-        `;
-            // indexJsStr += this.getSeajsConfigStringMd5();
-            fs.writeFileSync(config_1.default.output + '/' + config_1.default.main, indexJsStr);
             yield new Promise((resolve) => {
                 gulp.src(config_1.default.output + '/' + config_1.default.main, { base: './' })
                     .pipe(gulpUglify()).pipe(gulp.dest('./'))

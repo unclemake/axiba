@@ -1,4 +1,5 @@
 define("components/global/config.js",[],function(require, exports, module) {
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.ajax = {
     //ajax请求http
     requestUrl: '/',

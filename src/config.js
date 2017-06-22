@@ -1,3 +1,4 @@
+Object.defineProperty(exports, "__esModule", { value: true });
 let config = {
     merge: '',
     assets: 'assets',
@@ -6,9 +7,7 @@ let config = {
     mainHtml: 'index.html',
     mainModules: [],
     mainFile: [],
-    debug: true,
     devPort: 8080
 };
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = config;
 //# sourceMappingURL=config.js.map
