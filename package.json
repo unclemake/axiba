@@ -51,6 +51,8 @@
     "gulp-uglify": "^2.0.0",
     "gulp-watch": "^4.3.11",
     "rimraf": "^2.6.1",
+    "superagent": "^3.5.2",
+    "typescript": "^2.3.3",
     "uglify-js": "^2.8.22"
   },
   "scripts": {

@@ -81,6 +81,15 @@ export interface Config {
     paths?: {
         [key: string]: string
     }
+
+
+    /**
+     * 拷贝文件后缀
+     * 
+     * @type {string[]}
+     * @memberof Config
+     */
+    loader: string[]
 }
 
 let config: Config = {
@@ -91,7 +100,8 @@ let config: Config = {
     mainHtml: 'index.html',
     mainModules: [],
     mainFile: [],
-    devPort: 8080
+    devPort: 8080,
+    loader: ['.eot', '.svg', '.ttf', '.woff', '.json', '.ico']
 };
 
 

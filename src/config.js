@@ -7,7 +7,8 @@ let config = {
     mainHtml: 'index.html',
     mainModules: [],
     mainFile: [],
-    devPort: 8080
+    devPort: 8080,
+    loader: ['.eot', '.svg', '.ttf', '.woff', '.json', '.ico']
 };
 exports.default = config;
 //# sourceMappingURL=config.js.map

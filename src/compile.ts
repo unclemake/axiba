@@ -205,7 +205,7 @@ export default class Compile {
         ]);
         this.addGulpLoader(['.png', '.jpg', '.jpeg'], [
         ]);
-        this.addGulpLoader(['.eot', '.svg', '.ttf', '.woff', '.json'], [
+        this.addGulpLoader(config.loader, [
         ]);
     }
 

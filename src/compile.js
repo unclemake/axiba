@@ -179,7 +179,7 @@ class Compile {
                 () => gulp_1.default.htmlReplace(),
             ]);
             this.addGulpLoader(['.png', '.jpg', '.jpeg'], []);
-            this.addGulpLoader(['.eot', '.svg', '.ttf', '.woff', '.json'], []);
+            this.addGulpLoader(config_1.default.loader, []);
         });
     }
     /**
