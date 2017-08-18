@@ -16,8 +16,8 @@ axiba.config.paths = {
     '@components': 'components'
 };
 (() => __awaiter(this, void 0, void 0, function* () {
-    // await axiba.release();
-    yield axiba.init();
+    yield axiba.release();
+    // await axiba.init();
     yield axiba.serverRun();
     axiba.watch();
 }))();

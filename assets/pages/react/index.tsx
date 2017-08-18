@@ -69,7 +69,7 @@ export default class Page extends BasePage<void, model.Todo[]> {
     render() {
         const { props, state } = this;
         const { data } = props;
-        return (<div className='page-react' ref='111'>
+        return (<div className='page-react'>
             <div style={{ marginTop: '20px' }}>
                 <input type="text" onChange={this.onChange} />
                 <a onClick={this.onClick.bind(this)}>添加</a>
