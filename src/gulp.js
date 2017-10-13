@@ -1,17 +1,18 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const gulp = require('gulp');
-const ph = require('path');
-const fs = require('fs');
-const axiba_dependencies_1 = require('axiba-dependencies');
-const axiba_gulp_1 = require('axiba-gulp');
-const config_1 = require('./config');
+Object.defineProperty(exports, "__esModule", { value: true });
+const gulp = require("gulp");
+const ph = require("path");
+const fs = require("fs");
+const axiba_dependencies_1 = require("axiba-dependencies");
+const axiba_gulp_1 = require("axiba-gulp");
+const config_1 = require("./config");
 var applySourceMap = require('vinyl-sourcemaps-apply');
 var gulpConcat = require('gulp-concat');
 var UglifyJS = require("uglify-js");
@@ -90,6 +91,20 @@ class Gulp {
         return axiba_gulp_1.makeLoader((file, enc, callback) => {
             var content = file.contents.toString();
             content = '__loaderCss(`' + content + '`)';
+            file.contents = new Buffer(content);
+            return callback(null, file);
+        });
+    }
+    /**
+     * 把less后缀改成css
+     *
+     * @returns
+     * @memberof Gulp
+     */
+    replaceLess() {
+        return axiba_gulp_1.makeLoader((file, enc, callback) => {
+            var content = file.contents.toString();
+            content = content.replace(/(import.+?\.)less/g, '$1css');
             file.contents = new Buffer(content);
             return callback(null, file);
         });
@@ -432,6 +447,5 @@ class Gulp {
     }
 }
 exports.Gulp = Gulp;
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = new Gulp();
 //# sourceMappingURL=gulp.js.map

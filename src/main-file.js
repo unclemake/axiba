@@ -84,12 +84,13 @@ class MainFile {
     buildMainFile() {
         return __awaiter(this, void 0, void 0, function* () {
             let content = '';
-            content += yield axiba_npm_dependencies_1.default.getFileString('axiba-modular');
-            content += yield axiba_npm_dependencies_1.default.getFileString('babel-polyfill');
+            content += (yield axiba_npm_dependencies_1.default.getFileString('axiba-modular')) + ';\n\r';
+            content += (yield axiba_npm_dependencies_1.default.getFileString('babel-polyfill')) + ';\n\r';
             content = content.replace(/^"use strict";/g, '');
             // 添加调试脚本
             content += axiba_server_1.getDevFileString();
             // 添加node模块
+            console.log(this.getMainNodeModules());
             let modules = yield axiba_npm_dependencies_1.default.getPackFileString(this.getMainNodeModules());
             content += modules;
             config_1.default.mainFile.forEach(value => {
@@ -110,8 +111,8 @@ class MainFile {
     buildMainFileMin() {
         return __awaiter(this, void 0, void 0, function* () {
             let content = '';
-            content += yield axiba_npm_dependencies_1.default.getFileString('axiba-modular');
-            content += yield axiba_npm_dependencies_1.default.getFileString('babel-polyfill');
+            content += (yield axiba_npm_dependencies_1.default.getFileString('axiba-modular')) + ';\n\r';
+            content += (yield axiba_npm_dependencies_1.default.getFileString('babel-polyfill')) + ';\n\r';
             content = content.replace(/^"use strict";/g, '');
             // 添加node模块
             let modules = yield axiba_npm_dependencies_1.default.getPackFileString(this.getMainNodeModules());

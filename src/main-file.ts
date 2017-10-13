@@ -78,13 +78,14 @@ class MainFile {
      */
     async buildMainFile() {
         let content: string = '';
-        content += await nodeModule.getFileString('axiba-modular');
-        content += await nodeModule.getFileString('babel-polyfill');
+        content += await nodeModule.getFileString('axiba-modular') + ';\n\r';
+        content += await nodeModule.getFileString('babel-polyfill') + ';\n\r';
         content = content.replace(/^"use strict";/g, '');
         // 添加调试脚本
         content += getDevFileString();
 
         // 添加node模块
+        console.log(this.getMainNodeModules());
         let modules = await nodeModule.getPackFileString(this.getMainNodeModules());
         content += modules;
 
@@ -106,8 +107,8 @@ class MainFile {
      */
     async buildMainFileMin() {
         let content: string = '';
-        content += await nodeModule.getFileString('axiba-modular');
-        content += await nodeModule.getFileString('babel-polyfill');
+        content += await nodeModule.getFileString('axiba-modular') + ';\n\r';
+        content += await nodeModule.getFileString('babel-polyfill') + ';\n\r';
         content = content.replace(/^"use strict";/g, '');
 
         // 添加node模块

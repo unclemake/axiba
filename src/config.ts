@@ -94,7 +94,7 @@ export interface Config {
 
 let config: Config = {
     merge: '',
-    assets: 'assets',
+    assets: 'src',
     output: 'dist',
     main: 'index.js',
     mainHtml: 'index.html',

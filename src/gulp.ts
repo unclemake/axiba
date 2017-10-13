@@ -40,6 +40,7 @@ export class Gulp {
         })
     }
 
+
     /**
      * 合并
      * 
@@ -98,6 +99,22 @@ export class Gulp {
             return callback(null, file);
         })
     }
+
+    /**
+     * 把less后缀改成css
+     * 
+     * @returns 
+     * @memberof Gulp
+     */
+    replaceLess() {
+        return makeLoader((file, enc, callback) => {
+            var content: string = file.contents.toString();
+            content = content.replace(/(import.+?\.)less/g, '$1css');
+            file.contents = new Buffer(content);
+            return callback(null, file);
+        })
+    }
+
 
 
     /**

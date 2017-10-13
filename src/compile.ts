@@ -16,6 +16,7 @@ const sourcemaps = require('gulp-sourcemaps');
 const gulpLess = require('gulp-less');
 const gulpTypescript = require('gulp-typescript');
 const tsconfig = require(process.cwd() + '/tsconfig.json').compilerOptions;
+tsconfig.isolatedModules = true;
 const watch = require('gulp-watch');
 const gulpUglify = require('gulp-uglify');
 const gulpCleanCss = require('gulp-clean-css');
@@ -139,7 +140,7 @@ export default class Compile {
                 })
                 .on('finish', () => {
                     if (this.reload) {
-                        // reload 放后面会导致bug 不运行 迷一样的gulp
+                        // reload 放后面会导致bug 不运行 数据流的问题
                         gulpClass.reloadList.forEach(value => {
                             this.reloaRun(value);
                         });
@@ -185,6 +186,7 @@ export default class Compile {
         ]);
 
         this.addGulpLoader(['.ts', '.tsx'], [
+            () => gulpClass.replaceLess(),
             // () => gulpClass.addFilePath(),
             () => sourcemaps.init(),
             () => gulpTypescript(tsconfig),
@@ -307,6 +309,7 @@ export default class Compile {
         let depObj = await dep.getDependenciesByPath(ph);
         switch (extname) {
             case '.less':
+                depObj.beDep = depObj.beDep.filter(value => !!value.match(/.+\.less$/g));
                 // 获取less 被依赖列表 编译被依赖
                 pathArr = pathArr.concat(depObj.beDep);
                 break;
@@ -361,7 +364,10 @@ export class Release extends Compile {
             () => gulpCleanCss()
         ]);
 
+
+
         this.addGulpLoader(['.ts', '.tsx'], [
+            () => gulpClass.replaceLess(),
             () => gulpTypescript(tsconfig),
             () => gulpBabel({ presets: ['es2015'] }),
             () => gulpClass.delDebug(),

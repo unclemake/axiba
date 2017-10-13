@@ -1,7 +1,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 let config = {
     merge: '',
-    assets: 'assets',
+    assets: 'src',
     output: 'dist',
     main: 'index.js',
     mainHtml: 'index.html',
