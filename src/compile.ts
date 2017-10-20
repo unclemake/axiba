@@ -8,7 +8,6 @@ import { default as dep } from 'axiba-dependencies';
 import util from 'axiba-util';
 import * as through from 'through2';
 import { getDevFileString, reload } from 'axiba-server';
-
 import * as fs from 'fs';
 import * as path from 'path';
 
